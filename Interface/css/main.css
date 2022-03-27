@@ -1,0 +1,22 @@
+/* Main Variables */
+:root {
+  --dark-primary: #121212;
+  --dark-secondary: #1e1e1e;
+  --dark-words: #e0e0e0;
+  --dark-on-primary: #c38fff;
+
+  --light-primary: #e5e5e5;
+  --light-secondary: #ffffff;
+  --light-words: #313131;
+  --light-on-primary: #6200ee;
+}
+
+
+.sug {
+  display: flex;
+  flex-direction: column;
+}
+
+.sug a {
+  
+}

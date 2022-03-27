@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import org.jsoup.nodes.Document;
 
 public class Indexer {
-   static List<String> stopWords;
+    static List<String> stopWords;
 
     public static void main(String[] args) {
 //        String s=Parsing("../input.txt");
