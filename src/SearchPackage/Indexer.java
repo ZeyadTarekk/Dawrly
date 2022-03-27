@@ -11,14 +11,15 @@ import java.util.regex.Matcher;
 import org.jsoup.nodes.Document;
 
 public class Indexer {
-    List<String> stopWords;
+   static List<String> stopWords;
 
     public static void main(String[] args) {
 //        String s=Parsing("../input.txt");
-//        Vector<String> ll;
-//        ll= splitWords(s);
-//        for(int i=0;i<ll.size();i++){
-//            System.out.println(ll.get(i));
+////        Vector<String> ll;
+//        stopWords= splitWords(s);
+//
+//        for(int i=0;i<stopWords.size();i++){
+//            System.out.println(stopWords.get(i));
 //        }
     }
 
@@ -41,8 +42,8 @@ public class Indexer {
         return lines;
     }
 
-    public static Vector<String> splitWords(String Lines) {
-        Vector<String> words = new <String>Vector();
+    public static List<String> splitWords(String Lines) {
+        List<String> words = new <String>Vector();
         Pattern pattern = Pattern.compile("\\w+");
         Matcher match = pattern.matcher(Lines);
         while (match.find()) {
