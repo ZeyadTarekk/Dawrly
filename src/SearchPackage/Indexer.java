@@ -15,6 +15,9 @@ public class Indexer {
     private static List<String> stopWords;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
 
+
+
+
     public static void main(String[] args) {
         invertedIndex = new HashMap<String, HashMap<String, Pair<Integer, Integer>>>();
         // read stop words
