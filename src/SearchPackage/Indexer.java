@@ -16,8 +16,6 @@ public class Indexer {
     private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
 
 
-
-
     public static void main(String[] args) {
         invertedIndex = new HashMap<String, HashMap<String, Pair<Integer, Integer>>>();
         // read stop words
@@ -71,7 +69,7 @@ public class Indexer {
                     writer.write("  <td>");
 
                     Pair<Integer, Integer> tf_size = docs.get(doc);
-                    writer.write("<strong>Doc Name</strong>: "+doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
+                    writer.write("<strong>Doc Name</strong>: " + doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
                     writer.write("  </td>\n");
 
                 }
