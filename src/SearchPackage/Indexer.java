@@ -44,6 +44,43 @@ public class Indexer {
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
+        printTableHtml();
+    }
+
+    private static void printTableHtml() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
+            writer.write("<table>");
+            writer.write("  <tr>" +
+                    "    <th>Word</th>\n" +
+                    "    <th>Document tf size</th>\n" +
+                    "  </tr>");
+
+            for (String word : invertedIndex.keySet()) {
+                writer.write("  <tr>");
+
+                HashMap<String, Pair<Integer, Integer>> docs = invertedIndex.get(word);
+                for (String doc : docs.keySet()) {
+                    writer.write("  <td>");
+                    writer.write(word);
+
+                    writer.write("  </td>");
+                    writer.write("  <td>");
+
+                    Pair<Integer, Integer> tf_size = docs.get(doc);
+                    writer.write("<strong>Doc Name</strong>: "+doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
+                    writer.write("  </td>\n");
+
+                }
+                writer.write("  </tr>\n");
+
+            }
+            writer.write("</table>");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     // Fot testing only
