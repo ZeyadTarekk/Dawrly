@@ -97,7 +97,7 @@ public class Indexer {
 
     private static String parsingHTML(String input, String path) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(path + input));
-        String lines;
+        String lines = "";
         StringBuilder Str = new StringBuilder();
         while ((lines = reader.readLine()) != null) {
             Str.append(lines);
