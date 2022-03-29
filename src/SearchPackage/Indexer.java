@@ -17,19 +17,31 @@ public class Indexer {
 
     public static void main(String[] args) {
         invertedIndex = new HashMap<String, HashMap<String, Pair<Integer, Integer>>>();
-        List<String> words = new Vector<>();
+        // read stop words
         try {
-            readDummyVector(words);
+            readStopWords();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Error in reading stop words");
         }
-        stemming(words, "doc1");
-        System.out.println(invertedIndex);
-        stemming(words, "doc2");
-        System.out.println(invertedIndex);
-        stemming(words, "doc1");
-        System.out.println(invertedIndex);
-
+        // creates a file object
+        File file = new File("downloads");
+        String folderRootPath = "downloads\\";
+        // returns an array of all files
+        String[] fileNamesList = file.list();
+        // iterate over files
+        for (String fileName : fileNamesList) {
+            // 1- parse html
+            String noHTMLDoc = parsingHTML(fileName, folderRootPath);
+            // 2- split words
+            List<String> words = splitWords(noHTMLDoc);
+            // 3- remove stop words
+            removeStopWords(words);
+            // 4- stemming
+            stemming(words, fileName);
+            System.out.println(invertedIndex);
+            System.out.println("\n\n");
+        }
     }
 
     // Fot testing only
@@ -43,11 +55,11 @@ public class Indexer {
         }
     }
 
-    public static String Parsing(String input) {
+    public static String parsingHTML(String input, String path) {
         String lines = "";
         StringBuilder Str = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(input));
+            BufferedReader reader = new BufferedReader(new FileReader(path + input));
 
             while ((lines = reader.readLine()) != null) {
                 Str.append(lines);
@@ -73,7 +85,7 @@ public class Indexer {
     }
 
 
-    private void readStopWords() throws IOException {
+    private static void readStopWords() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("stopwords.txt"));
         stopWords = new Vector<String>();
         String word;
@@ -82,7 +94,7 @@ public class Indexer {
         }
     }
 
-    private void removeStopWords(List<String> words) {
+    private static void removeStopWords(List<String> words) {
         words.removeAll(stopWords);
     }
 
