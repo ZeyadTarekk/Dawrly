@@ -33,7 +33,12 @@ public class Indexer {
         // iterate over files
         for (String fileName : fileNamesList) {
             // 1- parse html
-            String noHTMLDoc = parsingHTML(fileName, folderRootPath);
+            String noHTMLDoc = "";
+            try {
+                noHTMLDoc = parsingHTML(fileName, folderRootPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             // 2- split words
             List<String> words = splitWords(noHTMLDoc);
             // 3-convert to lowercase
@@ -52,10 +57,7 @@ public class Indexer {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
             writer.write("<table>");
-            writer.write("  <tr>" +
-                    "    <th>Word</th>\n" +
-                    "    <th>Document tf size</th>\n" +
-                    "  </tr>");
+            writer.write("  <tr>" + "    <th>Word</th>\n" + "    <th>Document tf size</th>\n" + "  </tr>");
 
             for (String word : invertedIndex.keySet()) {
                 writer.write("  <tr>");
@@ -81,7 +83,6 @@ public class Indexer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     // Fot testing only
@@ -91,26 +92,20 @@ public class Indexer {
         while ((word = reader.readLine()) != null) {
             String sp[] = word.split(" ");
             Collections.addAll(words, sp);
-
         }
     }
 
-    public static String parsingHTML(String input, String path) {
-        String lines = "";
+    private static String parsingHTML(String input, String path) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(path + input));
+        String lines;
         StringBuilder Str = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path + input));
-
-            while ((lines = reader.readLine()) != null) {
-                Str.append(lines);
-            }
-            reader.close();
-            lines = Str.toString();
-            Document html = Jsoup.parse(lines);
-            lines = html.text();
-        } catch (IOException e) {
-            e.printStackTrace();
+        while ((lines = reader.readLine()) != null) {
+            Str.append(lines);
         }
+        reader.close();
+        lines = Str.toString();
+        Document html = Jsoup.parse(lines);
+        lines = html.text();
         return lines;
     }
 
