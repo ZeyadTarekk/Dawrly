@@ -26,7 +26,7 @@ public class Indexer {
         }
         // creates a file object
         File file = new File("downloads");
-        String folderRootPath = "downloads\\";
+        String folderRootPath = "downloads//";
         // returns an array of all files
         String[] fileNamesList = file.list();
         // iterate over files
@@ -35,9 +35,11 @@ public class Indexer {
             String noHTMLDoc = parsingHTML(fileName, folderRootPath);
             // 2- split words
             List<String> words = splitWords(noHTMLDoc);
-            // 3- remove stop words
+            // 3-convert to lowercase
+            convertToLower(words);
+            // 4- remove stop words
             removeStopWords(words);
-            // 4- stemming
+            // 5- stemming
             stemming(words, fileName);
             System.out.println(invertedIndex);
             System.out.println("\n\n");
@@ -91,6 +93,12 @@ public class Indexer {
         String word;
         while ((word = reader.readLine()) != null) {
             stopWords.add(word);
+        }
+    }
+
+    private static void convertToLower(List<String> temp) {
+        for (int i = 0; i < temp.size(); i++) {
+            temp.set(i, temp.get(i).toLowerCase());
         }
     }
 

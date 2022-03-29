@@ -17,5 +17,24 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="jsoup-1.14.3" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES />
+        <JAVADOC>
+          <root url="jar://$USER_HOME$/Downloads/lucene-analyzers-common-8.8.2-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="lucene-analyzers-common-8.8.2-javadoc" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Downloads/lucene-analyzers-common-8.8.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
