@@ -46,7 +46,9 @@ public class Indexer {
             // 4- remove stop words
             removeStopWords(words);
             // 5- stemming
-            stemming(words, fileName);
+            List<String> stemmedWords = stemming(words);
+            // 6- build inverted index
+            buildInvertedIndex(stemmedWords, fileName);
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
@@ -139,7 +141,7 @@ public class Indexer {
         words.removeAll(stopWords);
     }
 
-    private static void stemming(List<String> words, String docName) {
+    private static List<String> stemming(List<String> words) {
         PorterStemmer stemmer = new PorterStemmer();
         // stem words in the list
         for (int i = 0; i < words.size(); i++) {
@@ -147,8 +149,11 @@ public class Indexer {
             stemmer.stem();  //stem the word
             words.set(i, stemmer.getCurrent()); //get the stemmed word
         }
+        return words;
+    }
 
-        for (String word : words) {
+    private static void buildInvertedIndex(List<String> stemmedWords, String docName) {
+        for (String word : stemmedWords) {
             // if word not exist then allocate a map for it
             if (!invertedIndex.containsKey(word)) {
                 HashMap<String, Pair<Integer, Integer>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer>>();
@@ -158,7 +163,7 @@ public class Indexer {
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer> TF_Size_pair = new Pair<Integer, Integer>(0, words.size());
+                Pair<Integer, Integer> TF_Size_pair = new Pair<Integer, Integer>(0, stemmedWords.size());
                 docsMapOfWord.put(docName, TF_Size_pair);
             }
             Pair<Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
