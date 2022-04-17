@@ -6,90 +6,91 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
-
-/*
-Important note:
-
-need to save the current state of the crawl
-[
-  the list of links
-  the visited list
-  the current number of visited pages
-]
-
-before doing anything we need to check the current state
-  if never stopped --> start from the beginning
-  if stopped before --> load the lists then continue
-*/
+import java.util.List;
 
 public class Crawler {
     //will be edited later to 5000
     private static final int MAX_PAGES_TO_SEARCH = 1;
+    private int NofVisitedPages;
     private URL url;
     private Connection connection;
     private Document htmlDocument;
     //used to save the special word of any page visited before
-  /*
-    the special word will contain :
-    1-
-    2-
-    3-
-    etc
-  */
     private Set<String> pagesVisited = new HashSet<String>();
-
     //links of pages that will be visited next
     private List<String> pagesToVisit = new LinkedList<String>();
-
-
+    private MongoDB database;
 
     //methods
+    public Crawler() {
+        database = new MongoDB();
+        database.ConnectToDataBase();
+        this.NofVisitedPages = 0;
+    }
     public void crawl() {
-        pagesToVisit.add("https://www.w3schools.com/");
-        pagesToVisit.add("https://www.w3schools.com/videos/index.php");
-        pagesToVisit.add("https://www.w3schools.com/videos/index.php?fds=4154&gh=");
 
-        pagesToVisit.add("https://www.tabnine.com/code/java/methods/java.net.URI/normalize");
-
-        //get the first link of the array
-        String pageUrl = pagesToVisit.remove(2);
-
-        try {
-            url = new URL(pageUrl);
-            System.out.println(url.getFile());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        if (database.CheckState().equals("Interrupted")) {
+            database.GetSavedLinks(pagesToVisit, pagesVisited);
+            NofVisitedPages = database.GetNofVisitedPages();
+        } else {
+            pagesToVisit = GetLinksFromSeedFile();
         }
 
-        //connect to the page
-        try {
+        database.ChangeState("Interrupted");
+        while (NofVisitedPages < MAX_PAGES_TO_SEARCH) {
 
-            connection = Jsoup.connect(pageUrl);
-            htmlDocument = connection.get();
+            //get the first link of the array
+            String pageUrl = pagesToVisit.remove(0);
+            database.UpdatePagesToVisit(pageUrl);
 
+            //connect to the page
+            try {
+                connection = Jsoup.connect(pageUrl);
+                htmlDocument = connection.get();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
+            //collect the special word or normalize the url
+            String SpecialWord = CollectSpecialWord();
+            if (!pagesVisited.contains(SpecialWord)) {
+                pagesVisited.add(SpecialWord);
+                database.UpdatePagesVisited(SpecialWord);
 
-        } catch (IOException e) {
-            e.printStackTrace();
+                DownloadHTML();
+                List<String> Links = getLinks();
+
+                //check the robot file and remove the forbidden links
+
+//                pagesToVisit.addAll(Links);
+//                database.UpdatePagesToVisit(Links);
+            }
+
+            NofVisitedPages++;
+            database.UpdateNofVisitedPages(NofVisitedPages);
         }
 
-
-        //collect the special word or normalize the url
-
-        //check if that word used before in the pagesVisited
-
-        //if not in the set --> get the html document and download it
-
-        //get the links from the document and add them to the pagesToVisit
+        //join the threads here
+        database.ChangeState("Finished");
+    }
 
 
-//    while (this.pagesVisited.size() < MAX_PAGES_TO_SEARCH) {}
-
-
+    public List<String> GetLinksFromSeedFile() {
+        List<String> Links = new ArrayList<>();
+        try {
+            File myObj = new File("src\\SearchPackage\\Seeds.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                Links.add(data);
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return Links;
     }
 
     public List<String> getLinks() {
@@ -113,6 +114,25 @@ public class Crawler {
         }
     }
 
+    public String CollectSpecialWord() {
+        StringBuilder Collector = new StringBuilder();
+
+        //collect the title of the page
+        String title = htmlDocument.title().replaceAll(" ", "");
+        Collector.append(title);
+
+        //collect the first char of some words in the body
+        String body = htmlDocument.body().text();
+        String[] bodyWords = body.split(" ");
+        for (int i = 0; i < bodyWords.length; i += 10) {
+            Collector.append(bodyWords[i].charAt(0));
+        }
+        return Collector.toString();
+    }
+
+    public void SaveCurrentState() {
+
+    }
     public void Testing() {
 
         crawl();
