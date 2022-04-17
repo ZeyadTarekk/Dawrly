@@ -3,6 +3,8 @@ package SearchPackage;
 import java.util.*;
 import java.io.*;
 
+import org.json.simple.JSONObject;
+
 import org.jsoup.Jsoup;
 
 import java.util.regex.Pattern;
@@ -14,7 +16,7 @@ import org.tartarus.snowball.ext.PorterStemmer;
 public class Indexer {
     private static List<String> stopWords;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
-
+    private static List<JSONObject> invertedIndexJSON;
 
     public static void main(String[] args) {
         invertedIndex = new HashMap<String, HashMap<String, Pair<Integer, Integer>>>();
@@ -52,6 +54,9 @@ public class Indexer {
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
+        // 7- converted the inverted index into json format
+        invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
+        System.out.println(invertedIndexJSON);
         printTableHtml();
     }
 
@@ -170,4 +175,42 @@ public class Indexer {
             TF_Size_pair.TF++;
         }
     }
+
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndexP) {
+        /*
+        *
+        {
+            {
+                word: word1
+                docs:
+                    [
+                        {
+                            docName:doc1
+                            tf:10,
+                            size:10
+                        }
+                    ]
+            }
+        }
+        *
+        * */
+        List<JSONObject> listOfWordJSONS = new Vector<>();
+        for (String word : invertedIndexP.keySet()) {
+            JSONObject wordJSON = new JSONObject();
+            wordJSON.put("word", word);
+            List<JSONObject> documents = new Vector<>();
+            for (String doc : invertedIndexP.get(word).keySet()) {
+                JSONObject documentJSON = new JSONObject();
+                documentJSON.put("document", doc);
+                documentJSON.put("tf", invertedIndexP.get(word).get(doc).TF);
+                documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
+                documents.add(documentJSON);
+            }
+            wordJSON.put("documents", documents);
+//            System.out.println(wordJSON);
+            listOfWordJSONS.add(wordJSON);
+        }
+        return listOfWordJSONS;
+    }
+
 }
