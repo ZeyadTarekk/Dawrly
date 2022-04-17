@@ -26,9 +26,10 @@ public class Indexer implements Runnable {
     private static List<String> stopWords;
     private static String[] fileNamesList;
     private static String folderRootPath;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex = new HashMap<>();
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex ;
 
     public static void main(String[] args) throws InterruptedException {
+        invertedIndex = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words
@@ -75,7 +76,7 @@ public class Indexer implements Runnable {
         System.out.println(start + " " + end);
         System.out.println(Thread.currentThread().getPriority());
         // iterate over files
-        for (int i = start; i < end; i++) {
+        for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
             System.out.println("Thread " + Thread.currentThread().getPriority() + " processed file: " + fileName);
             // 1- parse html
