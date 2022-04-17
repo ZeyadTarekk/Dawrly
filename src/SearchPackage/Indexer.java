@@ -3,6 +3,13 @@ package SearchPackage;
 import java.util.*;
 import java.io.*;
 
+// mongo libraries
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+
 import org.json.simple.JSONObject;
 
 import org.jsoup.Jsoup;
@@ -10,8 +17,8 @@ import org.jsoup.Jsoup;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import org.jsoup.nodes.Document;
 import org.tartarus.snowball.ext.PorterStemmer;
+
 
 public class Indexer {
     private static List<String> stopWords;
@@ -56,6 +63,7 @@ public class Indexer {
         }
         // 7- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
+        uploadToDB(invertedIndexJSON);
         System.out.println(invertedIndexJSON);
         printTableHtml();
     }
@@ -111,7 +119,7 @@ public class Indexer {
         }
         reader.close();
         lines = Str.toString();
-        Document html = Jsoup.parse(lines);
+        org.jsoup.nodes.Document html = Jsoup.parse(lines);
         lines = html.text();
         return lines;
     }
@@ -213,4 +221,13 @@ public class Indexer {
         return listOfWordJSONS;
     }
 
+    private static void uploadToDB(List<JSONObject> invertedIndexJSONParameter) {
+        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        MongoDatabase database = client.getDatabase("myFirstDatabase");
+        MongoCollection<Document> toys = database.getCollection("invertedIndex");
+        for (int i = 0; i < invertedIndexJSONParameter.size(); i++) {
+            Document doc = new Document(invertedIndexJSONParameter.get(i));
+            toys.insertOne(doc);
+        }
+    }
 }
