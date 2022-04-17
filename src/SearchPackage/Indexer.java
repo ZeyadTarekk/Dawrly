@@ -8,8 +8,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 
+import org.bson.conversions.Bson;
 import org.json.simple.JSONObject;
 
 import org.jsoup.Jsoup;
@@ -20,13 +22,15 @@ import java.util.regex.Matcher;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 
-public class Indexer {
+public class Indexer implements Runnable {
     private static List<String> stopWords;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
-    private static List<JSONObject> invertedIndexJSON;
+    private static String[] fileNamesList;
+    private static String folderRootPath;
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex = new HashMap<>();
 
-    public static void main(String[] args) {
-        invertedIndex = new HashMap<String, HashMap<String, Pair<Integer, Integer>>>();
+    public static void main(String[] args) throws InterruptedException {
+        List<JSONObject> invertedIndexJSON;
+
         // read stop words
         try {
             readStopWords();
@@ -36,11 +40,44 @@ public class Indexer {
         }
         // creates a file object
         File file = new File("downloads");
-        String folderRootPath = "downloads//";
+        folderRootPath = "downloads//";
         // returns an array of all files
-        String[] fileNamesList = file.list();
+        fileNamesList = file.list();
+
+        Thread[] threads = new Thread[5];
+        for (int i = 0; i < 5; i++) {
+            threads[i] = new Thread(new Indexer());
+            threads[i].setPriority(i + 1);
+        }
+        for (int i = 0; i < 5; i++) {
+            System.out.println("here");
+            threads[i].start();
+        }
+        for (int i = 0; i < 5; i++) {
+            threads[i].join();
+        }
+        // 7- converted the inverted index into json format
+        invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
+        uploadToDB(invertedIndexJSON);
+        System.out.println(invertedIndexJSON);
+        printTableHtml(invertedIndex);
+        System.out.println("Done");
+    }
+
+    // 30
+    // 0*6 => 1*6 0
+    // 1*6 => 2*6
+    // 2*6 => 3*6
+    @Override
+    public void run() {
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
+        System.out.println(start + " " + end);
+        System.out.println(Thread.currentThread().getPriority());
         // iterate over files
-        for (String fileName : fileNamesList) {
+        for (int i = start; i < end; i++) {
+            String fileName = fileNamesList[i];
+            System.out.println("Thread " + Thread.currentThread().getPriority() + " processed file: " + fileName);
             // 1- parse html
             String noHTMLDoc = "";
             try {
@@ -57,18 +94,13 @@ public class Indexer {
             // 5- stemming
             List<String> stemmedWords = stemming(words);
             // 6- build inverted index
-            buildInvertedIndex(stemmedWords, fileName);
+            buildInvertedIndex(stemmedWords, fileName, invertedIndex);
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
-        // 7- converted the inverted index into json format
-        invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
-        uploadToDB(invertedIndexJSON);
-        System.out.println(invertedIndexJSON);
-        printTableHtml();
     }
 
-    private static void printTableHtml() {
+    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
             writer.write("<table>");
@@ -165,7 +197,7 @@ public class Indexer {
         return words;
     }
 
-    private static void buildInvertedIndex(List<String> stemmedWords, String docName) {
+    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex) {
         for (String word : stemmedWords) {
             // if word not exist then allocate a map for it
             if (!invertedIndex.containsKey(word)) {
@@ -230,4 +262,5 @@ public class Indexer {
             toys.insertOne(doc);
         }
     }
+
 }
