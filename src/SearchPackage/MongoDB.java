@@ -38,6 +38,11 @@ public class MongoDB {
         Bson filter = eq("_id", 1);
         Bson updateOperation = set("state", state);
         CrawlerCollection.updateOne(filter, updateOperation);
+        if (state == "Finished") {
+            filter = eq("_id", 1);
+            updateOperation = set("NofVisited", 0.0);
+            CrawlerCollection.updateOne(filter, updateOperation);
+        }
     }
 
     public String CheckState() {
@@ -59,10 +64,10 @@ public class MongoDB {
             }
     }
 
-    public int GetNofVisitedPages() {
+    public float GetNofVisitedPages() {
         Document stateDocument = CrawlerCollection.find(eq("_id", 1)).first();
         Object state = stateDocument.get("NofVisited");
-        return Integer.parseInt(state.toString());
+        return Float.parseFloat(state.toString());
     }
 
     public void UpdatePagesToVisit(String URL) {
