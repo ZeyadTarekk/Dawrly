@@ -26,7 +26,7 @@ public class Indexer implements Runnable {
     private static List<String> stopWords;
     private static String[] fileNamesList;
     private static String folderRootPath;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex ;
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
 
     public static void main(String[] args) throws InterruptedException {
         invertedIndex = new HashMap<>();
@@ -255,13 +255,22 @@ public class Indexer implements Runnable {
     }
 
     private static void uploadToDB(List<JSONObject> invertedIndexJSONParameter) {
-        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        MongoClient client = MongoClients.create("mongodb+srv://Trail:12345@cluster0.21kyp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         MongoDatabase database = client.getDatabase("myFirstDatabase");
         MongoCollection<Document> toys = database.getCollection("invertedIndex");
         for (int i = 0; i < invertedIndexJSONParameter.size(); i++) {
             Document doc = new Document(invertedIndexJSONParameter.get(i));
-            toys.insertOne(doc);
+            Document found = (Document) toys.find(new Document(invertedIndexJSONParameter.get(i))).first();
+            if (found != null) {
+                System.out.println("Found User");
+                Bson updatedvalue = new Document(invertedIndexJSONParameter.get(i));
+                Bson updateoperation = new Document("$set", updatedvalue);
+                toys.updateOne(found, updateoperation);
+                System.out.println("Data Updated");
+            } else {
+                toys.insertOne(doc);
+            }
         }
-    }
 
+    }
 }
