@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Crawler {
     //will be edited later to 5000
-    private static final int MAX_PAGES_TO_SEARCH = 1;
+    private static final int MAX_PAGES_TO_SEARCH = 3;
     private int NofVisitedPages;
     private URL url;
     private Connection connection;
@@ -33,7 +33,7 @@ public class Crawler {
 
         if (database.CheckState().equals("Interrupted")) {
             database.GetSavedLinks(pagesToVisit, pagesVisited);
-            NofVisitedPages = database.GetNofVisitedPages();
+            NofVisitedPages = (int)database.GetNofVisitedPages();
         } else {
             pagesToVisit = GetLinksFromSeedFile();
         }
@@ -52,7 +52,6 @@ public class Crawler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             //collect the special word or normalize the url
             String SpecialWord = CollectSpecialWord();
             if (!pagesVisited.contains(SpecialWord)) {
@@ -64,8 +63,8 @@ public class Crawler {
 
                 //check the robot file and remove the forbidden links
 
-//                pagesToVisit.addAll(Links);
-//                database.UpdatePagesToVisit(Links);
+                pagesToVisit.addAll(Links);
+                database.UpdatePagesToVisit(Links);
             }
 
             NofVisitedPages++;
@@ -75,7 +74,6 @@ public class Crawler {
         //join the threads here
         database.ChangeState("Finished");
     }
-
 
     public List<String> GetLinksFromSeedFile() {
         List<String> Links = new ArrayList<>();
@@ -103,8 +101,10 @@ public class Crawler {
 
     //may need to send the document when we implement the class using threads
     public void DownloadHTML() {
-        final String path = "src\\SearchPackage\\downloads\\";
-        final String name = htmlDocument.title().trim().replaceAll(" ", "");
+        final String path = "downloads\\";
+        String name = htmlDocument.title().trim().replaceAll(" ", "");
+        if (name.length() > 10) { name = name.substring(0,10); }
+
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(path + name + ".html"));
             writer.write(htmlDocument.toString());
@@ -124,15 +124,13 @@ public class Crawler {
         //collect the first char of some words in the body
         String body = htmlDocument.body().text();
         String[] bodyWords = body.split(" ");
-        for (int i = 0; i < bodyWords.length; i += 10) {
-            Collector.append(bodyWords[i].charAt(0));
-        }
+        for (int i = 0; i < bodyWords.length; i += 10)
+            if (!bodyWords[i].isEmpty())
+                Collector.append(bodyWords[i].charAt(0));
+
         return Collector.toString();
     }
 
-    public void SaveCurrentState() {
-
-    }
     public void Testing() {
 
         crawl();
@@ -144,7 +142,6 @@ public class Crawler {
         Crawler c = new Crawler();
 
         c.Testing();
-
 
     }
 }
