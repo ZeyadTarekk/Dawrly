@@ -7,12 +7,18 @@ import java.io.DataInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.io.FileWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class RobotCheck {
 
-    HashMap<String, ArrayList<String>> allDisallowedLinks = new HashMap<>();
+    HashMap<String, ArrayList<String>> allDisallowedLinks;
     ArrayList<String> disallowed;
+
+    public RobotCheck() {
+        allDisallowedLinks = new HashMap<>();
+    }
 
     private void getPageDisallows(String newURL) {
         boolean userAgentStatus = false;
@@ -66,23 +72,63 @@ public class RobotCheck {
         }
     }
 
-    public void generateDisallowedLinks(List<String> pagesToVisit) {
+    private void generateDisallowedLinks(List<String> pagesToVisit) {
         for (String s : pagesToVisit) {
             getPageDisallows(s);
         }
     }
 
-    public void testing(List<String> pagesToVisit) {
+    private void testing(List<String> pagesToVisit) {
         generateDisallowedLinks(pagesToVisit);
         printDisallowedURLs();
 //        writeDisallowedURLsToFile("testing");
     }
 
-    public void printDisallowedURLs() {
+    private void printDisallowedURLs() {
         for (String key : allDisallowedLinks.keySet()) {
             System.out.print(key);
             System.out.println(allDisallowedLinks.get(key));
         }
+    }
+
+    private ArrayList<String> getDissallowedList(String url) {
+        URL targetURL = null;
+        String protocol, serverName;
+        try {
+            targetURL = new URL(url);
+            protocol = targetURL.getProtocol();
+            serverName = targetURL.getHost();
+            targetURL = new URL(protocol + "://" + serverName + "/robots.txt");
+        } catch (IOException e) {
+            System.err.println("Error happened while trying to open '" + url + "': " + e.getMessage());
+        }
+        if (targetURL != null)
+            return allDisallowedLinks.get(targetURL.toString());
+        return null;
+    }
+
+    private Boolean isAllowed(String url) {
+        ArrayList<String> disallowed = getDissallowedList(url);
+        String pattern;
+        for (String i : disallowed) {
+            pattern = i;
+            if (pattern.contains("*")) {
+                pattern = pattern.replace("*", "[a-zA-Z]+");
+                Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+                Matcher m = p.matcher(url);
+                if (m.matches())
+                    return false;
+            } else {
+                if (pattern.equals(url))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public Boolean robotAllowed(String url) {
+        getPageDisallows(url);
+        return isAllowed(url);
     }
 
 //    public void writeDisallowedURLsToFile(String fileName) {
@@ -110,6 +156,7 @@ public class RobotCheck {
         links.add("https://www.javatpoint.com/");
 
         obj.testing(links);
+        System.out.println(obj.getDissallowedList("https://www.google.com/"));
     }
 
 }
