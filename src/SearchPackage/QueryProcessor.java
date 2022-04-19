@@ -25,19 +25,19 @@ public class QueryProcessor extends ProcessString {
     // NOTE: Take care of quotes -> search as it is
 
     public static void main(String[] args) {
-        List<String>phraseSearch=new ArrayList<>();
+        List<String> phraseSearch = new ArrayList<>();
         // HOW TO USE QueryProcessor
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer>>> result = qp.processQuery("Mangaa Ingredients",phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer>>> result = qp.processQuery("Mangaa Ingredients", phraseSearch);
         System.out.println(result);
     }
     // TODO: Determine the output data structure of processQuery method
 
     // TODO: Provide an interface to receive the query string
     // TODO: Provide an interface to pass the words to the RANKER
-    HashMap<String, HashMap<String, Pair<Integer, Integer>>> processQuery(String query,List<String>phraseSearch) {
+    HashMap<String, HashMap<String, Pair<Integer, Integer>>> processQuery(String query, List<String> phraseSearch) {
         // TODO: split sentence between double quotes and returns as a Array of strings
-        extractQuotes(query,phraseSearch);
+        extractQuotes(query, phraseSearch);
         // TODO: Read stop words
         try {
             readStopWords();
@@ -97,8 +97,10 @@ public class QueryProcessor extends ProcessString {
         }
         return convertedHashMap;
     }
-    private  void extractQuotes(String query,List<String>phraseSearch){
 
+    private void extractQuotes(String query, List<String> phraseSearch) {
+        String result=query.replaceAll("^\"|\"$","");
+        phraseSearch.add(result);
     }
 
 }
