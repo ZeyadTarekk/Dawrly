@@ -75,7 +75,8 @@ public class QueryProcessor extends ProcessString {
         MongoCollection<Document> collection = database.getCollection("invertedIndex");
         for (String word : stemmedWords) {
             Document found = (Document) collection.find(new Document("word", word)).first();
-            result.add(found);
+            if (found != null)
+                result.add(found);
         }
         return result;
     }
@@ -102,5 +103,4 @@ public class QueryProcessor extends ProcessString {
         String result=query.replaceAll("^\"|\"$","");
         phraseSearch.add(result);
     }
-
 }
