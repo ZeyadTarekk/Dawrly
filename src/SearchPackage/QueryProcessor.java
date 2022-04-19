@@ -99,8 +99,11 @@ public class QueryProcessor extends ProcessString {
         return convertedHashMap;
     }
 
+
     private void extractQuotes(String query, List<String> phraseSearch) {
-        String result=query.replaceAll("^\"|\"$","");
-        phraseSearch.add(result);
+        if (query.startsWith("\"") || (query.endsWith("\""))) {
+            String result = query.replaceAll("^\"|\"$", "");
+            phraseSearch.add(result);
+        }
     }
 }
