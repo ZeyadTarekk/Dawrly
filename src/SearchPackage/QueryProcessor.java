@@ -9,6 +9,8 @@ import org.bson.conversions.Bson;
 import org.json.simple.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -21,19 +23,18 @@ TODO: create an abstract class called ProcessString
 */
 public class QueryProcessor extends ProcessString {
     // NOTE: Take care of quotes -> search as it is
-    List<String> stopWords;
-
 
     public static void main(String[] args) {
+        // HOW TO USE QueryProcessor
         QueryProcessor qp = new QueryProcessor();
-        List<Document> result = qp.processQuery("Mangaa Ingredients");
+        HashMap<String, HashMap<String, Pair<Integer, Integer>>> result = qp.processQuery("Mangaa Ingredients");
         System.out.println(result);
     }
     // TODO: Determine the output data structure of processQuery method
 
     // TODO: Provide an interface to receive the query string
     // TODO: Provide an interface to pass the words to the RANKER
-    List<Document> processQuery(String query) {
+    HashMap<String, HashMap<String, Pair<Integer, Integer>>> processQuery(String query) {
 
         // TODO: Read stop words
         try {
@@ -59,8 +60,9 @@ public class QueryProcessor extends ProcessString {
         List<Document> words_documents = getDocsFromDB(stemmedWords);
 
         // TODO: [OPTIONAL] convert JSON into HASHMAP
+        HashMap<String, HashMap<String, Pair<Integer, Integer>>> words_documents_map = convertJSONintoHashMap(words_documents);
 
-        return words_documents;
+        return words_documents_map;
     }
 
     // TODO: Implement a function to get data from database
@@ -75,4 +77,23 @@ public class QueryProcessor extends ProcessString {
         }
         return result;
     }
+
+    // TODO: Implement a function that converts a JSON into hash
+    private HashMap<String, HashMap<String, Pair<Integer, Integer>>> convertJSONintoHashMap(List<Document> words_documents) {
+        HashMap<String, HashMap<String, Pair<Integer, Integer>>> convertedHashMap = new HashMap<>();
+        for (Document word_doc : words_documents) {
+            HashMap<String, Pair<Integer, Integer>> documents = new HashMap<>();
+            convertedHashMap.put((String) word_doc.get("word"), documents);
+            ArrayList<Document> v = (ArrayList<Document>) word_doc.get("documents");
+            System.out.println(v);
+            for (Document docJSON : v) {
+                Pair<Integer, Integer> tf_size = new Pair<>();
+                tf_size.TF = (Integer) docJSON.get("tf");
+                tf_size.size = (Integer) docJSON.get("size");
+                documents.put((String) docJSON.get("document"), tf_size);
+            }
+        }
+        return convertedHashMap;
+    }
+
 }
