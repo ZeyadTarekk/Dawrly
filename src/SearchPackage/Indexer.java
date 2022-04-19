@@ -8,7 +8,14 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
+
+import static com.mongodb.client.model.Filters.eq;
+
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 
 import org.bson.conversions.Bson;
@@ -258,16 +265,24 @@ public class Indexer implements Runnable {
         MongoClient client = MongoClients.create("mongodb+srv://Trail:12345@cluster0.21kyp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         MongoDatabase database = client.getDatabase("myFirstDatabase");
         MongoCollection<Document> toys = database.getCollection("invertedIndex");
+        // check if Doc is found or Not
+        // if not exists ==> insert new Doc
+        //else check if word is existed by filtration ,then replace it
         for (int i = 0; i < invertedIndexJSONParameter.size(); i++) {
             Document doc = new Document(invertedIndexJSONParameter.get(i));
-            Document found = (Document) toys.find(new Document(invertedIndexJSONParameter.get(i))).first();
+            Document found = (Document) toys.find(new Document("word", invertedIndexJSONParameter.get(i).get("word"))).first();
+            System.out.println("Result==>  " + found);
+//            System.out.println("Values: ==> " + invertedIndexJSONParameter.get(i).values());
             if (found != null) {
-                System.out.println("Found User");
-                Bson updatedvalue = new Document(invertedIndexJSONParameter.get(i));
-                Bson updateoperation = new Document("$set", updatedvalue);
-                toys.updateOne(found, updateoperation);
-                System.out.println("Data Updated");
+                Bson query = eq("word", invertedIndexJSONParameter.get(i).get("word")); //filtration
+                UpdateResult result = toys.replaceOne(query, doc);
+                System.out.println("Modified Doc Count: " + result.getModifiedCount());
+//                Bson updatedvalue = new Document(invertedIndexJSONParameter.get(i)).append("document",
+//                invertedIndexJSONParameter.get(i).get("document"));
+//                System.out.println(updatedvalue);
+//                Bson updateoperation = new Document("$set", updatedvalue);
             } else {
+                System.out.println("Insert Part");
                 toys.insertOne(doc);
             }
         }
