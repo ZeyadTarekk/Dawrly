@@ -175,7 +175,7 @@ public class Indexer implements Runnable {
     }
 
 
-    private static void readStopWords() throws IOException {
+    public static void readStopWords() throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("stopwords.txt"));
         stopWords = new Vector<String>();
         String word;
@@ -184,17 +184,17 @@ public class Indexer implements Runnable {
         }
     }
 
-    private static void convertToLower(List<String> temp) {
+    public static void convertToLower(List<String> temp) {
         for (int i = 0; i < temp.size(); i++) {
             temp.set(i, temp.get(i).toLowerCase());
         }
     }
 
-    private static void removeStopWords(List<String> words) {
+    public static void removeStopWords(List<String> words) {
         words.removeAll(stopWords);
     }
 
-    private static List<String> stemming(List<String> words) {
+    public static List<String> stemming(List<String> words) {
         PorterStemmer stemmer = new PorterStemmer();
         // stem words in the list
         for (int i = 0; i < words.size(); i++) {
@@ -271,18 +271,10 @@ public class Indexer implements Runnable {
         for (int i = 0; i < invertedIndexJSONParameter.size(); i++) {
             Document doc = new Document(invertedIndexJSONParameter.get(i));
             Document found = (Document) toys.find(new Document("word", invertedIndexJSONParameter.get(i).get("word"))).first();
-            System.out.println("Result==>  " + found);
-//            System.out.println("Values: ==> " + invertedIndexJSONParameter.get(i).values());
             if (found != null) {
                 Bson query = eq("word", invertedIndexJSONParameter.get(i).get("word")); //filtration
-                UpdateResult result = toys.replaceOne(query, doc);
-                System.out.println("Modified Doc Count: " + result.getModifiedCount());
-//                Bson updatedvalue = new Document(invertedIndexJSONParameter.get(i)).append("document",
-//                invertedIndexJSONParameter.get(i).get("document"));
-//                System.out.println(updatedvalue);
-//                Bson updateoperation = new Document("$set", updatedvalue);
+                toys.replaceOne(query, doc);
             } else {
-                System.out.println("Insert Part");
                 toys.insertOne(doc);
             }
         }
