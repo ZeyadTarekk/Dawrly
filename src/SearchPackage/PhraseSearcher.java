@@ -16,6 +16,7 @@ public class PhraseSearcher {
     public static void main(String[] args) {
         List<String> phrases = new ArrayList<>();
         phrases.add("Mangaa");
+        phrases.add("Hamza");
         HashSet<String> resultNames = new HashSet<>();
         HashMap<String, List<String>> relatedParagraphs = new HashMap<>();
         searchForPhrases(phrases, resultNames, relatedParagraphs);
@@ -63,14 +64,18 @@ public class PhraseSearcher {
             org.jsoup.nodes.Document html = Jsoup.parse(lines);
             lines = html.text();
             for (String phrase : phrases) {
+                System.out.println(phrase);
                 int index = lines.indexOf(phrase);
                 if (index != -1) {
                     resultNames.add(file);
-                    List<String> paragraphs = new ArrayList<>();
+                    String substring = lines.substring((index - 50 > 0 ? index - 50 : index), Math.min(index + 50, lines.length()));
                     if (!relatedParagraphs.containsKey(file)) {
+                        List<String> paragraphs = new ArrayList<>();
                         relatedParagraphs.put(file, paragraphs);
+                        paragraphs.add(substring);
+                    }else{
+                        relatedParagraphs.get(file).add(substring);
                     }
-                    paragraphs.add(lines.substring((index - 20 > 0 ? index - 20 : index), Math.min(index + 50, lines.length() - 1)));
                 }
             }
         }
