@@ -126,7 +126,7 @@ public class RobotCheck {
         return true;
     }
 
-    public Boolean robotAllowed(String url) {
+    public synchronized Boolean robotAllowed(String url) {
         getPageDisallows(url);
         return isAllowed(url);
     }

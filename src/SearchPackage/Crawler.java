@@ -22,6 +22,7 @@ public class Crawler {
     //links of pages that will be visited next
     private List<String> pagesToVisit = new LinkedList<String>();
     private MongoDB database;
+    private RobotCheck robotObject = new RobotCheck();
 
     //methods
     public Crawler() {
@@ -29,11 +30,12 @@ public class Crawler {
         database.ConnectToDataBase();
         this.NofVisitedPages = 0;
     }
+
     public void crawl() {
 
         if (database.CheckState().equals("Interrupted")) {
             database.GetSavedLinks(pagesToVisit, pagesVisited);
-            NofVisitedPages = (int)database.GetNofVisitedPages();
+            NofVisitedPages = (int) database.GetNofVisitedPages();
         } else {
             pagesToVisit = GetLinksFromSeedFile();
         }
@@ -43,8 +45,11 @@ public class Crawler {
 
             //get the first link of the array
             String pageUrl = pagesToVisit.remove(0);
-            database.UpdatePagesToVisit(pageUrl);
 
+            //check the robot file and remove the forbidden links
+            database.UpdatePagesToVisit(pageUrl);
+            if (!robotObject.robotAllowed(pageUrl))
+                continue;
             //connect to the page
             try {
                 connection = Jsoup.connect(pageUrl);
@@ -61,7 +66,6 @@ public class Crawler {
                 DownloadHTML();
                 List<String> Links = getLinks();
 
-                //check the robot file and remove the forbidden links
 
                 pagesToVisit.addAll(Links);
                 database.UpdatePagesToVisit(Links);
@@ -103,7 +107,9 @@ public class Crawler {
     public void DownloadHTML() {
         final String path = "downloads\\";
         String name = htmlDocument.title().trim().replaceAll(" ", "");
-        if (name.length() > 10) { name = name.substring(0,10); }
+        if (name.length() > 10) {
+            name = name.substring(0, 10);
+        }
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(path + name + ".html"));
