@@ -6,29 +6,91 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.List;
 
-public class Crawler {
+public class Crawler implements Runnable {
     //will be edited later to 5000
-    private static final int MAX_PAGES_TO_SEARCH = 3;
+    private static final int MAX_PAGES_TO_SEARCH = 10;
     private int NofVisitedPages;
-    private URL url;
-    private Connection connection;
-    private Document htmlDocument;
     //used to save the special word of any page visited before
     private Set<String> pagesVisited = new HashSet<String>();
     //links of pages that will be visited next
     private List<String> pagesToVisit = new LinkedList<String>();
     private MongoDB database;
     private RobotCheck robotObject = new RobotCheck();
+    private Object o1,o2,o3,o4;
 
     //methods
     public Crawler() {
         database = new MongoDB();
         database.ConnectToDataBase();
         this.NofVisitedPages = 0;
+        o1 = new Object();
+        o2 = new Object();
+        o3 = new Object();
+        o4 = new Object();
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            String pageUrl;
+            synchronized (o1) {
+                //get the first link of the array
+                if (pagesToVisit.size() > 0) {
+                    pageUrl = pagesToVisit.remove(0);
+                    database.UpdatePagesToVisit(pageUrl);
+                } else break;
+            }
+
+            System.out.println("Current link: " + pageUrl + " To Thread " + Thread.currentThread().getName());
+
+            //connect to the page
+            Connection connection;
+            Document htmlDocument = null;
+            try {
+                connection = Jsoup.connect(pageUrl);
+                htmlDocument = connection.get();
+            } catch (IOException e) {
+                e.printStackTrace();
+                continue;
+            }
+
+            //check the robot file and don't continue if the link is forbidden
+            if (!robotObject.robotAllowed(pageUrl))
+                continue;
+
+            //collect the special word or normalize the url
+            String SpecialWord = CollectSpecialWord(htmlDocument);
+            //Check if that page was visited before
+            if (!pagesVisited.contains(SpecialWord)) {
+                synchronized (o2) {
+                    pagesVisited.add(SpecialWord);
+                    database.UpdatePagesVisited(SpecialWord);
+                }
+
+                //Download the page for the indexer
+                //And get all the links that can be visited later from it
+                DownloadHTML(htmlDocument);
+                List<String> Links = getLinks(htmlDocument);
+
+                synchronized (o3) {
+                    pagesToVisit.addAll(Links);
+                    database.UpdatePagesToVisit(Links);
+                }
+
+                synchronized (o4) {
+                    NofVisitedPages++;
+                    database.UpdateNofVisitedPages(NofVisitedPages);
+                    System.out.println(NofVisitedPages);
+
+                    if (NofVisitedPages >= MAX_PAGES_TO_SEARCH)
+                        break;
+                }
+            }
+        }
+
     }
 
     public void Crawl() {
@@ -38,49 +100,35 @@ public class Crawler {
         } else {
             pagesToVisit = GetLinksFromSeedFile();
         }
+        if (pagesToVisit.size() == 0)
+            pagesToVisit = GetLinksFromSeedFile();
 
         database.ChangeState("Interrupted");
-        while (NofVisitedPages < MAX_PAGES_TO_SEARCH) {
 
-            //get the first link of the array
-            if (pagesToVisit.size() == 0)
-                pagesToVisit = GetLinksFromSeedFile();
-            String pageUrl = pagesToVisit.remove(0);
+        Scanner sc= new Scanner(System.in);
+        System.out.print("Enter the number of Thread: ");
+        int num = sc.nextInt();
 
-            System.out.println("Current link: " + pageUrl);
-
-            //check the robot file and don't continue if the link is forbidden
-            database.UpdatePagesToVisit(pageUrl);
-            if (!robotObject.robotAllowed(pageUrl))
-                continue;
-
-            //connect to the page
-            try {
-                connection = Jsoup.connect(pageUrl);
-                htmlDocument = connection.get();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //collect the special word or normalize the url
-            String SpecialWord = CollectSpecialWord();
-            if (!pagesVisited.contains(SpecialWord)) {
-                pagesVisited.add(SpecialWord);
-                database.UpdatePagesVisited(SpecialWord);
-
-                DownloadHTML();
-                List<String> Links = getLinks();
-
-
-                pagesToVisit.addAll(Links);
-                database.UpdatePagesToVisit(Links);
-            }
-
-            NofVisitedPages++;
-            database.UpdateNofVisitedPages(NofVisitedPages);
+        //Create the number of wanted Threads
+        Thread[] threads = new Thread[num];
+        for (int i = 0; i < num; i++)
+        {
+            threads[i] = new Thread(this);
+            threads[i].setName(Integer.toString(i));
+            threads[i].start();
         }
 
-        //join the threads here
+        //Join all the Threads
+        for (int i = 0; i < num; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         database.ChangeState("Finished");
+        System.out.println("Crawling Finished Successfully");
     }
 
     public List<String> GetLinksFromSeedFile() {
@@ -99,16 +147,18 @@ public class Crawler {
         return Links;
     }
 
-    public List<String> getLinks() {
+    public List<String> getLinks(Document htmlDocument) {
         List<String> links = new LinkedList<String>();
         for (Element link : htmlDocument.select("a[href]")) {
-            links.add(link.absUrl("href"));
+            String slink = link.absUrl("href");
+            if (!slink.equals("javascript:void(0)") && !slink.equals("#"))
+                links.add(slink);
         }
         return links;
     }
 
     //may need to send the document when we implement the class using threads
-    public void DownloadHTML() {
+    public void DownloadHTML(Document htmlDocument) {
         final String path = "downloads\\";
         String name = htmlDocument.title().trim().replaceAll(" ", "");
         if (name.length() > 10) {
@@ -124,7 +174,7 @@ public class Crawler {
         }
     }
 
-    public String CollectSpecialWord() {
+    public String CollectSpecialWord(Document htmlDocument) {
         StringBuilder Collector = new StringBuilder();
 
         //collect the title of the page
@@ -142,10 +192,7 @@ public class Crawler {
     }
 
     public static void main(String[] arg) {
-
         Crawler c = new Crawler();
-
         c.Crawl();
-
     }
 }
