@@ -37,10 +37,10 @@ public class RobotCheck {
         StringBuilder robotCommands = new StringBuilder();
         if (url != null) {
             if (allDisallowedLinks.get(url.toString()) != null) {
-                System.out.println(url.toString() + " Found");
+                System.out.println(url.toString() + " Found checked before the robots.txt");
                 return;
             }
-            System.out.println(url.toString() + " New");
+            System.out.println(url.toString() + " New first time to check the robots.txt");
             disallowed = new ArrayList<>();
             try {
                 String readLine;
@@ -79,8 +79,12 @@ public class RobotCheck {
     }
 
     private void testing(List<String> pagesToVisit) {
-        generateDisallowedLinks(pagesToVisit);
-        printDisallowedURLs();
+        for(String s:pagesToVisit){
+            if(robotAllowed(s))
+                System.out.println(s+" is allowed to visit");
+            else
+                System.out.println(s+" is not allowed to visit");
+        }
 //        writeDisallowedURLsToFile("testing");
     }
 
@@ -149,14 +153,15 @@ public class RobotCheck {
         RobotCheck obj = new RobotCheck();
         List<String> links = new ArrayList<String>();
         links.add("https://www.google.com/");
-        links.add("https://www.google.com/");
-        links.add("https://github.com/");
+        links.add("https://github.com/docs/tree/");
+        links.add("https://github.com/docs/");
+        links.add("https://www.geeksforgeeks.org/wp-admin/");
         links.add("https://www.geeksforgeeks.org/");
         links.add("https://www.programiz.com/");
         links.add("https://www.javatpoint.com/");
 
         obj.testing(links);
-        System.out.println(obj.getDissallowedList("https://www.google.com/"));
+//        System.out.println(obj.getDissallowedList("https://www.google.com/"));
     }
 
 }
