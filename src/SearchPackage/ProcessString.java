@@ -11,11 +11,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ProcessString {
-    private static List<String> stopWords;
+    protected static List<String> stopWords;
 
-    public static void main(String[] args) {
-
-    }
+//    public static void main(String[] args) {
+//
+//    }
 
     protected static List<String> splitWords(String Lines) {
         List<String> words = new <String>Vector();

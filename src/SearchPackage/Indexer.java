@@ -29,8 +29,7 @@ import java.util.regex.Matcher;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 
-public class Indexer implements Runnable {
-    private static List<String> stopWords;
+public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
@@ -164,47 +163,6 @@ public class Indexer implements Runnable {
         return lines;
     }
 
-    public static List<String> splitWords(String Lines) {
-        List<String> words = new <String>Vector();
-        Pattern pattern = Pattern.compile("\\w+");
-        Matcher match = pattern.matcher(Lines);
-        while (match.find()) {
-            words.add(match.group());
-        }
-        return words;
-    }
-
-
-    public static void readStopWords() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("stopwords.txt"));
-        stopWords = new Vector<String>();
-        String word;
-        while ((word = reader.readLine()) != null) {
-            stopWords.add(word);
-        }
-    }
-
-    public static void convertToLower(List<String> temp) {
-        for (int i = 0; i < temp.size(); i++) {
-            temp.set(i, temp.get(i).toLowerCase());
-        }
-    }
-
-    public static void removeStopWords(List<String> words) {
-        words.removeAll(stopWords);
-    }
-
-    public static List<String> stemming(List<String> words) {
-        PorterStemmer stemmer = new PorterStemmer();
-        // stem words in the list
-        for (int i = 0; i < words.size(); i++) {
-            stemmer.setCurrent(words.get(i)); //set string you need to stem
-            stemmer.stem();  //stem the word
-            words.set(i, stemmer.getCurrent()); //get the stemmed word
-        }
-        return words;
-    }
-
     private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex) {
         for (String word : stemmedWords) {
             // if word not exist then allocate a map for it
@@ -262,7 +220,7 @@ public class Indexer implements Runnable {
     }
 
     private static void uploadToDB(List<JSONObject> invertedIndexJSONParameter) {
-        MongoClient client = MongoClients.create("mongodb+srv://Trail:12345@cluster0.21kyp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         MongoDatabase database = client.getDatabase("myFirstDatabase");
         MongoCollection<Document> toys = database.getCollection("invertedIndex");
         // check if Doc is found or Not
