@@ -31,11 +31,10 @@ public class Crawler {
         this.NofVisitedPages = 0;
     }
 
-    public void crawl() {
+    public void Crawl() {
 
         if (database.CheckState().equals("Interrupted")) {
-            database.GetSavedLinks(pagesToVisit, pagesVisited);
-            NofVisitedPages = (int) database.GetNofVisitedPages();
+            NofVisitedPages = (int) database.GetSavedLinks(pagesToVisit, pagesVisited);
         } else {
             pagesToVisit = GetLinksFromSeedFile();
         }
@@ -44,12 +43,17 @@ public class Crawler {
         while (NofVisitedPages < MAX_PAGES_TO_SEARCH) {
 
             //get the first link of the array
+            if (pagesToVisit.size() == 0)
+                pagesToVisit = GetLinksFromSeedFile();
             String pageUrl = pagesToVisit.remove(0);
 
-            //check the robot file and remove the forbidden links
+            System.out.println("Current link: " + pageUrl);
+
+            //check the robot file and don't continue if the link is forbidden
             database.UpdatePagesToVisit(pageUrl);
             if (!robotObject.robotAllowed(pageUrl))
                 continue;
+
             //connect to the page
             try {
                 connection = Jsoup.connect(pageUrl);
@@ -137,17 +141,11 @@ public class Crawler {
         return Collector.toString();
     }
 
-    public void Testing() {
-
-        crawl();
-
-    }
-
     public static void main(String[] arg) {
 
         Crawler c = new Crawler();
 
-        c.Testing();
+        c.Crawl();
 
     }
 }

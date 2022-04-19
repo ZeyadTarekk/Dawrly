@@ -20,7 +20,7 @@ https://www.mongodb.com/developer/quickstart/java-setup-crud-operations/?utm_cam
 public class MongoDB {
     private MongoCollection<org.bson.Document> CrawlerCollection;
 
-
+    //Function to connect to the local database
     public void ConnectToDataBase() {
         try {
             MongoClient mongoClient = new MongoClient();
@@ -31,29 +31,34 @@ public class MongoDB {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
+    //function to change the state of the crawler (Finished, Interrupted)
     public void ChangeState(String state) {
         Bson filter = eq("_id", 1);
         Bson updateOperation = set("state", state);
         CrawlerCollection.updateOne(filter, updateOperation);
         if (state == "Finished") {
+            // Clear all the unvisited links and remove them from the database
             filter = eq("_id", 1);
             updateOperation = set("NofVisited", 0.0);
             CrawlerCollection.updateOne(filter, updateOperation);
+            filter = ne("_id", 1.0);
+            CrawlerCollection.deleteMany(filter);
         }
     }
 
+    //Function to get the state of the crawler
     public String CheckState() {
         Document stateDocument = CrawlerCollection.find(eq("_id", 1)).first();
         Object state = stateDocument.get("state");
         return state.toString();
     }
 
-    public void GetSavedLinks(List<String> PagesToVisit, Set<String> VisitedPages) {
+    //Function to get all the links to visit next and the visited pages previously
+    public float GetSavedLinks(List<String> PagesToVisit, Set<String> VisitedPages) {
         List<Document> LinksList = CrawlerCollection.find().into(new ArrayList<>());
-        for (Document link : LinksList)
+        for (Document link : LinksList) {
             if (!link.get("_id").toString().equals("1.0"))
             {
                 if (link.get("link") != null) {
@@ -62,6 +67,8 @@ public class MongoDB {
                     VisitedPages.add(link.get("saved").toString());
                 }
             }
+        }
+        return GetNofVisitedPages();
     }
 
     public float GetNofVisitedPages() {
