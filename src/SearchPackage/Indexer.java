@@ -34,7 +34,7 @@ public class Indexer extends ProcessString implements Runnable {
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer>>> invertedIndex;
 
-    public static void main(String[] args) throws InterruptedException {
+    public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
