@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -101,9 +103,10 @@ public class QueryProcessor extends ProcessString {
 
 
     private void extractQuotes(String query, List<String> phraseSearch) {
-        if (query.startsWith("\"") || (query.endsWith("\""))) {
-            String result = query.replaceAll("\"", "");
-            phraseSearch.add(result);
+        Pattern p = Pattern.compile("\"([^\"]*)\"");
+        Matcher m = p.matcher(query);
+        while (m.find()) {
+            phraseSearch.add(m.group(1));
         }
     }
 }
