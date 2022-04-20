@@ -102,7 +102,7 @@ public class QueryProcessor extends ProcessString {
 
     private void extractQuotes(String query, List<String> phraseSearch) {
         if (query.startsWith("\"") || (query.endsWith("\""))) {
-            String result = query.replaceAll("^\"|\"$", "");
+            String result = query.replaceAll("\"", "");
             phraseSearch.add(result);
         }
     }
