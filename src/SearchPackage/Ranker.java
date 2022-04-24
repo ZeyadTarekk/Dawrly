@@ -2,6 +2,18 @@ package SearchPackage;
 
 import java.io.File;
 import java.util.*;
+/*
+HOW TO USE?
+1- generateRelevance()
+    Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
+                returned from the database and converted
+    returns HashMap of <Pages,Scores> sorted in a descending way with respect to
+            scores of each page
+2- getPhraseSearching()
+    Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
+                returned from the database and converted
+    return list of Strings of the websites containing all the words in the query
+ */
 
 public class Ranker {
     private Integer pagesNumber;
@@ -123,8 +135,8 @@ public class Ranker {
         this.resultProcessed = result;
         generateTFSAndScores();
 
-        for(String page: wordsNormalizedTFSScores.keySet()){
-            if(wordsNormalizedTFSScores.get(page).size()==resultProcessed.size())
+        for (String page : wordsNormalizedTFSScores.keySet()) {
+            if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
                 pages.add(page);
         }
 
