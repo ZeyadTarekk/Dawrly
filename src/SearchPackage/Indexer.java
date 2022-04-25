@@ -34,8 +34,13 @@ public class Indexer extends ProcessString implements Runnable {
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndex;
 
+    // HashMap<fileName,All words in the file after processing>
+    // This map helps in phrase searching
+    private static HashMap<String, List<String>> processedFiles;
+
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
+        processedFiles = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words
@@ -63,9 +68,12 @@ public class Indexer extends ProcessString implements Runnable {
         for (int i = 0; i < 5; i++) {
             threads[i].join();
         }
-        // 7- converted the inverted index into json format
+        // 8- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
+        // 9- Upload to database
         uploadToDB(invertedIndexJSON);
+        uploadProcessedFiles();
+
         System.out.println(invertedIndexJSON);
         printTableHtml(invertedIndex);
         System.out.println("Done");
@@ -100,8 +108,12 @@ public class Indexer extends ProcessString implements Runnable {
             removeStopWords(words);
             // 5- stemming
             List<String> stemmedWords = stemming(words);
-            // 6- build inverted index
+            // 6- build processed words
+            buildProcessedFiles(fileName, stemmedWords);
+            // 7- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
+
+            System.out.println(processedFiles);
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
@@ -182,6 +194,11 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
+    // TODO: insert the file and its processed words
+    private static synchronized void buildProcessedFiles(String FileName, final List<String> stemmedWords) {
+        processedFiles.put(FileName, stemmedWords);
+    }
+
     private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndexP) {
         /*
         *
@@ -238,5 +255,20 @@ public class Indexer extends ProcessString implements Runnable {
             }
         }
 
+    }
+
+    private static void uploadProcessedFiles() {
+        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        MongoDatabase database = client.getDatabase("myFirstDatabase");
+        MongoCollection<Document> collection = database.getCollection("processesFiles");
+        for (String fileName : processedFiles.keySet()) {
+            Document found = (Document) collection.find(new Document("fileName", fileName.replace('.', '_'))).first();
+            Document doc = new Document("fileName", fileName.replace('.', '_')).append("processedFile", processedFiles.get(fileName));
+            if (found != null) {
+                Bson query = eq("fileName", fileName.replace('.', '_')); //filtration
+                collection.replaceOne(query, doc);
+            } else
+                collection.insertOne(doc);
+        }
     }
 }
