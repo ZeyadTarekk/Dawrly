@@ -32,7 +32,7 @@ import org.tartarus.snowball.ext.PorterStemmer;
 public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
     private static String folderRootPath;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndex;
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex;
 
     // HashMap<fileName,All words in the file after processing>
     // This map helps in phrase searching
@@ -40,7 +40,7 @@ public class Indexer extends ProcessString implements Runnable {
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
-        processedFiles = new HashMap<>();
+//        processedFiles = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words
@@ -72,7 +72,7 @@ public class Indexer extends ProcessString implements Runnable {
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
         // 9- Upload to database
         uploadToDB(invertedIndexJSON);
-        uploadProcessedFiles();
+//        uploadProcessedFiles();
 
         System.out.println(invertedIndexJSON);
         printTableHtml(invertedIndex);
@@ -109,17 +109,18 @@ public class Indexer extends ProcessString implements Runnable {
             // 5- stemming
             List<String> stemmedWords = stemming(words);
             // 6- build processed words
-            buildProcessedFiles(fileName, stemmedWords);
+//            buildProcessedFiles(fileName, stemmedWords);
             // 7- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
 
-            System.out.println(processedFiles);
+//            System.out.println(processedFiles);
+            System.out.println(stemmedWords);
             System.out.println(invertedIndex);
             System.out.println("\n\n");
         }
     }
 
-    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndex) {
+    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
             writer.write("<table>");
@@ -128,7 +129,7 @@ public class Indexer extends ProcessString implements Runnable {
             for (String word : invertedIndex.keySet()) {
                 writer.write("  <tr>");
 
-                HashMap<String, Pair<Integer, Integer, Double>> docs = invertedIndex.get(word);
+                HashMap<String, Pair<Integer, Integer, Double, Integer>> docs = invertedIndex.get(word);
                 for (String doc : docs.keySet()) {
                     writer.write("  <td>");
                     writer.write(word);
@@ -136,7 +137,7 @@ public class Indexer extends ProcessString implements Runnable {
                     writer.write("  </td>");
                     writer.write("  <td>");
 
-                    Pair<Integer, Integer, Double> tf_size = docs.get(doc);
+                    Pair<Integer, Integer, Double, Integer> tf_size = docs.get(doc);
                     writer.write("<strong>Doc Name</strong>: " + doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
                     writer.write("  </td>\n");
 
@@ -175,22 +176,24 @@ public class Indexer extends ProcessString implements Runnable {
         return lines;
     }
 
-    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndex) {
-        for (String word : stemmedWords) {
+    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex) {
+        for (int i = 0; i < stemmedWords.size(); i++) {
+            String word = stemmedWords.get(i);
             // if word not exist then allocate a map for it
             if (!invertedIndex.containsKey(word)) {
-                HashMap<String, Pair<Integer, Integer, Double>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double>>();
+                HashMap<String, Pair<Integer, Integer, Double, Integer>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double, Integer>>();
                 invertedIndex.put(word, docsMapOfWord);
             }
-            HashMap<String, Pair<Integer, Integer, Double>> docsMapOfWord = invertedIndex.get(word);
+            HashMap<String, Pair<Integer, Integer, Double, Integer>> docsMapOfWord = invertedIndex.get(word);
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer, Double> TF_Size_pair = new Pair<Integer, Integer, Double>(0, stemmedWords.size(), 1.5);
+                Pair<Integer, Integer, Double, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer>(0, stemmedWords.size(), 1.5);
                 docsMapOfWord.put(docName, TF_Size_pair);
             }
-            Pair<Integer, Integer, Double> TF_Size_pair = docsMapOfWord.get(docName);
+            Pair<Integer, Integer, Double, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
+            TF_Size_pair.index = i;
         }
     }
 
@@ -199,7 +202,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> invertedIndexP) {
         /*
         *
         {
@@ -228,6 +231,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("tf", invertedIndexP.get(word).get(doc).TF);
                 documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
+                documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);
