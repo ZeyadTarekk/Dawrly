@@ -194,10 +194,11 @@ public class Indexer extends ProcessString implements Runnable {
             if (!docsMapOfWord.containsKey(docName)) {
                 Pair<Integer, Integer, Double, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer>(0, stemmedWords.size(), 1.5);
                 docsMapOfWord.put(docName, TF_Size_pair);
+                TF_Size_pair.index = new ArrayList<>();
             }
             Pair<Integer, Integer, Double, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
-            TF_Size_pair.index = i;
+            TF_Size_pair.index.add(i);
         }
     }
 

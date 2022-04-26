@@ -1,11 +1,13 @@
 package SearchPackage;
 
-public class Pair<type1, type2, type3,type4> {
+import java.util.List;
+
+public class Pair<type1, type2, type3, type4> {
     public type1 TF;
     public type2 size;
     public type3 score;
 
-    public type4 index;
+    public List<type4> index;
 
     public Pair() {
     }
