@@ -100,7 +100,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 1- parse html
             String noHTMLDoc = "";
             try {
-                filterTags(fileName, folderRootPath);
+                noHTMLDoc = parsingHTML(fileName, folderRootPath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -175,8 +175,8 @@ public class Indexer extends ProcessString implements Runnable {
         }
         reader.close();
         lines = Str.toString();
-        htmlPage = Jsoup.parse(lines);
-        lines = htmlPage.text();
+        org.jsoup.nodes.Document html = Jsoup.parse(lines);
+        lines = html.text();
         return lines;
     }
 
@@ -206,7 +206,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> invertedIndexP) {
         /*
         *
         {
