@@ -8,14 +8,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.ReplaceOptions;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Updates;
 
 import static com.mongodb.client.model.Filters.eq;
 
-import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 
 import org.bson.conversions.Bson;
@@ -26,17 +21,18 @@ import org.jsoup.Jsoup;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import org.tartarus.snowball.ext.PorterStemmer;
-
 
 public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex;
+    private static org.jsoup.nodes.Document htmlPage;
 
     // HashMap<fileName,All words in the file after processing>
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
+    private static HashMap<String, Double> tagsHtml;
+    private static HashMap<String, Double> scoreOfWords;
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
@@ -96,7 +92,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 1- parse html
             String noHTMLDoc = "";
             try {
-                noHTMLDoc = parsingHTML(fileName, folderRootPath);
+                filterTags(fileName, folderRootPath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -171,8 +167,8 @@ public class Indexer extends ProcessString implements Runnable {
         }
         reader.close();
         lines = Str.toString();
-        org.jsoup.nodes.Document html = Jsoup.parse(lines);
-        lines = html.text();
+        htmlPage = Jsoup.parse(lines);
+        lines = htmlPage.text();
         return lines;
     }
 
@@ -202,7 +198,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndexP) {
         /*
         *
         {
@@ -273,6 +269,55 @@ public class Indexer extends ProcessString implements Runnable {
                 collection.replaceOne(query, doc);
             } else
                 collection.insertOne(doc);
+        }
+    }
+
+    private static void fillScoresOfTags() {
+        // score of each tag
+        //    title = 1
+        //    h1 = 0.7
+        //    h2 = 0.6
+        //    h3 = 0.5
+        //    h4 = 0.4
+        //    h5 = 0.3
+        //    h6 = 0.2
+        //    else = 0.1
+        tagsHtml.put("title", 0.9);
+        Double j = 0.6;
+        for (int i = 1; i <= 6; i++) {
+            tagsHtml.put("h" + i, j);
+            j -= 0.1;
+        }
+        tagsHtml.put("else", 0.1);
+    }
+
+    private static void filterTags(String file, String path) throws IOException {
+        fillScoresOfTags();
+        String lines = parsingHTML(file, path);
+        Pattern pattern = Pattern.compile("\\w+");
+        Matcher matcher = pattern.matcher("");
+        //filtration most important tags
+        for (String line : tagsHtml.keySet()) {
+            if (htmlPage.select(line).html() != "") {
+                String temp = htmlPage.select(line).html().toString();
+                matcher = pattern.matcher(temp);
+                while (matcher.find()) {
+                    if (!scoreOfWords.containsKey(matcher.group()))
+                        scoreOfWords.put(matcher.group(), tagsHtml.get(line));
+                    else
+                        scoreOfWords.put(matcher.group(), scoreOfWords.get(matcher.group()) + tagsHtml.get(line));
+                }
+            }
+        }
+        //rest of document
+        lines = htmlPage.text();
+        matcher = pattern.matcher(lines);
+        while (matcher.find()) {
+            if (!scoreOfWords.containsKey(matcher.group()))
+                scoreOfWords.put(matcher.group(), tagsHtml.get("else")); //create new one
+            else
+                scoreOfWords.put(matcher.group(), scoreOfWords.get(matcher.group()) + tagsHtml.get("else"));//increment previous score
+
         }
     }
 }
