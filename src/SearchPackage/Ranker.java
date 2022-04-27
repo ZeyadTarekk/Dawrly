@@ -68,15 +68,15 @@ public class Ranker {
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
-//                if(resultProcessed.get(word).get(page)!=null){
-                dummyMap = new HashMap<>();
-                if (wordsNormalizedTFSScores.get(page) == null) {
-                    wordsNormalizedTFSScores.put(page, dummyMap);
-                    wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
+//                if (resultProcessed.get(word).get(page) != null) {
+                    dummyMap = new HashMap<>();
+                    if (wordsNormalizedTFSScores.get(page) == null) {
+                        wordsNormalizedTFSScores.put(page, dummyMap);
+                        wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
 
-                } else {
-                    wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
-                }
+                    } else {
+                        wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
+                    }
 //                }
             }
         }
@@ -91,7 +91,8 @@ public class Ranker {
             dummyScore = 0;
             for (String word : wordsNormalizedTFSScores.get(page).keySet()) {
                 dummyPair = wordsNormalizedTFSScores.get(page).get(word);
-                dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
+                if (dummyPair.score != null)
+                    dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
             }
             pagesFinalScore.put(page, new Pair3<Double, String, String, String>(dummyScore, "", "", ""));
         }
@@ -176,6 +177,7 @@ public class Ranker {
         generateTFSAndScores();
         generateFinalScores();
         pagesFinalScore = sortHashMap();
+        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores);
         return pagesFinalScore;
     }
 
@@ -194,45 +196,60 @@ public class Ranker {
     }
 
     public static void main(String[] args) {
-        String testValue;
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner2 = new HashMap<>();
-        inner.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
-        inner.put("welc.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
-        inner.put("welc2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
-        inner.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
-        inner2.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 25, 1.5));
-        inner2.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
-        inner2.put("Hello3.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
-        inner2.put("Hello4.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
-        resultProcessed.put("like", inner);
-        resultProcessed.put("like2", inner2);
-        resultProcessed.put("like3", inner2);
-
-//        inner.put("first.com", new Pair<Integer, Integer, Double>(53,1837,1.5));
-//        inner.put("second.com", new Pair<Integer, Integer, Double>(12,252,1.5));
-//        inner2.put("first.com", new Pair<Integer, Integer, Double>(8,1837,1.5));
-//        inner2.put("second.com", new Pair<Integer, Integer, Double>(3,252,1.5));
-
-//        resultProcessed.put("backgammon",inner);
-//        resultProcessed.put("computer",inner2);
-        Pair2<Integer, Integer> test = new Pair2<>(3, 7);
-        System.out.println("Printing pair2");
-        System.out.println(test.first());
-        System.out.println(test.second());
-
+//        String testValue;
+//        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed = new HashMap<>();
+//        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner = new HashMap<>();
+//        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner2 = new HashMap<>();
+//        inner.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+//        inner.put("welc.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+//        inner.put("welc2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+//        inner.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+//        inner2.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 25, 1.5));
+//        inner2.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+//        inner2.put("Hello3.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+//        inner2.put("Hello4.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+//        resultProcessed.put("like", inner);
+//        resultProcessed.put("like2", inner2);
+//        resultProcessed.put("like3", inner2);
+//
+////        inner.put("first.com", new Pair<Integer, Integer, Double>(53,1837,1.5));
+////        inner.put("second.com", new Pair<Integer, Integer, Double>(12,252,1.5));
+////        inner2.put("first.com", new Pair<Integer, Integer, Double>(8,1837,1.5));
+////        inner2.put("second.com", new Pair<Integer, Integer, Double>(3,252,1.5));
+//
+////        resultProcessed.put("backgammon",inner);
+////        resultProcessed.put("computer",inner2);
+//        Pair2<Integer, Integer> test = new Pair2<>(3, 7);
+//        System.out.println("Printing pair2");
+//        System.out.println(test.first());
+//        System.out.println(test.second());
+//
+//        System.out.println(rank.generateRelevance(resultProcessed));
+//        System.out.println("===============================");
+//        System.out.println(rank.getPhraseSearching(resultProcessed));
+//        System.out.println("===============================");
+//        System.out.println(rank.wordsNormalizedIDFS);
+//        System.out.println(rank.wordsNormalizedTFSScores);
+//        System.out.println(rank.pagesFinalScore);
+//        System.out.println("Printing map value for test");
+//        testValue = (String) resultProcessed.get("like").keySet().toArray()[0];
+//        System.out.println(testValue);
         Ranker rank = new Ranker();
-        System.out.println("===============================");
-        System.out.println(rank.getPhraseSearching(resultProcessed));
-        System.out.println("===============================");
-        System.out.println(rank.generateRelevance(resultProcessed));
-        System.out.println(rank.wordsNormalizedIDFS);
-        System.out.println(rank.wordsNormalizedTFSScores);
-        System.out.println(rank.pagesFinalScore);
-        System.out.println("Printing map value for test");
-        testValue = (String) resultProcessed.get("like").keySet().toArray()[0];
-        System.out.println(testValue);
+        HashMap<String, Pair3<Double, String, String, String>> finalResult;
+        Indexer indexer = new Indexer();
+        try {
+            indexer.startIndexing();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        List<String> phraseSearch = new ArrayList<>();
+        QueryProcessor qp = new QueryProcessor();
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
+        System.out.println("============================================");
+        System.out.println(result);
+        System.out.println("============================================");
+        finalResult = rank.generateRelevance(result);
+        System.out.println(finalResult);
     }
 
 
