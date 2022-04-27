@@ -160,7 +160,7 @@ public class Crawler implements Runnable {
     //may need to send the document when we implement the class using threads
     public void DownloadHTML(Document htmlDocument) {
         final String path = "downloads\\";
-        String name = htmlDocument.title().trim().replaceAll(" ", "");
+        String name = htmlDocument.baseUri();
         if (name.length() > 10) {
             name = name.substring(0, 10);
         }
