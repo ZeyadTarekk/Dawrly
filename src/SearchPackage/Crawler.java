@@ -160,8 +160,10 @@ public class Crawler implements Runnable {
     public void DownloadHTML(Document htmlDocument, String url) {
         final String path = "downloads\\";
         String name = url;
+        name = name.replace("*", "`{}");
         name = name.replace("://", "}");
         name = name.replace("/", "{");
+        name = name.replace("?", "`");
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(path + name + ".html"));

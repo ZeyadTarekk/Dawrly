@@ -92,8 +92,10 @@ public class Indexer extends ProcessString implements Runnable {
             String fileName = fileNamesList[i];
             String oldFileName = new String(fileName);
             // TODO: modify file name
+            fileName = fileName.replace("`{}", "*");
             fileName = fileName.replace("}", "://");
             fileName = fileName.replace("{", "/");
+            fileName = fileName.replace("`", "?");
             fileName = fileName.replace(".html", "");
 //            System.out.println("File name after modification: " + fileName);
 
