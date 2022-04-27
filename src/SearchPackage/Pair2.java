@@ -19,4 +19,11 @@ public class Pair2<type1, type2> {
         this.TF = TF;
         this.score = score;
     }
+
+    public type1 first(){
+        return this.TF;
+    }
+    public type2 second(){
+        return this.score;
+    }
 }
