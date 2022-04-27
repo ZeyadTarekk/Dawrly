@@ -19,7 +19,7 @@ public class Crawler implements Runnable {
     private List<String> pagesToVisit = new LinkedList<String>();
     private MongoDB database;
     private RobotCheck robotObject = new RobotCheck();
-    private Object o1,o2,o3,o4;
+    private Object o1, o2, o3, o4;
 
     //methods
     public Crawler() {
@@ -72,7 +72,7 @@ public class Crawler implements Runnable {
 
                 //Download the page for the indexer
                 //And get all the links that can be visited later from it
-                DownloadHTML(htmlDocument);
+                DownloadHTML(htmlDocument,pageUrl);
                 List<String> Links = getLinks(htmlDocument);
 
                 synchronized (o3) {
@@ -105,14 +105,13 @@ public class Crawler implements Runnable {
 
         database.ChangeState("Interrupted");
 
-        Scanner sc= new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         System.out.print("Enter the number of Thread: ");
         int num = sc.nextInt();
 
         //Create the number of wanted Threads
         Thread[] threads = new Thread[num];
-        for (int i = 0; i < num; i++)
-        {
+        for (int i = 0; i < num; i++) {
             threads[i] = new Thread(this);
             threads[i].setName(Integer.toString(i));
             threads[i].start();
@@ -158,12 +157,11 @@ public class Crawler implements Runnable {
     }
 
     //may need to send the document when we implement the class using threads
-    public void DownloadHTML(Document htmlDocument) {
+    public void DownloadHTML(Document htmlDocument, String url) {
         final String path = "downloads\\";
-        String name = htmlDocument.title().trim().replaceAll(" ", "");
-        if (name.length() > 10) {
-            name = name.substring(0, 10);
-        }
+        String name = url;
+        name = name.replace("://", "}");
+        name = name.replace("/", "{");
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(path + name + ".html"));
