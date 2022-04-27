@@ -122,6 +122,7 @@ public class Ranker {
                 if (startIndex > 0) {
                     while (wholeDocument.charAt(startIndex) != ' ')
                         startIndex++;
+                    startIndex++;
                     while (wholeDocument.charAt(endIndex) != ' ')
                         endIndex--;
                 } else if (startIndex == 0) {
@@ -132,7 +133,7 @@ public class Ranker {
                     while (wholeDocument.charAt(endIndex) != ' ')
                         endIndex--;
                 }
-                String paragraph = wholeDocument.substring(startIndex + 1, endIndex) + "...";
+                String paragraph = wholeDocument.substring(startIndex, endIndex) + "...";
                 pagesFinalScore.get(page).setParagraph(paragraph);
             }
 
