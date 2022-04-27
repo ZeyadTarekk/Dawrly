@@ -105,7 +105,7 @@ public class Indexer extends ProcessString implements Runnable {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc);
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
-                System.out.println(html);
+//                System.out.println(html);
 
             } catch (IOException e) {
                 e.printStackTrace();

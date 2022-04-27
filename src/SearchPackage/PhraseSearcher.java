@@ -33,12 +33,12 @@ public class PhraseSearcher {
             for (int i = 0; i < query.size(); i++) {
                 addToArray(wordsIndices[i], query.size() - i - 1);
             }
-            System.out.println(Arrays.deepToString(wordsIndices));
+//            System.out.println(Arrays.deepToString(wordsIndices));
             List<Integer> resultList = new ArrayList<>(List.of(wordsIndices[0]));
             for (int i = 0; i < query.size(); i++) {
                 resultList.retainAll(List.of(wordsIndices[i]));
             }
-            System.out.println(resultList);
+//            System.out.println(resultList);
             if (!resultList.isEmpty())
                 goldenDocuments.add(document);
         }

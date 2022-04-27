@@ -92,7 +92,7 @@ public class QueryProcessor extends ProcessString {
             HashMap<String, Pair<Integer, Integer, Double, Integer>> documents = new HashMap<>();
             convertedHashMap.put((String) word_doc.get("word"), documents);
             ArrayList<Document> v = (ArrayList<Document>) word_doc.get("documents");
-            System.out.println(v);
+//            System.out.println(v);
             for (Document docJSON : v) {
                 Pair<Integer, Integer, Double, Integer> tf_size = new Pair<>();
                 tf_size.TF = (Integer) docJSON.get("tf");
