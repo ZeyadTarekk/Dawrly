@@ -7,8 +7,10 @@ HOW TO USE?
 1- generateRelevance()
     Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
                 returned from the database and converted
-    returns HashMap of <Pages,Scores> sorted in a descending way with respect to
+    returns HashMap of <String, Pair3<Double, String, String> sorted in a descending way with respect to
             scores of each page
+            <String, Pair3<Double, String, String>
+            page        Score    Paragraph  Word
 2- getPhraseSearching()
     Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
                 returned from the database and converted
@@ -21,9 +23,10 @@ public class Ranker {
     private HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores;
     //              page              word         TF     Score
 
-    private HashMap<String, Double> pagesFinalScore;
-
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> resultProcessed;
+    //    private HashMap<String, Double> pagesFinalScore;
+    private HashMap<String, Pair3<Double, String, String>> pagesFinalScore;
+    //                    page        Score    Paragraph  Word
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed;
 
     //    public Ranker(){
 //
@@ -46,7 +49,7 @@ public class Ranker {
         wordsNormalizedIDFS = new HashMap<>();
         double dummyIDF;
         String dummyWord;
-        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> Entry : resultProcessed.entrySet()) {
+        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> Entry : resultProcessed.entrySet()) {
             dummyWord = Entry.getKey();
             dummyIDF = ((double) pagesNumber / Entry.getValue().size());
             wordsNormalizedIDFS.put(dummyWord, dummyIDF);
@@ -56,7 +59,7 @@ public class Ranker {
     private void generateTFSAndScores() {
         wordsNormalizedTFSScores = new HashMap<>();
         HashMap<String, Pair2<Double, Double>> dummyMap;
-        Pair<Integer, Integer, Double,Integer> dummyPair;
+        Pair<Integer, Integer, Double, Integer> dummyPair;
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
@@ -77,6 +80,7 @@ public class Ranker {
     private void generateFinalScores() {
         pagesFinalScore = new HashMap<>();
         double dummyScore;
+        Pair3<Double, String, String> dummyScorePair;
         Pair2<Double, Double> dummyPair;
         for (String page : wordsNormalizedTFSScores.keySet()) {
             dummyScore = 0;
@@ -84,34 +88,34 @@ public class Ranker {
                 dummyPair = wordsNormalizedTFSScores.get(page).get(word);
                 dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
             }
-            pagesFinalScore.put(page, dummyScore);
+            pagesFinalScore.put(page, new Pair3<Double, String, String>(dummyScore, "", ""));
         }
 
     }
 
-    private HashMap<String, Double> sortHashMap() {
+    private HashMap<String, Pair3<Double, String, String>> sortHashMap() {
         // Creating a list from elements of HashMap
-        List<Map.Entry<String, Double>> list
-                = new LinkedList<Map.Entry<String, Double>>(
+        List<Map.Entry<String, Pair3<Double, String, String>>> list
+                = new LinkedList<Map.Entry<String, Pair3<Double, String, String>>>(
                 pagesFinalScore.entrySet());
 
         // Sorting the list using Collections.sort() method
         // using Comparator
         Collections.sort(
                 list,
-                new Comparator<Map.Entry<String, Double>>() {
+                new Comparator<Map.Entry<String, Pair3<Double, String, String>>>() {
                     public int compare(
-                            Map.Entry<String, Double> object1,
-                            Map.Entry<String, Double> object2) {
-                        return (object2.getValue())
-                                .compareTo(object1.getValue());
+                            Map.Entry<String, Pair3<Double, String, String>> object1,
+                            Map.Entry<String, Pair3<Double, String, String>> object2) {
+                        return (object2.getValue().first())
+                                .compareTo(object1.getValue().first());
                     }
                 });
 
         // putting the  data from sorted list back to hashmap
-        HashMap<String, Double> result
-                = new LinkedHashMap<String, Double>();
-        for (Map.Entry<String, Double> me : list) {
+        HashMap<String, Pair3<Double, String, String>> result
+                = new LinkedHashMap<String, Pair3<Double, String, String>>();
+        for (Map.Entry<String, Pair3<Double, String, String>> me : list) {
             result.put(me.getKey(), me.getValue());
         }
 
@@ -119,7 +123,7 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Double> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> result) {
+    public HashMap<String, Pair3<Double, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
         getPagesNumber();
         this.resultProcessed = result;
         generateIDFS();
@@ -129,7 +133,7 @@ public class Ranker {
         return pagesFinalScore;
     }
 
-    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> result) {
+    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
         List<String> pages = new ArrayList<>();
         getPagesNumber();
         this.resultProcessed = result;
@@ -144,17 +148,17 @@ public class Ranker {
     }
 
     public static void main(String[] args) {
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> resultProcessed = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double,Integer>> inner = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double,Integer>> inner2 = new HashMap<>();
-        inner.put("Hello.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
-        inner.put("welc.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
-        inner.put("welc2.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
-        inner.put("Hello2.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
-        inner2.put("Hello.com", new Pair<Integer, Integer, Double,Integer>(1, 25, 1.5));
-        inner2.put("Hello2.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
-        inner2.put("Hello3.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
-        inner2.put("Hello4.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed = new HashMap<>();
+        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner = new HashMap<>();
+        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner2 = new HashMap<>();
+        inner.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+        inner.put("welc.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+        inner.put("welc2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+        inner.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(2, 30, 1.5));
+        inner2.put("Hello.com", new Pair<Integer, Integer, Double, Integer>(1, 25, 1.5));
+        inner2.put("Hello2.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+        inner2.put("Hello3.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
+        inner2.put("Hello4.com", new Pair<Integer, Integer, Double, Integer>(1, 20, 1.5));
         resultProcessed.put("like", inner);
         resultProcessed.put("like2", inner2);
         resultProcessed.put("like3", inner2);
@@ -166,6 +170,10 @@ public class Ranker {
 
 //        resultProcessed.put("backgammon",inner);
 //        resultProcessed.put("computer",inner2);
+        Pair2<Integer, Integer> test = new Pair2<>(3, 7);
+        System.out.println("Printing pair2");
+        System.out.println(test.first());
+        System.out.println(test.second());
 
         Ranker rank = new Ranker();
         System.out.println("===============================");

@@ -20,10 +20,11 @@ public class Pair2<type1, type2> {
         this.score = score;
     }
 
-    public type1 first(){
+    public type1 first() {
         return this.TF;
     }
-    public type2 second(){
+
+    public type2 second() {
         return this.score;
     }
 }

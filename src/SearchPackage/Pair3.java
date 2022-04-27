@@ -23,13 +23,27 @@ public class Pair3<type1, type2, type3> {
         this.word = word;
     }
 
-    public type1 first(){
+    public type1 first() {
         return this.score;
     }
-    public type2 second(){
+
+    public type2 second() {
         return this.paragraph;
     }
-    public type3 third(){
+
+    public type3 third() {
         return this.word;
+    }
+
+    public void setScore(type1 sc) {
+        this.score = sc;
+    }
+
+    public void setParagraph(type2 par) {
+        this.paragraph = par;
+    }
+
+    public void setWord(type3 wor) {
+        this.word = wor;
     }
 }
