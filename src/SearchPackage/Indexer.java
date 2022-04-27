@@ -43,7 +43,6 @@ public class Indexer extends ProcessString implements Runnable {
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
-//        processedFiles = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words and fill score of tags
@@ -52,7 +51,6 @@ public class Indexer extends ProcessString implements Runnable {
             fillScoresOfTags();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Error in reading stop words");
         }
         // creates a file object
         File file = new File("downloads");
@@ -66,7 +64,6 @@ public class Indexer extends ProcessString implements Runnable {
             threads[i].setPriority(i + 1);
         }
         for (int i = 0; i < 5; i++) {
-            System.out.println("here");
             threads[i].start();
         }
         for (int i = 0; i < 5; i++) {
@@ -76,12 +73,10 @@ public class Indexer extends ProcessString implements Runnable {
         // 8- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
         // 9- Upload to database
+        System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
-//        uploadProcessedFiles();
 
-        System.out.println(invertedIndexJSON);
-        printTableHtml(invertedIndex);
-        System.out.println("Done");
+        System.out.println("Indexer has finished");
     }
 
     // 30
@@ -92,21 +87,15 @@ public class Indexer extends ProcessString implements Runnable {
     public void run() {
         int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
         int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
-        System.out.println(start + " " + end);
-        System.out.println(Thread.currentThread().getPriority());
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
-            System.out.println("Thread " + Thread.currentThread().getPriority() + " processed file: " + fileName);
             // 1- parse html
             StringBuilder noHTMLDoc = new StringBuilder("");
             try {
                 org.jsoup.nodes.Document html = parsingHTML(fileName, folderRootPath, noHTMLDoc);
-                System.out.println("String===>: " + noHTMLDoc.toString());
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
-                System.out.println("\n");
-                System.out.println(scoreOfWords);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -120,14 +109,10 @@ public class Indexer extends ProcessString implements Runnable {
             // 5- stemming
             List<String> stemmedWords = stemming(words);
             // 6- build processed words
-//            buildProcessedFiles(fileName, stemmedWords);
+            // buildProcessedFiles(fileName, stemmedWords);
             // 7- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
-
-//            System.out.println(processedFiles);
-            System.out.println(stemmedWords);
-            System.out.println(invertedIndex);
-            System.out.println("\n\n");
+            System.out.printf("#%d Thread #%d processed file: %s\n", i, Thread.currentThread().getPriority(), fileName);
         }
     }
 
@@ -246,7 +231,6 @@ public class Indexer extends ProcessString implements Runnable {
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);
-//            System.out.println(wordJSON);
             listOfWordJSONS.add(wordJSON);
         }
         return listOfWordJSONS;
