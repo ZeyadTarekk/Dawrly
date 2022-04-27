@@ -23,7 +23,7 @@ public class Ranker {
 
     private HashMap<String, Double> pagesFinalScore;
 
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> resultProcessed;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> resultProcessed;
 
     //    public Ranker(){
 //
@@ -46,7 +46,7 @@ public class Ranker {
         wordsNormalizedIDFS = new HashMap<>();
         double dummyIDF;
         String dummyWord;
-        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double>>> Entry : resultProcessed.entrySet()) {
+        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> Entry : resultProcessed.entrySet()) {
             dummyWord = Entry.getKey();
             dummyIDF = ((double) pagesNumber / Entry.getValue().size());
             wordsNormalizedIDFS.put(dummyWord, dummyIDF);
@@ -56,7 +56,7 @@ public class Ranker {
     private void generateTFSAndScores() {
         wordsNormalizedTFSScores = new HashMap<>();
         HashMap<String, Pair2<Double, Double>> dummyMap;
-        Pair<Integer, Integer, Double> dummyPair;
+        Pair<Integer, Integer, Double,Integer> dummyPair;
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
@@ -119,7 +119,7 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Double> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> result) {
+    public HashMap<String, Double> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> result) {
         getPagesNumber();
         this.resultProcessed = result;
         generateIDFS();
@@ -129,7 +129,7 @@ public class Ranker {
         return pagesFinalScore;
     }
 
-    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> result) {
+    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> result) {
         List<String> pages = new ArrayList<>();
         getPagesNumber();
         this.resultProcessed = result;
@@ -144,17 +144,17 @@ public class Ranker {
     }
 
     public static void main(String[] args) {
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>> resultProcessed = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double>> inner = new HashMap<>();
-        HashMap<String, Pair<Integer, Integer, Double>> inner2 = new HashMap<>();
-        inner.put("Hello.com", new Pair<Integer, Integer, Double>(1, 20, 1.5));
-        inner.put("welc.com", new Pair<Integer, Integer, Double>(2, 30, 1.5));
-        inner.put("welc2.com", new Pair<Integer, Integer, Double>(2, 30, 1.5));
-        inner.put("Hello2.com", new Pair<Integer, Integer, Double>(2, 30, 1.5));
-        inner2.put("Hello.com", new Pair<Integer, Integer, Double>(1, 25, 1.5));
-        inner2.put("Hello2.com", new Pair<Integer, Integer, Double>(1, 20, 1.5));
-        inner2.put("Hello3.com", new Pair<Integer, Integer, Double>(1, 20, 1.5));
-        inner2.put("Hello4.com", new Pair<Integer, Integer, Double>(1, 20, 1.5));
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> resultProcessed = new HashMap<>();
+        HashMap<String, Pair<Integer, Integer, Double,Integer>> inner = new HashMap<>();
+        HashMap<String, Pair<Integer, Integer, Double,Integer>> inner2 = new HashMap<>();
+        inner.put("Hello.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
+        inner.put("welc.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
+        inner.put("welc2.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
+        inner.put("Hello2.com", new Pair<Integer, Integer, Double,Integer>(2, 30, 1.5));
+        inner2.put("Hello.com", new Pair<Integer, Integer, Double,Integer>(1, 25, 1.5));
+        inner2.put("Hello2.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
+        inner2.put("Hello3.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
+        inner2.put("Hello4.com", new Pair<Integer, Integer, Double,Integer>(1, 20, 1.5));
         resultProcessed.put("like", inner);
         resultProcessed.put("like2", inner2);
         resultProcessed.put("like3", inner2);
