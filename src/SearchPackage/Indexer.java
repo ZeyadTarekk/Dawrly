@@ -244,8 +244,9 @@ public class Indexer extends ProcessString implements Runnable {
     }
 
     private static void uploadToDB(List<JSONObject> invertedIndexJSONParameter) {
-        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
-        MongoDatabase database = client.getDatabase("myFirstDatabase");
+//        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        com.mongodb.MongoClient client = new com.mongodb.MongoClient();
+        MongoDatabase database = client.getDatabase("SearchEngine");
         MongoCollection<Document> toys = database.getCollection("invertedIndex");
         // check if Doc is found or Not
         // if not exists ==> insert new Doc

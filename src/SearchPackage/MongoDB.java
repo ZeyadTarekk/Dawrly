@@ -27,6 +27,7 @@ public class MongoDB {
             MongoDatabase db = mongoClient.getDatabase("SearchEngine");
             CrawlerCollection = db.getCollection("crawler");
 
+            //TODO : check if there is _id == 1 if not add it
             System.out.println("Connected to database");
         } catch (Exception e) {
             e.printStackTrace();

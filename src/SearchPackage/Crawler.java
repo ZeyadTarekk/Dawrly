@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Crawler implements Runnable {
     //will be edited later to 5000
-    private static final int MAX_PAGES_TO_SEARCH = 10;
+    private static final int MAX_PAGES_TO_SEARCH = 5;
     private int NofVisitedPages;
     //used to save the special word of any page visited before
     private Set<String> pagesVisited = new HashSet<String>();

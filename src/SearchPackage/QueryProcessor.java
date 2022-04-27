@@ -73,8 +73,9 @@ public class QueryProcessor extends ProcessString {
     // TODO: Implement a function to get data from database
     List<Document> getDocsFromDB(List<String> stemmedWords) {
         List<Document> result = new Vector<>();
-        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
-        MongoDatabase database = client.getDatabase("myFirstDatabase");
+//        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
+        com.mongodb.MongoClient client = new com.mongodb.MongoClient();
+        MongoDatabase database = client.getDatabase("SearchEngine");
         MongoCollection<Document> collection = database.getCollection("invertedIndex");
         for (String word : stemmedWords) {
             Document found = (Document) collection.find(new Document("word", word)).first();
