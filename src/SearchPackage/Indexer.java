@@ -90,10 +90,17 @@ public class Indexer extends ProcessString implements Runnable {
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
+            String oldFileName = new String(fileName);
+            // TODO: modify file name
+            fileName = fileName.replace("}", "://");
+            fileName = fileName.replace("{", "/");
+            fileName = fileName.replace(".html", "");
+//            System.out.println("File name after modification: " + fileName);
+
             // 1- parse html
             StringBuilder noHTMLDoc = new StringBuilder("");
             try {
-                org.jsoup.nodes.Document html = parsingHTML(fileName, folderRootPath, noHTMLDoc);
+                org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc);
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
 
