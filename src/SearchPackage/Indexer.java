@@ -26,6 +26,7 @@ import org.json.simple.JSONObject;
 
 import org.jsoup.Jsoup;
 
+import javax.print.Doc;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -34,12 +35,10 @@ public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex;
-    private static org.jsoup.nodes.Document htmlPage;
-
     // HashMap<fileName,All words in the file after processing>
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
-    private static HashMap<String, Double> tagsHtml;
+    private static HashMap<String, Double> tagsOfHtml;
     private static HashMap<String, Double> scoreOfWords;
 
     public void startIndexing() throws InterruptedException {
@@ -47,9 +46,10 @@ public class Indexer extends ProcessString implements Runnable {
 //        processedFiles = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
-        // read stop words
+        // read stop words and fill score of tags
         try {
             readStopWords();
+            fillScoresOfTags();
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error in reading stop words");
@@ -72,6 +72,7 @@ public class Indexer extends ProcessString implements Runnable {
         for (int i = 0; i < 5; i++) {
             threads[i].join();
         }
+
         // 8- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
         // 9- Upload to database
@@ -98,14 +99,20 @@ public class Indexer extends ProcessString implements Runnable {
             String fileName = fileNamesList[i];
             System.out.println("Thread " + Thread.currentThread().getPriority() + " processed file: " + fileName);
             // 1- parse html
-            String noHTMLDoc = "";
+            StringBuilder noHTMLDoc = new StringBuilder("");
             try {
-                noHTMLDoc = parsingHTML(fileName, folderRootPath);
+                org.jsoup.nodes.Document html = parsingHTML(fileName, folderRootPath, noHTMLDoc);
+                System.out.println("String===>: " + noHTMLDoc.toString());
+                scoreOfWords = new HashMap<>();
+                filterTags(tagsOfHtml, html, noHTMLDoc.toString());
+                System.out.println("\n");
+                System.out.println(scoreOfWords);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
             // 2- split words
-            List<String> words = splitWords(noHTMLDoc);
+            List<String> words = splitWords(noHTMLDoc.toString());
             // 3-convert to lowercase
             convertToLower(words);
             // 4- remove stop words
@@ -166,18 +173,17 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static String parsingHTML(String input, String path) throws IOException {
+    private static org.jsoup.nodes.Document parsingHTML(String input, String path, StringBuilder HTML) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(path + input));
         String lines = "";
-        StringBuilder Str = new StringBuilder();
+        StringBuilder Str = new StringBuilder("");
         while ((lines = reader.readLine()) != null) {
             Str.append(lines);
         }
         reader.close();
-        lines = Str.toString();
-        org.jsoup.nodes.Document html = Jsoup.parse(lines);
-        lines = html.text();
-        return lines;
+        org.jsoup.nodes.Document html = Jsoup.parse(Str.toString());
+        HTML.append(html.text());
+        return html;
     }
 
     private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex) {
@@ -192,7 +198,7 @@ public class Indexer extends ProcessString implements Runnable {
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer, Double, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer>(0, stemmedWords.size(), 1.5);
+                Pair<Integer, Integer, Double, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
             }
@@ -207,7 +213,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double,Integer>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndexP) {
         /*
         *
         {
@@ -291,42 +297,47 @@ public class Indexer extends ProcessString implements Runnable {
         //    h5 = 0.3
         //    h6 = 0.2
         //    else = 0.1
-        tagsHtml.put("title", 0.9);
+        tagsOfHtml = new HashMap<String, Double>();
+        tagsOfHtml.put("title", 0.9);
         Double j = 0.6;
         for (int i = 1; i <= 6; i++) {
-            tagsHtml.put("h" + i, j);
+            tagsOfHtml.put("h" + i, j);
             j -= 0.1;
         }
-        tagsHtml.put("else", 0.1);
+        tagsOfHtml.put("else", 0.1);
     }
 
-    private static void filterTags(String file, String path) throws IOException {
-        fillScoresOfTags();
-        String lines = parsingHTML(file, path);
+    private static void filterTags(HashMap<String, Double> tagsHtml, org.jsoup.nodes.Document html, String lines) throws IOException {
+        PorterStemmer stemmer = new PorterStemmer();
         Pattern pattern = Pattern.compile("\\w+");
-        Matcher matcher = pattern.matcher("");
+        Matcher matcher;
         //filtration most important tags
         for (String line : tagsHtml.keySet()) {
-            if (htmlPage.select(line).html() != "") {
-                String temp = htmlPage.select(line).html().toString();
-                matcher = pattern.matcher(temp);
+            if (html != null && !html.select(line).html().equals("")) {
+                String temp = html.select(line).html();
+                matcher = pattern.matcher(temp.toLowerCase());
                 while (matcher.find()) {
-                    if (!scoreOfWords.containsKey(matcher.group()))
-                        scoreOfWords.put(matcher.group(), tagsHtml.get(line));
+                    stemmer.setCurrent(matcher.group());
+                    stemmer.stem();
+                    temp = stemmer.getCurrent();
+                    if (!scoreOfWords.containsKey(temp))
+                        scoreOfWords.put(temp, tagsHtml.get(line));
                     else
-                        scoreOfWords.put(matcher.group(), scoreOfWords.get(matcher.group()) + tagsHtml.get(line));
+                        scoreOfWords.put(temp, scoreOfWords.get(temp) + tagsHtml.get(line));
                 }
             }
         }
         //rest of document
-        lines = htmlPage.text();
-        matcher = pattern.matcher(lines);
+        matcher = pattern.matcher(lines.toLowerCase());
         while (matcher.find()) {
-            if (!scoreOfWords.containsKey(matcher.group()))
-                scoreOfWords.put(matcher.group(), tagsHtml.get("else")); //create new one
+            stemmer.setCurrent(matcher.group());
+            stemmer.stem();
+            String rest = stemmer.getCurrent();
+            if (!scoreOfWords.containsKey(rest))
+                scoreOfWords.put(rest, tagsHtml.get("else")); //create new one
             else
-                scoreOfWords.put(matcher.group(), scoreOfWords.get(matcher.group()) + tagsHtml.get("else"));//increment previous score
-
+                scoreOfWords.put(rest, scoreOfWords.get(rest) + tagsHtml.get("else"));//increment previous score
         }
+        scoreOfWords.keySet().removeAll(stopWords); //remove stop words
     }
 }
