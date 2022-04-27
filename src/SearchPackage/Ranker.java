@@ -11,9 +11,9 @@ import java.util.*;
 HOW TO USE?
 1- generateRelevance()
     Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
-                returned from the database and converted
+                returned from the database and converted and  List<String> pages
     returns HashMap of <String, Pair3<Double, String, String, String> sorted in a descending way with respect to
-            scores of each page
+            scores of each page and fills the pages list with the golden Websites
             <String, Pair3<Double, String, String, String>
             page            Score Paragraph Title  Word
 2- getPhraseSearching()
@@ -69,14 +69,14 @@ public class Ranker {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
 //                if (resultProcessed.get(word).get(page) != null) {
-                    dummyMap = new HashMap<>();
-                    if (wordsNormalizedTFSScores.get(page) == null) {
-                        wordsNormalizedTFSScores.put(page, dummyMap);
-                        wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
+                dummyMap = new HashMap<>();
+                if (wordsNormalizedTFSScores.get(page) == null) {
+                    wordsNormalizedTFSScores.put(page, dummyMap);
+                    wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
 
-                    } else {
-                        wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
-                    }
+                } else {
+                    wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
+                }
 //                }
             }
         }
@@ -171,12 +171,20 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result, List<String> pages) {
+
+
         getPagesNumber();
         this.resultProcessed = result;
         generateIDFS();
         generateTFSAndScores();
         generateFinalScores();
+
+        for (String page : wordsNormalizedTFSScores.keySet()) {
+            if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
+                pages.add(page);
+        }
+
         pagesFinalScore = sortHashMap();
         getParagraphs(pagesFinalScore, wordsNormalizedTFSScores);
         return pagesFinalScore;
@@ -249,7 +257,7 @@ public class Ranker {
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result);
+        finalResult = rank.generateRelevance(result,phraseSearch);
         System.out.println(finalResult);
     }
 
