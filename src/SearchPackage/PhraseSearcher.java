@@ -9,23 +9,16 @@ public class PhraseSearcher {
 
     private List<String> goldenDocuments;
 
-    public List<String> getGoldenDocuments() {
-        return goldenDocuments;
-    }
+    private HashMap<String, Pair3<Double, String, String, String>> orderedDocs;
 
-    public static void main(String[] args) {
-        Integer[] a = new Integer[5];
-        for (int i = 0; i < 5; i++) a[i] = i;
-        addToArray(a, 10);
-        System.out.println(Arrays.toString(a));
-    }
-
-    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex, List<String> docsWithAllOccurrence, List<String> query) {
+    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
         this.invertedIndex = invertedIndex;
         this.docsWithAllOccurrence = docsWithAllOccurrence;
         this.query = query;
+        this.orderedDocs = orderedDocs;
         goldenDocuments = new ArrayList<>();
         buildAllOccurrenceDocs();
+        moveDocumentUp();
     }
 
     // TODO: implement a function that returns a list of documents in which the words appeared in same order
@@ -51,11 +44,32 @@ public class PhraseSearcher {
         }
     }
 
-    private static void addToArray(Integer[] list, int value) {
+    private void addToArray(Integer[] list, int value) {
         for (int i = 0; i < list.length; i++) {
             list[i] += value;
         }
     }
-    // TODO: Implement a function that make golden docs at the top of data structure (Built by the ranker)
 
+    // TODO: Implement a function that make golden docs at the top of data structure (Built by the ranker)
+    private void moveDocumentUp() {
+        System.out.println("Before moving up");
+        System.out.println(orderedDocs);
+        for (String doc : goldenDocuments) {
+            Pair3<Double, String, String, String> tempPair = orderedDocs.get(doc);
+            Pair3<Double, String, String, String> tempPair2 = new Pair3<>(tempPair.score, tempPair.paragraph, tempPair.title, tempPair.word);
+            orderedDocs.remove(doc);
+            // insert at the beginning of  hashmap
+            LinkedHashMap<String, Pair3<Double, String, String, String>> newMap = (LinkedHashMap<String, Pair3<Double, String, String, String>>) orderedDocs.clone();
+            orderedDocs.clear();
+            orderedDocs.put(doc, tempPair2);
+            orderedDocs.putAll(newMap);
+        }
+        System.out.println("Before moving up");
+        System.out.println(orderedDocs);
+    }
+
+    // TODO: Implement the interface
+    public HashMap<String, Pair3<Double, String, String, String>> getOrderedDocs() {
+        return this.orderedDocs;
+    }
 }
