@@ -176,7 +176,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
         reader.close();
         org.jsoup.nodes.Document html = Jsoup.parse(Str.toString());
-        HTML.append(html.text());
+        HTML.append(html.body());
         return html;
     }
 
