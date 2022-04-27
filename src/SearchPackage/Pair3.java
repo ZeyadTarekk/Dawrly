@@ -3,7 +3,7 @@ package SearchPackage;
 public class Pair3<type1, type2, type3> {
     public type1 score;
     public type2 paragraph;
-    public type3 word;
+    public type3 title;
 
     public Pair3() {
     }
@@ -13,14 +13,14 @@ public class Pair3<type1, type2, type3> {
         return "Pair{" +
                 "Score =" + score +
                 ", paragraph=" + paragraph +
-                ", word=" + word +
+                ", Title=" + title +
                 '}';
     }
 
     public Pair3(type1 score, type2 paragraph, type3 word) {
         this.score = score;
         this.paragraph = paragraph;
-        this.word = word;
+        this.title = word;
     }
 
     public type1 first() {
@@ -32,7 +32,7 @@ public class Pair3<type1, type2, type3> {
     }
 
     public type3 third() {
-        return this.word;
+        return this.title;
     }
 
     public void setScore(type1 sc) {
@@ -43,7 +43,7 @@ public class Pair3<type1, type2, type3> {
         this.paragraph = par;
     }
 
-    public void setWord(type3 wor) {
-        this.word = wor;
+    public void setTitle(type3 wor) {
+        this.title = wor;
     }
 }
