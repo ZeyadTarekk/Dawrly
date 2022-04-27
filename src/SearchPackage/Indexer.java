@@ -75,7 +75,7 @@ public class Indexer extends ProcessString implements Runnable {
         // 9- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
-
+//        System.out.println(invertedIndex);
         System.out.println("Indexer has finished");
     }
 
@@ -322,6 +322,5 @@ public class Indexer extends ProcessString implements Runnable {
             else
                 scoreOfWords.put(rest, scoreOfWords.get(rest) + tagsHtml.get("else"));//increment previous score
         }
-        scoreOfWords.keySet().removeAll(stopWords); //remove stop words
     }
 }
