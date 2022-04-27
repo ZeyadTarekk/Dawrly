@@ -1,16 +1,21 @@
 package SearchPackage;
 
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 /*
 HOW TO USE?
 1- generateRelevance()
     Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
                 returned from the database and converted
-    returns HashMap of <String, Pair3<Double, String, String> sorted in a descending way with respect to
+    returns HashMap of <String, Pair3<Double, String, String, String> sorted in a descending way with respect to
             scores of each page
-            <String, Pair3<Double, String, String>
-            page        Score    Paragraph  Word
+            <String, Pair3<Double, String, String, String>
+            page            Score Paragraph Title  Word
 2- getPhraseSearching()
     Parameters: takes HashMap<String, HashMap<String, Pair<Integer, Integer, Double>>>
                 returned from the database and converted
@@ -24,8 +29,8 @@ public class Ranker {
     //              page              word         TF     Score
 
     //    private HashMap<String, Double> pagesFinalScore;
-    private HashMap<String, Pair3<Double, String, String>> pagesFinalScore;
-    //                    page        Score    Paragraph  Word
+    private HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore;
+    //                    page        Score    Paragraph  title
     private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed;
 
     //    public Ranker(){
@@ -80,7 +85,7 @@ public class Ranker {
     private void generateFinalScores() {
         pagesFinalScore = new HashMap<>();
         double dummyScore;
-        Pair3<Double, String, String> dummyScorePair;
+        Pair3<Double, String, String, String> dummyScorePair;
         Pair2<Double, Double> dummyPair;
         for (String page : wordsNormalizedTFSScores.keySet()) {
             dummyScore = 0;
@@ -88,34 +93,75 @@ public class Ranker {
                 dummyPair = wordsNormalizedTFSScores.get(page).get(word);
                 dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
             }
-            pagesFinalScore.put(page, new Pair3<Double, String, String>(dummyScore, "", ""));
+            pagesFinalScore.put(page, new Pair3<Double, String, String, String>(dummyScore, "", "", ""));
         }
 
     }
 
-    private HashMap<String, Pair3<Double, String, String>> sortHashMap() {
+    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores) {
+        String wordToSearch;
+        String wholeDocument;
+        for (String page : pagesFinalScore.keySet()) {
+            wordToSearch = (String) wordsNormalizedTFSScores.get(page).keySet().toArray()[0];
+            pagesFinalScore.get(page).setWord(wordToSearch);
+            Connection connection;
+            Document htmlDocument = null;
+            try {
+                connection = Jsoup.connect(page);
+                htmlDocument = connection.get();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (htmlDocument != null) {
+                pagesFinalScore.get(page).setTitle(htmlDocument.title());
+                wholeDocument = htmlDocument.body().text().toString();
+                int index = wholeDocument.indexOf(wordToSearch);
+                int endIndex = index + 100;
+                int startIndex = index - 100;
+                if (startIndex > 0) {
+                    while (wholeDocument.charAt(startIndex) != ' ')
+                        startIndex++;
+                    while (wholeDocument.charAt(endIndex) != ' ')
+                        endIndex--;
+                } else if (startIndex == 0) {
+                    while (wholeDocument.charAt(endIndex) != ' ')
+                        endIndex--;
+                } else {
+                    startIndex = 0;
+                    while (wholeDocument.charAt(endIndex) != ' ')
+                        endIndex--;
+                }
+                String paragraph = wholeDocument.substring(startIndex + 1, endIndex) + "...";
+                pagesFinalScore.get(page).setParagraph(paragraph);
+            }
+
+
+        }
+    }
+
+    private HashMap<String, Pair3<Double, String, String, String>> sortHashMap() {
         // Creating a list from elements of HashMap
-        List<Map.Entry<String, Pair3<Double, String, String>>> list
-                = new LinkedList<Map.Entry<String, Pair3<Double, String, String>>>(
+        List<Map.Entry<String, Pair3<Double, String, String, String>>> list
+                = new LinkedList<Map.Entry<String, Pair3<Double, String, String, String>>>(
                 pagesFinalScore.entrySet());
 
         // Sorting the list using Collections.sort() method
         // using Comparator
         Collections.sort(
                 list,
-                new Comparator<Map.Entry<String, Pair3<Double, String, String>>>() {
+                new Comparator<Map.Entry<String, Pair3<Double, String, String, String>>>() {
                     public int compare(
-                            Map.Entry<String, Pair3<Double, String, String>> object1,
-                            Map.Entry<String, Pair3<Double, String, String>> object2) {
-                        return (object2.getValue().first())
-                                .compareTo(object1.getValue().first());
+                            Map.Entry<String, Pair3<Double, String, String, String>> object1,
+                            Map.Entry<String, Pair3<Double, String, String, String>> object2) {
+                        return (object2.getValue().getScore())
+                                .compareTo(object1.getValue().getScore());
                     }
                 });
 
         // putting the  data from sorted list back to hashmap
-        HashMap<String, Pair3<Double, String, String>> result
-                = new LinkedHashMap<String, Pair3<Double, String, String>>();
-        for (Map.Entry<String, Pair3<Double, String, String>> me : list) {
+        HashMap<String, Pair3<Double, String, String, String>> result
+                = new LinkedHashMap<String, Pair3<Double, String, String, String>>();
+        for (Map.Entry<String, Pair3<Double, String, String, String>> me : list) {
             result.put(me.getKey(), me.getValue());
         }
 
@@ -123,7 +169,7 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Pair3<Double, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
         getPagesNumber();
         this.resultProcessed = result;
         generateIDFS();
@@ -148,6 +194,7 @@ public class Ranker {
     }
 
     public static void main(String[] args) {
+        String testValue;
         HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed = new HashMap<>();
         HashMap<String, Pair<Integer, Integer, Double, Integer>> inner = new HashMap<>();
         HashMap<String, Pair<Integer, Integer, Double, Integer>> inner2 = new HashMap<>();
@@ -183,6 +230,9 @@ public class Ranker {
         System.out.println(rank.wordsNormalizedIDFS);
         System.out.println(rank.wordsNormalizedTFSScores);
         System.out.println(rank.pagesFinalScore);
+        System.out.println("Printing map value for test");
+        testValue = (String) resultProcessed.get("like").keySet().toArray()[0];
+        System.out.println(testValue);
     }
 
 
