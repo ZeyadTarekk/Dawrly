@@ -1,12 +1,8 @@
 package SearchPackage;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.json.simple.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,8 +55,8 @@ public class QueryProcessor extends ProcessString {
         // TODO: Stem words
         List<String> stemmedWords = stemming(words);
 
-        // TODO: Copy stemmedWords to phraseSearch
-        copyStemmedWords(stemmedWords, phraseSearch);
+        // TODO: Extract Double Quotes from stemmedWords passing to phraseSearch
+        extractDoubleQuotes(stemmedWords, phraseSearch);
 
         // TODO: Get documents containing words from database
         List<Document> words_documents = getDocsFromDB(stemmedWords);
@@ -98,7 +94,7 @@ public class QueryProcessor extends ProcessString {
                 tf_size.TF = (Integer) docJSON.get("tf");
                 tf_size.size = (Integer) docJSON.get("size");
                 tf_size.score = (Double) docJSON.get("score");
-                tf_size.index = new ArrayList<>((ArrayList<Integer>)docJSON.get("index"));
+                tf_size.index = new ArrayList<>((ArrayList<Integer>) docJSON.get("index"));
                 documents.put((String) docJSON.get("document"), tf_size);
             }
         }
@@ -106,7 +102,13 @@ public class QueryProcessor extends ProcessString {
     }
 
 
-    private void copyStemmedWords(List<String> stemmedWords, List<String> phraseSearch) {
-        for (String word : stemmedWords) phraseSearch.add(word);
+    private void extractDoubleQuotes(List<String> stemmedWords, List<String> phraseSearch) {
+        Pattern p = Pattern.compile("\"([^\"]*)\"");
+        for (String word : stemmedWords) {
+            Matcher m = p.matcher(word);
+            while (m.find()) {
+                phraseSearch.add(m.group(1));
+            }
+        }
     }
 }
