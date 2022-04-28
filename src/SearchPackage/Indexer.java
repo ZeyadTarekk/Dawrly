@@ -308,17 +308,17 @@ public class Indexer extends ProcessString implements Runnable {
         Matcher matcher;
         //filtration most important tags
         for (String line : tagsHtml.keySet()) {
-            String tagedString = html.select(line).html();
-            if (html != null && !tagedString.equals("")) {
-                matcher = pattern.matcher(tagedString.toLowerCase());
+            String taggedString = html.select(line).text();
+            if (html != null && !taggedString.isEmpty()) {
+                matcher = pattern.matcher(taggedString.toLowerCase());
                 while (matcher.find()) {
                     stemmer.setCurrent(matcher.group());
                     stemmer.stem();
-                    tagedString = stemmer.getCurrent();
-                    if (!scoreOfWords.containsKey(tagedString))
-                        scoreOfWords.put(tagedString, tagsHtml.get(line));
+                    taggedString = stemmer.getCurrent();
+                    if (!scoreOfWords.containsKey(taggedString))
+                        scoreOfWords.put(taggedString, tagsHtml.get(line));
                     else
-                        scoreOfWords.put(tagedString, scoreOfWords.get(tagedString) + tagsHtml.get(line));
+                        scoreOfWords.put(taggedString, scoreOfWords.get(taggedString) + tagsHtml.get(line));
                 }
             }
         }
@@ -331,5 +331,6 @@ public class Indexer extends ProcessString implements Runnable {
             } else
                 scoreOfWords.put(stemmedWords.get(j), 0.1);
         }
+        scoreOfWords.keySet().remove(""); //remove empty string
     }
 }
