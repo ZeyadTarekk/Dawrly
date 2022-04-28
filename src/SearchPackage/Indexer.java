@@ -105,7 +105,6 @@ public class Indexer extends ProcessString implements Runnable {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc);
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
-//                System.out.println(html);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -118,9 +117,11 @@ public class Indexer extends ProcessString implements Runnable {
             removeStopWords(words);
             // 5- stemming
             List<String> stemmedWords = stemming(words);
-            // 6- build processed words
+            // 6- fill other tags with score
+            filOtherTags(stemmedWords);
+            // 7- build processed words
             // buildProcessedFiles(fileName, stemmedWords);
-            // 7- build inverted index
+            // 8- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
             System.out.printf("#%d Thread #%d processed file: %s\n", i, Thread.currentThread().getPriority(), fileName);
         }
@@ -177,7 +178,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
         reader.close();
         org.jsoup.nodes.Document html = Jsoup.parse(Str.toString());
-        HTML.append(html.body().text());
+        HTML.append(html.body().text() + html.title());
         return html;
     }
 
@@ -299,7 +300,6 @@ public class Indexer extends ProcessString implements Runnable {
             tagsOfHtml.put("h" + i, j);
             j -= 0.1;
         }
-        tagsOfHtml.put("else", 0.1);
     }
 
     private static void filterTags(HashMap<String, Double> tagsHtml, org.jsoup.nodes.Document html, String lines) throws IOException {
@@ -308,30 +308,28 @@ public class Indexer extends ProcessString implements Runnable {
         Matcher matcher;
         //filtration most important tags
         for (String line : tagsHtml.keySet()) {
-            if (html != null && !html.select(line).html().equals("")) {
-                String temp = html.select(line).html();
-                matcher = pattern.matcher(temp.toLowerCase());
+            String tagedString = html.select(line).html();
+            if (html != null && !tagedString.equals("")) {
+                matcher = pattern.matcher(tagedString.toLowerCase());
                 while (matcher.find()) {
                     stemmer.setCurrent(matcher.group());
                     stemmer.stem();
-                    temp = stemmer.getCurrent();
-                    if (!scoreOfWords.containsKey(temp))
-                        scoreOfWords.put(temp, tagsHtml.get(line));
+                    tagedString = stemmer.getCurrent();
+                    if (!scoreOfWords.containsKey(tagedString))
+                        scoreOfWords.put(tagedString, tagsHtml.get(line));
                     else
-                        scoreOfWords.put(temp, scoreOfWords.get(temp) + tagsHtml.get(line));
+                        scoreOfWords.put(tagedString, scoreOfWords.get(tagedString) + tagsHtml.get(line));
                 }
             }
         }
-        //rest of document
-        matcher = pattern.matcher(lines.toLowerCase());
-        while (matcher.find()) {
-            stemmer.setCurrent(matcher.group());
-            stemmer.stem();
-            String rest = stemmer.getCurrent();
-            if (!scoreOfWords.containsKey(rest))
-                scoreOfWords.put(rest, tagsHtml.get("else")); //create new one
-            else
-                scoreOfWords.put(rest, scoreOfWords.get(rest) + tagsHtml.get("else"));//increment previous score
+    }
+
+    private static void filOtherTags(List<String> stemmedWords) {
+        for (int j = 0; j < stemmedWords.size(); j++) {
+            if (scoreOfWords.containsKey(stemmedWords.get(j))) {
+                scoreOfWords.put(stemmedWords.get(j), 0.1 + scoreOfWords.get(stemmedWords.get(j)));
+            } else
+                scoreOfWords.put(stemmedWords.get(j), 0.1);
         }
     }
 }
