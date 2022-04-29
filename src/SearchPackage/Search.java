@@ -23,8 +23,8 @@ public class Search {
         qp = new QueryProcessor();
         rank = new Ranker();
         result = qp.processQuery(queryToSearch, query);
-        finalResults = rank.generateRelevance(result,goldenPages);
-        phraseSearcher = new PhraseSearcher(result,finalResults,goldenPages,query);
+        finalResults = rank.generateRelevance(result, goldenPages);
+        phraseSearcher = new PhraseSearcher(result, finalResults, goldenPages, query);
         finalResults = phraseSearcher.getOrderedDocs();
 
         return finalResults;
@@ -33,7 +33,11 @@ public class Search {
     public static void main(String[] args) {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
-        finalResults = ser.searchQuery("JavaScript Tutorial");
+        long start1 = System.currentTimeMillis();
+        finalResults = ser.searchQuery("JavaScript");
+        long end1 = System.currentTimeMillis();
+        System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
+
         System.out.println("================================");
         System.out.println(finalResults);
         System.out.println("================================");
