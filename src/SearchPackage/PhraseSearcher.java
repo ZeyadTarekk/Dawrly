@@ -3,7 +3,7 @@ package SearchPackage;
 import java.util.*;
 
 public class PhraseSearcher {
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
     private List<String> docsWithAllOccurrence;
     private List<String> query;
 
@@ -11,7 +11,7 @@ public class PhraseSearcher {
 
     private HashMap<String, Pair3<Double, String, String, String>> orderedDocs;
 
-    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
+    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
         this.invertedIndex = invertedIndex;
         this.docsWithAllOccurrence = docsWithAllOccurrence;
         this.query = query;
@@ -21,6 +21,9 @@ public class PhraseSearcher {
 //        System.out.println(orderedDocs);
 //        System.out.println(docsWithAllOccurrence);
 //        System.out.println("Query"+query);
+//        System.out.println("PHHHHHHHHHHH");
+//        if (query.size() == 0)
+//            System.out.println("No double quotes");
         if (query.size() != 0) {
             buildAllOccurrenceDocs();
             moveDocumentUp();

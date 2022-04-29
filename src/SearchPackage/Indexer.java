@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
     private static String folderRootPath;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex;
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
     // HashMap<fileName,All words in the file after processing>
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
@@ -127,7 +127,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex) {
+    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
             writer.write("<table>");
@@ -136,7 +136,7 @@ public class Indexer extends ProcessString implements Runnable {
             for (String word : invertedIndex.keySet()) {
                 writer.write("  <tr>");
 
-                HashMap<String, Pair<Integer, Integer, Double, Integer>> docs = invertedIndex.get(word);
+                HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docs = invertedIndex.get(word);
                 for (String doc : docs.keySet()) {
                     writer.write("  <td>");
                     writer.write(word);
@@ -144,7 +144,7 @@ public class Indexer extends ProcessString implements Runnable {
                     writer.write("  </td>");
                     writer.write("  <td>");
 
-                    Pair<Integer, Integer, Double, Integer> tf_size = docs.get(doc);
+                    Pair<Integer, Integer, Double, Integer, Integer> tf_size = docs.get(doc);
                     writer.write("<strong>Doc Name</strong>: " + doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
                     writer.write("  </td>\n");
 
@@ -182,23 +182,25 @@ public class Indexer extends ProcessString implements Runnable {
         return html;
     }
 
-    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndex) {
+    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex) {
         for (int i = 0; i < stemmedWords.size(); i++) {
             String word = stemmedWords.get(i);
             // if word not exist then allocate a map for it
             if (!invertedIndex.containsKey(word)) {
-                HashMap<String, Pair<Integer, Integer, Double, Integer>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double, Integer>>();
+                HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>();
                 invertedIndex.put(word, docsMapOfWord);
             }
-            HashMap<String, Pair<Integer, Integer, Double, Integer>> docsMapOfWord = invertedIndex.get(word);
+            HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docsMapOfWord = invertedIndex.get(word);
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer, Double, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
+                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
+                //TODO: Add here the array of indices of the word in the original document
+                TF_Size_pair.actualIndices = new ArrayList<>();
             }
-            Pair<Integer, Integer, Double, Integer> TF_Size_pair = docsMapOfWord.get(docName);
+            Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
             TF_Size_pair.index.add(i);
         }
@@ -209,7 +211,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndexP) {
         /*
         *
         {
@@ -239,6 +241,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
+                documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);

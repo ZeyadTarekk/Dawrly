@@ -15,7 +15,7 @@ public class Search {
     private List<String> goldenPages;
 
     private Ranker rank;
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer,Integer>>> result;
 
     public HashMap<String, Pair3<Double, String, String, String>> searchQuery(String queryToSearch) {
         goldenPages = new ArrayList<>();
