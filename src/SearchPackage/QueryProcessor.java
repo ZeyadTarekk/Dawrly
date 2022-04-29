@@ -42,6 +42,8 @@ public class QueryProcessor extends ProcessString {
             e.printStackTrace();
             System.out.println("Error in reading stop words");
         }
+        // TODO: Extract Double Quotes from stemmedWords passing to phraseSearch
+        extractDoubleQuotes(query, phraseSearch);
 
         // TODO: Split string into words
         List<String> words = splitWords(query);
@@ -54,9 +56,6 @@ public class QueryProcessor extends ProcessString {
 
         // TODO: Stem words
         List<String> stemmedWords = stemming(words);
-
-        // TODO: Extract Double Quotes from stemmedWords passing to phraseSearch
-        extractDoubleQuotes(stemmedWords, phraseSearch);
 
         // TODO: Get documents containing words from database
         List<Document> words_documents = getDocsFromDB(stemmedWords);
@@ -102,13 +101,11 @@ public class QueryProcessor extends ProcessString {
     }
 
 
-    private void extractDoubleQuotes(List<String> stemmedWords, List<String> phraseSearch) {
+    private void extractDoubleQuotes(String query, List<String> phraseSearch) {
         Pattern p = Pattern.compile("\"([^\"]*)\"");
-        for (String word : stemmedWords) {
-            Matcher m = p.matcher(word);
-            while (m.find()) {
-                phraseSearch.add(m.group(1));
-            }
+        Matcher m = p.matcher(query);
+        while (m.find()) {
+            phraseSearch.add(m.group(1));
         }
     }
 }
