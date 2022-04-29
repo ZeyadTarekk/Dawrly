@@ -17,8 +17,14 @@ public class PhraseSearcher {
         this.query = query;
         this.orderedDocs = orderedDocs;
         goldenDocuments = new ArrayList<>();
-        buildAllOccurrenceDocs();
-        moveDocumentUp();
+//        System.out.println(invertedIndex);
+//        System.out.println(orderedDocs);
+//        System.out.println(docsWithAllOccurrence);
+//        System.out.println("Query"+query);
+        if (query.size() != 0) {
+            buildAllOccurrenceDocs();
+            moveDocumentUp();
+        }
     }
 
     // TODO: implement a function that returns a list of documents in which the words appeared in same order
@@ -33,12 +39,10 @@ public class PhraseSearcher {
             for (int i = 0; i < query.size(); i++) {
                 addToArray(wordsIndices[i], query.size() - i - 1);
             }
-//            System.out.println(Arrays.deepToString(wordsIndices));
             List<Integer> resultList = new ArrayList<>(List.of(wordsIndices[0]));
             for (int i = 0; i < query.size(); i++) {
-                resultList.retainAll(List.of(wordsIndices[i]));
+                resultList.retainAll(Arrays.asList(wordsIndices[i]));
             }
-//            System.out.println(resultList);
             if (!resultList.isEmpty())
                 goldenDocuments.add(document);
         }
@@ -64,7 +68,7 @@ public class PhraseSearcher {
             orderedDocs.put(doc, tempPair2);
             orderedDocs.putAll(newMap);
         }
-        System.out.println("Before moving up");
+        System.out.println("After moving up");
         System.out.println(orderedDocs);
     }
 

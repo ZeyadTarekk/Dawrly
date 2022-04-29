@@ -107,5 +107,7 @@ public class QueryProcessor extends ProcessString {
         while (m.find()) {
             phraseSearch.add(m.group(1));
         }
-    }
+        convertToLower(phraseSearch);
+        removeStopWords(phraseSearch);
+        phraseSearch = new ArrayList<>(stemming(phraseSearch));}
 }
