@@ -9,7 +9,7 @@ public class Pair<type1, type2, type3, type4,type5> {
 
     public List<type4> index;
 
-    public  List<type5> actualIndices;
+    public  type5 actualIndex;
     public Pair() {
     }
 

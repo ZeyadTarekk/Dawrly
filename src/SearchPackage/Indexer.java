@@ -197,8 +197,8 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                //TODO: Add here the array of indices of the word in the original document
-                TF_Size_pair.actualIndices = new ArrayList<>();
+                //TODO: Add here first occurrence of the word in the original document
+                TF_Size_pair.actualIndex = 0;
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
@@ -241,7 +241,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
-                documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
+                documentJSON.put("actualIndex", invertedIndexP.get(word).get(doc).actualIndex);
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);
