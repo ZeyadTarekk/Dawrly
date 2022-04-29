@@ -1,5 +1,7 @@
 package SearchPackage;
 
+//import okhttp3.OkHttpClient;
+//import okhttp3.Request;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -110,15 +112,21 @@ public class Ranker {
             try {
                 connection = Jsoup.connect(page);
                 htmlDocument = connection.get();
+//                OkHttpClient okHttp = new OkHttpClient();
+//                Request request = new Request.Builder().url(page).get().build();
+//                htmlDocument = Jsoup.parse(okHttp.newCall(request).execute().body().string());
             } catch (IOException e) {
                 e.printStackTrace();
             }
             if (htmlDocument != null) {
                 pagesFinalScore.get(page).setTitle(htmlDocument.title());
-                wholeDocument = htmlDocument.body().text().toString();
+                wholeDocument = htmlDocument.body().text().toString().toLowerCase();
                 int index = wholeDocument.indexOf(wordToSearch);
+//                System.out.println("word = " + wordToSearch);
+//                System.out.println(" index = " + index);
                 int endIndex = index + 100;
                 int startIndex = index - 100;
+//                System.out.println("end index = " + endIndex);
                 if (startIndex > 0) {
                     while (wholeDocument.charAt(startIndex) != ' ')
                         startIndex++;
@@ -257,7 +265,7 @@ public class Ranker {
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result,phraseSearch);
+        finalResult = rank.generateRelevance(result, phraseSearch);
         System.out.println(finalResult);
     }
 
