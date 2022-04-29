@@ -2,6 +2,7 @@ package SearchPackage;
 
 //import okhttp3.OkHttpClient;
 //import okhttp3.Request;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -33,7 +34,7 @@ public class Ranker {
     //    private HashMap<String, Double> pagesFinalScore;
     private HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore;
     //                    page        Score    Paragraph  title
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> resultProcessed;
 
     //    public Ranker(){
 //
@@ -56,7 +57,7 @@ public class Ranker {
         wordsNormalizedIDFS = new HashMap<>();
         double dummyIDF;
         String dummyWord;
-        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> Entry : resultProcessed.entrySet()) {
+        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> Entry : resultProcessed.entrySet()) {
             dummyWord = Entry.getKey();
             dummyIDF = ((double) pagesNumber / Entry.getValue().size());
             wordsNormalizedIDFS.put(dummyWord, dummyIDF);
@@ -66,7 +67,7 @@ public class Ranker {
     private void generateTFSAndScores() {
         wordsNormalizedTFSScores = new HashMap<>();
         HashMap<String, Pair2<Double, Double>> dummyMap;
-        Pair<Integer, Integer, Double, Integer> dummyPair;
+        Pair<Integer, Integer, Double, Integer, Integer> dummyPair;
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
@@ -179,7 +180,7 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result, List<String> pages) {
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result, List<String> pages) {
 
 
         getPagesNumber();
@@ -198,7 +199,7 @@ public class Ranker {
         return pagesFinalScore;
     }
 
-    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result) {
+    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result) {
         List<String> pages = new ArrayList<>();
         getPagesNumber();
         this.resultProcessed = result;
@@ -261,7 +262,7 @@ public class Ranker {
         }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
