@@ -39,7 +39,7 @@ public class PhraseSearcher {
             for (int i = 0; i < query.size(); i++) {
                 addToArray(wordsIndices[i], query.size() - i - 1);
             }
-            List<Integer> resultList = new ArrayList<>(List.of(wordsIndices[0]));
+            List<Integer> resultList = new ArrayList<>(Arrays.asList(wordsIndices[0]));
             for (int i = 0; i < query.size(); i++) {
                 resultList.retainAll(Arrays.asList(wordsIndices[i]));
             }
