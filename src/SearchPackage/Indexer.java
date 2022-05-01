@@ -40,6 +40,8 @@ public class Indexer extends ProcessString implements Runnable {
     private static HashMap<String, List<String>> processedFiles;
     private static HashMap<String, Double> tagsOfHtml;
     private static HashMap<String, Double> scoreOfWords;
+    private static HashMap<String, List<Integer>> inddicesOfWord;
+    //  Word==> after stemmed , Integer
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
@@ -101,8 +103,9 @@ public class Indexer extends ProcessString implements Runnable {
 
             // 1- parse html
             StringBuilder noHTMLDoc = new StringBuilder("");
+            StringBuilder originalDoc = new StringBuilder("");
             try {
-                org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc);
+                org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc, originalDoc);
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
 
@@ -111,17 +114,19 @@ public class Indexer extends ProcessString implements Runnable {
             }
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
-            // 3-convert to lowercase
+            // 3-get indices of each word
+            getIndexOfWord(words, originalDoc);
+            // 4-convert to lowercase
             convertToLower(words);
-            // 4- remove stop words
+            // 5- remove stop words
             removeStopWords(words);
-            // 5- stemming
+            // 6- stemming
             List<String> stemmedWords = stemming(words);
-            // 6- fill other tags with score
+            // 7- fill other tags with score
             filOtherTags(stemmedWords);
-            // 7- build processed words
+            // 8- build processed words
             // buildProcessedFiles(fileName, stemmedWords);
-            // 8- build inverted index
+            // 9- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
             System.out.printf("#%d Thread #%d processed file: %s\n", i, Thread.currentThread().getPriority(), fileName);
         }
@@ -169,15 +174,17 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static org.jsoup.nodes.Document parsingHTML(String input, String path, StringBuilder HTML) throws IOException {
+    private static org.jsoup.nodes.Document parsingHTML(String input, String path, StringBuilder HTML, StringBuilder Str) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(path + input));
         String lines = "";
-        StringBuilder Str = new StringBuilder("");
         while ((lines = reader.readLine()) != null) {
             Str.append(lines);
         }
         reader.close();
         org.jsoup.nodes.Document html = Jsoup.parse(Str.toString());
+        Str.setLength(0);
+        // Todo: whole Document or only body
+        Str.append(html);
         HTML.append(html.body().text() + html.title());
         return html;
     }
@@ -197,8 +204,7 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                //TODO: Add here first occurrence of the word in the original document
-                TF_Size_pair.actualIndex = 0;
+                TF_Size_pair.actualIndices = inddicesOfWord.get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
@@ -241,7 +247,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
-                documentJSON.put("actualIndex", invertedIndexP.get(word).get(doc).actualIndex);
+                documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);
@@ -335,5 +341,33 @@ public class Indexer extends ProcessString implements Runnable {
                 scoreOfWords.put(stemmedWords.get(j), 0.1);
         }
         scoreOfWords.keySet().remove(""); //remove empty string
+    }
+
+    // get indices  of each word in each Document
+    private static void getIndexOfWord(List<String> splitWord, StringBuilder originalDoc) {
+        // TODO: matching actual string not substring in document
+        inddicesOfWord = new HashMap<>();
+        PorterStemmer stemmer = new PorterStemmer();
+        HashMap<String, List<Integer>> tempIndex = new HashMap<>();
+        HashSet<Integer> list = new HashSet<>();
+        for (String word : splitWord) {
+            int startFrom = 0;
+            while (true) {
+                int index = originalDoc.indexOf(word, startFrom);
+                if (index >= 0) {
+                    list.add(index);
+                    startFrom = index + 1;
+                } else
+                    break;
+            }
+            tempIndex.put(word, new ArrayList<>(list));
+            list.clear();
+        }
+
+        for (String word : tempIndex.keySet()) {
+            stemmer.setCurrent(word);
+            stemmer.stem();
+            inddicesOfWord.put(stemmer.getCurrent().toLowerCase(), tempIndex.get(word));
+        }
     }
 }

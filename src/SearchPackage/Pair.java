@@ -1,5 +1,6 @@
 package SearchPackage;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class Pair<type1, type2, type3, type4,type5> {
@@ -9,7 +10,7 @@ public class Pair<type1, type2, type3, type4,type5> {
 
     public List<type4> index;
 
-    public  type5 actualIndex;
+    public List<type5> actualIndices;
     public Pair() {
     }
 
@@ -20,7 +21,7 @@ public class Pair<type1, type2, type3, type4,type5> {
                 ", size=" + size +
                 ", score=" + score +
                 ", index=" + index +
-                ", actualIndex=" + actualIndex +
+                ", actualIndices=" + actualIndices +
                 '}';
     }
 
