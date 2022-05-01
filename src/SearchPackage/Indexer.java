@@ -204,7 +204,7 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                TF_Size_pair.actualIndices = inddicesOfWord.get(word);
+                TF_Size_pair.actualIndices = new ArrayList<>();
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
