@@ -1,6 +1,5 @@
 package SearchPackage;
 
-
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -19,6 +18,7 @@ https://www.mongodb.com/developer/quickstart/java-setup-crud-operations/?utm_cam
 
 public class MongoDB {
     private MongoCollection<org.bson.Document> CrawlerCollection;
+    private MongoCollection<org.bson.Document> QueryCollection;
 
     //Function to connect to the local database
     public void ConnectToDataBase() {
@@ -26,9 +26,16 @@ public class MongoDB {
             MongoClient mongoClient = new MongoClient();
             MongoDatabase db = mongoClient.getDatabase("SearchEngine");
             CrawlerCollection = db.getCollection("crawler");
-
-            //TODO : check if there is _id == 1 if not add it
+            QueryCollection = db.getCollection("query");
             System.out.println("Connected to database");
+
+            //check for the state document
+            Document stateDocument = CrawlerCollection.find(eq("_id", 1)).first();
+            if (stateDocument == null) {
+                Document State = new Document("_id", 1);
+                State.append("state", "Finished").append("NofVisited", 0);
+                CrawlerCollection.insertOne(State);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,5 +106,37 @@ public class MongoDB {
         Bson filter = eq("_id", 1);
         Bson updateOperation = set("NofVisited", N);
         CrawlerCollection.updateOne(filter, updateOperation);
+    }
+
+    //query collection section
+    public void ConnectWithQuery() {
+        try {
+            MongoClient mongoClient = new MongoClient();
+            MongoDatabase db = mongoClient.getDatabase("SearchEngine");
+            QueryCollection = db.getCollection("query");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addQuery(String query) {
+        //check if that query was used before
+        Document queryDocument = QueryCollection.find(eq("key", query)).first();
+        if (queryDocument == null) {
+            Document Query = new Document("key", query);
+            QueryCollection.insertOne(Query);
+        }
+    }
+
+    public List<String> getSuggestions() {
+        List<Document> LinksList = QueryCollection.find().into(new ArrayList<>());
+        List<String> list = new ArrayList<>();
+        for (Document link : LinksList) {
+            if (link.get("key") != null) {
+                list.add(link.get("key").toString());
+            }
+        }
+        return list;
     }
 }
