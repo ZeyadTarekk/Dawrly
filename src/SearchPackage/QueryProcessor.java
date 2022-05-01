@@ -94,7 +94,7 @@ public class QueryProcessor extends ProcessString {
                 tf_size.size = (Integer) docJSON.get("size");
                 tf_size.score = (Double) docJSON.get("score");
                 tf_size.index = new ArrayList<>((ArrayList<Integer>) docJSON.get("index"));
-                tf_size.actualIndices = (List<Integer>) docJSON.get("actualIndices");
+                tf_size.actualIndices = new ArrayList<>((ArrayList<Integer>) docJSON.get("actualIndices"));
                 documents.put((String) docJSON.get("document"), tf_size);
             }
         }
