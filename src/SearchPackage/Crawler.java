@@ -17,9 +17,11 @@ public class Crawler implements Runnable {
     private Set<String> pagesVisited = new HashSet<String>();
     //links of pages that will be visited next
     private List<String> pagesToVisit = new LinkedList<String>();
+    //hashmap to save the popularity of the pages we visited
+    private HashMap<String, Integer> PagesPopularity = new HashMap<>();
     private MongoDB database;
     private RobotCheck robotObject = new RobotCheck();
-    private Object o1, o2, o3, o4;
+    private Object o1, o2, o3, o4, o5;
 
     //methods
     public Crawler() {
@@ -30,6 +32,7 @@ public class Crawler implements Runnable {
         o2 = new Object();
         o3 = new Object();
         o4 = new Object();
+        o5 = new Object();
     }
 
     @Override
@@ -74,6 +77,14 @@ public class Crawler implements Runnable {
                 //And get all the links that can be visited later from it
                 DownloadHTML(htmlDocument,pageUrl);
                 List<String> Links = getLinks(htmlDocument);
+                for (int i = 0; i < Links.size(); i++) {
+                    String link = Links.get(i);
+                    synchronized (o5) {
+                        if (PagesPopularity.containsKey(link))
+                            PagesPopularity.put(link, PagesPopularity.get(link) + 1);
+                        else PagesPopularity.put(link, 1);
+                    }
+                }
 
                 synchronized (o3) {
                     pagesToVisit.addAll(Links);
@@ -133,7 +144,7 @@ public class Crawler implements Runnable {
     public List<String> GetLinksFromSeedFile() {
         List<String> Links = new ArrayList<>();
         try {
-            File myObj = new File("src\\SearchPackage\\Seeds.txt");
+            File myObj = new File("src\\Seeds.txt");
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
@@ -150,7 +161,7 @@ public class Crawler implements Runnable {
         List<String> links = new LinkedList<String>();
         for (Element link : htmlDocument.select("a[href]")) {
             String slink = link.absUrl("href");
-            if (!slink.equals("javascript:void(0)") && !slink.equals("#"))
+            if (!slink.contains("javascript:void(0)") && !slink.equals("#"))
                 links.add(slink);
         }
         return links;
@@ -165,6 +176,7 @@ public class Crawler implements Runnable {
         name = name.replace("/", "{");
         name = name.replace("?", "`");
 
+        System.out.println(name);
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(path + name + ".html"));
             writer.write(htmlDocument.toString());
@@ -189,6 +201,10 @@ public class Crawler implements Runnable {
                 Collector.append(bodyWords[i].charAt(0));
 
         return Collector.toString();
+    }
+
+    public HashMap<String, Integer> getPagesPopularity() {
+        return PagesPopularity;
     }
 
     public static void main(String[] arg) {
