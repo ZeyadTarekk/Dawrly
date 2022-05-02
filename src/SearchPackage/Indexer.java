@@ -204,7 +204,7 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                TF_Size_pair.actualIndices = new ArrayList<>();
+                TF_Size_pair.actualIndices = inddicesOfWord.get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
@@ -356,18 +356,18 @@ public class Indexer extends ProcessString implements Runnable {
                 int index = originalDoc.indexOf(word, startFrom);
                 if (index >= 0) {
                     list.add(index);
-                    startFrom = index + 1;
+                    startFrom = index + word.length();
                 } else
                     break;
             }
-            tempIndex.put(word, new ArrayList<>(list));
+            tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
             list.clear();
         }
 
         for (String word : tempIndex.keySet()) {
             stemmer.setCurrent(word);
             stemmer.stem();
-            inddicesOfWord.put(stemmer.getCurrent().toLowerCase(), tempIndex.get(word));
+            inddicesOfWord.put(stemmer.getCurrent(), tempIndex.get(word));
         }
     }
 }
