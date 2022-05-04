@@ -10,97 +10,61 @@
     <title>key word - Dawrha Search</title>
   </head>
 <body>
-  
+  <div class="suggestions" style="display: none;">
+    <span>Hi</span>
+    <span>Hello</span>
+    <span>Hey</span>
+    <span>Shit</span>
+    <span>Oh</span>
+    <span>No</span>
+    <span>Na</span>
+  </div>
   <div class="header-search">
-    <form action="" method="POST" class="container w-75">
-      <div class="input-group">
-        <input type="text" class="form-control" id="searchBar"
-                placeholder="Search" aria-label="Username" aria-describedby="basic-addon1">
-        <button class="input-group-text" id="basic-addon1"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <h2 style="letter-spacing: 4px;">Dawrha</h2>
+    <form action="SearchInterface" method="GET" class="container w-75" autocomplete="off">
+      <div class="autocomplete">
+        <input name="query" id="myInput" autocomplete="off" type="text" placeholder="Search">
+        <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
-  
-      <div class="suggestion">
-        <a href="">About</a>
-        <a href="">Base</a>
-      </div>
-  
     </form>
   </div>
 
   <div class="search-results container mt-5">
 
-    <div class="card mb-3">
+    <div class="card hidden mb-3">
       <div class="card-body">
-        <a class="card-title page-title" href="#">Title of the page</a>
+        <a class="card-title page-title" href="#">Title of the page 0</a>
         <a href="#" class="card-link link">Card link</a>
         <p class="card-text">part of the page with have the <b>word</b></p>
       </div>
     </div>
-    <div class="card mb-3">
-      <div class="card-body">
-        <a class="card-title page-title" href="#">Title of the page</a>
-        <a href="#" class="card-link link">Card link</a>
-        <p class="card-text">part of the page with have the <b>word</b></p>
-      </div>
-    </div>
-    <div class="card mb-3">
-      <div class="card-body">
-        <a class="card-title page-title" href="#">Title of the page</a>
-        <a href="#" class="card-link link">Card link</a>
-        <p class="card-text">part of the page with have the <b>word</b></p>
-      </div>
-    </div>
-    <div class="card mb-3">
-      <div class="card-body">
-        <a class="card-title page-title" href="#">Title of the page</a>
-        <a href="#" class="card-link link">Card link</a>
-        <p class="card-text">part of the page with have the <b>word</b></p>
-      </div>
-    </div>
-    
+
+  
   </div>
 
   <div class="list container m-auto mt-5 mb-5">
-    <form action="">
-      <div class="numbers">
+    <div class="numbers">
 
-        <!-- if next flag from the url of the page was true -->
-        <span class="r-char me-3">
-          <b style="text-align: center;"><</b>
-          <a href="">Previous</a>
-        </span>
+      <span class="r-char me-3 previous-btn hidden">
+        <b style="text-align: center;"><</b>
+        <a>Previous</a>
+      </span>
+      <span class="dawarha-numbers">Daw</span>
 
-        <span class="dawarha-numbers">Daw</span>
-
+      <span class="pages-numbers">
         <span class="r-char">
           r
-          <a href="" class="selected">1</a>
+          <a class="selected">1</a>
         </span>
+      </span>
 
-        <span class="r-char">
-          r
-          <a href="">2</a>
-        </span>
-        <span class="r-char">
-          r
-          <a href="">3</a>
-        </span>
-        <span class="r-char">
-          r
-          <a href="">4</a>
-        </span>
+      <span class="dawarha-numbers">ha</span>
+      <span class="r-char ms-3 next-btn">
+        <b style="text-align: center;">></b>
+        <a>Next</a>
+      </span>
+    </div>
 
-        <span class="dawarha-numbers">ha</span>
-
-        
-        <!-- if more than 10 then we add next button -->
-        <span class="r-char ms-3">
-          <b style="text-align: center;">></b>
-          <a href="">Next</a>
-        </span>
-      </div>
-
-    </form>
   </div>
 
   <script src="js/popper.min.js"></script>

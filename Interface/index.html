@@ -4,37 +4,15 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/all.min.css">
-  <link rel="stylesheet" href="css/main.css">
-  <title>Dawrha Search</title>
+  <title>Forward</title>
 </head>
 <body>
-
-  <form action="" method="POST" class="container w-75" style="margin: 100px auto 100px;">
-    
-    <h2 class="dawarha-logo">Dawrha</h2>
-
-    <div class="input-group">
-      <input type="text" class="form-control" id="searchBar"
-              placeholder="Search" aria-label="Username" aria-describedby="basic-addon1">
-      <button class="input-group-text" id="basic-addon1"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
-
-    <div class="suggestion">
-      <a href="">About</a>
-      <a href="">Base</a>
-      <a href="">Blog</a>
-      <a href="">Contact</a>
-      <a href="">Custom</a>
-      <a href="">Support</a>
-      <a href="">Tools</a>
-    </div>
-
+  <form action="BuildInterface" method="GET">
+    <button style="display: none;" id="forward" type="submit">click me</button>
   </form>
-
-  <script src="js/popper.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/main.js"></script>
+  <script>
+    let btn = document.getElementById("forward");
+    btn.click();
+  </script>
 </body>
 </html>

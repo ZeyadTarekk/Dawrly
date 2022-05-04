@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 /* Main Variables */
 :root {
   --dark-primary: #121212;
@@ -17,37 +18,89 @@
   font-size: 50px;
 }
 
-#searchBar {
-  font-size: 18px;
-}
-
-#searchBar:focus {
-  outline: none !important;
-  box-shadow: none;
-}
-
-.suggestion {
+.autocomplete {
+  position: relative;
   display: flex;
-  flex-direction: column;
+}
+input {
+  border: 1px solid transparent;
+  background-color: #f1f1f1;
+  padding: 10px;
+  font-size: 16px;
+}
+input[type=text] {
+  background-color: #f1f1f1;
+  width: 100%;
+  border-radius: 7px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+button[type=submit] {
+  background-color: DodgerBlue;
+  color: #fff;
+  border: none;
+  width: 6%;
+  border-radius: 6px;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+@media (max-width: 768px) {
+  button[type=submit] {
+    width: 8%;
+  }
+}
+@media (max-width: 576px) {
+  button[type=submit] {
+    width: 14%;
+  }
 }
 
-.suggestion a {
-  background-color: #e9ecef;
-  padding: 8px;
-  padding-left: 15px;
-  color: #212529;
-  text-decoration: none;
-  font-size: 18px;
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  top: 100%;
+  left: 0;
+  right: 0;
 }
-
-.suggestion a:last-child {
-  border-radius: 0px 0px 10px 10px;
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
 }
-
+.autocomplete-items div:hover {
+  background-color: #e9e9e9;
+}
+.autocomplete-active {
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
 
 .header-search {
   padding: 20px;
   border-bottom: 1px solid #494949;
+  display: flex;
+}
+@media (max-width: 576px) {
+  .header-search {
+    flex-direction: column;
+  }
+  .header-search h2 {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+}
+
+.search-results .card {
+  border-radius: 5px;
+  box-shadow: 0px 0px 7px #d8d5d5;
+}
+
+.search-results .card.hidden {
+  display: none;
 }
 
 .page-title {
@@ -63,14 +116,39 @@
   color: #585353;
 }
 
+.no-results {
+  text-align: center;
+  background-color: #f2f1f1;
+  padding: 25px;
+  border-radius: 7px;
+  box-shadow: 0px 0px 7px #989393;
+}
+
+.no-results p {
+  font-size: 30px;
+}
+
 .numbers {
   display: flex;
   justify-content: center;
 }
 
+.numbers.hidden {
+  display: none;
+}
+
+.numbers .previous-btn.hidden,
+.numbers .next-btn.hidden {
+  display: none;
+}
+
 .numbers .dawarha-numbers {
   letter-spacing: 7px;
   font-size: 20px;
+}
+
+.numbers .pages-numbers {
+  display: flex;
 }
 
 .numbers .r-char {
@@ -86,14 +164,19 @@
 .numbers .r-char .selected:hover {
   text-decoration: none;
   cursor: default;
+  color: #4e3e53;
 }
 
 .numbers .r-char a {
   text-decoration: none;
   font-size: 18px;
   margin-right: 7px;
+  color: #5252ff;
+  user-select: none;
+  cursor: pointer;
 }
 
 .numbers .r-char a:hover {
   text-decoration: underline;
+  color: #5252ff;
 }

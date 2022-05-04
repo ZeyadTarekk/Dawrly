@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/all.min.css">
+  <link rel="stylesheet" href="css/main.css">
+  <title>Dawrha Search</title>
+</head>
+<body>
+  <div class="suggestions" style="display: none;">
+    <span>Hi</span>
+    <span>Hello</span>
+    <span>Hey</span>
+    <span>Shit</span>
+    <span>Oh</span>
+    <span>No</span>
+    <span>Na</span>
+  </div>
+  <form action="SearchInterface" method="GET" autocomplete="off" class="container w-75" style="margin: 100px auto 100px;">
+    <h2 class="dawarha-logo">Dawrha</h2>
+
+    <div class="autocomplete">
+      <input name="query" id="myInput" autocomplete="off" type="text" placeholder="Search" style="font-size: 18px;">
+      <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+  </form>
+
+
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
