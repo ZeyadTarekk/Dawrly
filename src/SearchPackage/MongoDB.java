@@ -111,6 +111,17 @@ public class MongoDB {
     }
 
     //pagePopularity section
+    public void ConnectWithPagePopularity() {
+        try {
+            MongoClient mongoClient = new MongoClient();
+            MongoDatabase db = mongoClient.getDatabase("SearchEngine");
+            pagePopularityCollection = db.getCollection("pagePopularity");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void insertPagePopularity(HashMap<String, Integer> PagesPopularity) {
         for (String page : PagesPopularity.keySet()) {
             //check if that link saved before
