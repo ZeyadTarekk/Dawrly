@@ -138,6 +138,8 @@ public class Crawler implements Runnable {
         }
 
         database.ChangeState("Finished");
+        database.insertPagePopularity(PagesPopularity);
+
         System.out.println("Crawling Finished Successfully");
     }
 
@@ -201,10 +203,6 @@ public class Crawler implements Runnable {
                 Collector.append(bodyWords[i].charAt(0));
 
         return Collector.toString();
-    }
-
-    public HashMap<String, Integer> getPagesPopularity() {
-        return PagesPopularity;
     }
 
     public static void main(String[] arg) {

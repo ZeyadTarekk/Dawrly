@@ -19,6 +19,7 @@ https://www.mongodb.com/developer/quickstart/java-setup-crud-operations/?utm_cam
 public class MongoDB {
     private MongoCollection<org.bson.Document> CrawlerCollection;
     private MongoCollection<org.bson.Document> QueryCollection;
+    private MongoCollection<org.bson.Document> pagePopularityCollection;
 
     //Function to connect to the local database
     public void ConnectToDataBase() {
@@ -27,6 +28,7 @@ public class MongoDB {
             MongoDatabase db = mongoClient.getDatabase("SearchEngine");
             CrawlerCollection = db.getCollection("crawler");
             QueryCollection = db.getCollection("query");
+            pagePopularityCollection = db.getCollection("pagePopularity");
             System.out.println("Connected to database");
 
             //check for the state document
@@ -106,6 +108,35 @@ public class MongoDB {
         Bson filter = eq("_id", 1);
         Bson updateOperation = set("NofVisited", N);
         CrawlerCollection.updateOne(filter, updateOperation);
+    }
+
+    //pagePopularity section
+    public void insertPagePopularity(HashMap<String, Integer> PagesPopularity) {
+        for (String page : PagesPopularity.keySet()) {
+            //check if that link saved before
+            Document scoreDoc = pagePopularityCollection.find(eq("link", page)).first();
+            if (scoreDoc == null) {
+                Document pageDoc = new Document("link", page);
+                pageDoc.append("score", PagesPopularity.get(page));
+                pagePopularityCollection.insertOne(pageDoc);
+            } else {
+                int score = Integer.parseInt(scoreDoc.get("score").toString());
+                score = score + PagesPopularity.get(page);
+                Bson filter = eq("link", page);
+                Bson updateOperation = set("score", score);
+                pagePopularityCollection.updateOne(filter, updateOperation);
+            }
+        }
+    }
+
+    public int getPagePopularity(String page) {
+        Document scoreDoc = pagePopularityCollection.find(eq("link", page)).first();
+        if (scoreDoc == null)
+            return 1;
+        else {
+            Object score = scoreDoc.get("score");
+            return Integer.parseInt(score.toString());
+        }
     }
 
     //query collection section
