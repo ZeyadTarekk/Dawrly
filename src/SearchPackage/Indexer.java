@@ -41,7 +41,8 @@ public class Indexer extends ProcessString implements Runnable {
     private static HashMap<String, Double> tagsOfHtml;
     private static HashMap<String, Double> scoreOfWords;
     private static HashMap<String, List<Integer>> inddicesOfWord;
-    //  Word==> after stemmed , Integer
+    // TODO: Synchronization of Threads to avoid Concurrency Exception
+    // Testing by one Thread until fix it
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
@@ -60,15 +61,15 @@ public class Indexer extends ProcessString implements Runnable {
         // returns an array of all files
         fileNamesList = file.list();
 
-        Thread[] threads = new Thread[5];
-        for (int i = 0; i < 5; i++) {
+        Thread[] threads = new Thread[1];
+        for (int i = 0; i < 1; i++) {
             threads[i] = new Thread(new Indexer());
             threads[i].setPriority(i + 1);
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             threads[i].start();
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             threads[i].join();
         }
 
@@ -87,8 +88,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 1.0);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 1.0);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
@@ -115,7 +116,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
-            getIndexOfWord(words, originalDoc);
+            getIndexOfWord(words, originalDoc); // TODO: Synchronized threads
             // 4-convert to lowercase
             convertToLower(words);
             // 5- remove stop words
@@ -183,9 +184,8 @@ public class Indexer extends ProcessString implements Runnable {
         reader.close();
         org.jsoup.nodes.Document html = Jsoup.parse(Str.toString());
         Str.setLength(0);
-        // Todo: whole Document or only body
-        Str.append(html);
-        HTML.append(html.body().text() + html.title());
+        Str.append(html.body().text());
+        HTML.append(html.title() + " " + html.body().text());
         return html;
     }
 
@@ -204,6 +204,9 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
+                // for testing until check all threads
+//                if (inddicesOfWord.get(word) == null)
+//                    System.out.println("Error===> " + word);
                 TF_Size_pair.actualIndices = inddicesOfWord.get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
@@ -347,20 +350,39 @@ public class Indexer extends ProcessString implements Runnable {
     private static void getIndexOfWord(List<String> splitWord, StringBuilder originalDoc) {
         // TODO: matching actual string not substring in document
         inddicesOfWord = new HashMap<>();
+        Integer lengthOfDoc = originalDoc.length();
         PorterStemmer stemmer = new PorterStemmer();
         HashMap<String, List<Integer>> tempIndex = new HashMap<>();
         HashSet<Integer> list = new HashSet<>();
+
         for (String word : splitWord) {
             int startFrom = 0;
             while (true) {
-                int index = originalDoc.indexOf(word, startFrom);
+                int index = originalDoc.indexOf(word, startFrom);// get the occurrence of index of each word
+                Character startChar = '.';
+                Character endChar = '.';
+
+                if (index - 1 >= 0)
+                    startChar = originalDoc.charAt(index - 1);
+                if ((index + word.length()) < lengthOfDoc) {
+                    endChar = originalDoc.charAt(word.length() + index);
+                }
+
+                boolean beforeWord = startChar.toString().matches(".*[a-zA-Z]+.*");
+                boolean afterWord = endChar.toString().matches(".*[a-zA-Z]+.*");
+
                 if (index >= 0) {
-                    list.add(index);
+                    if (!beforeWord && !afterWord)
+                        list.add(index);
                     startFrom = index + word.length();
                 } else
                     break;
             }
-            tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
+            if (list.isEmpty()) {
+                list.add(-2); //indices out of  body
+                tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
+            } else
+                tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
             list.clear();
         }
 
@@ -369,5 +391,6 @@ public class Indexer extends ProcessString implements Runnable {
             stemmer.stem();
             inddicesOfWord.put(stemmer.getCurrent(), tempIndex.get(word));
         }
+        inddicesOfWord.keySet().remove("");
     }
 }
