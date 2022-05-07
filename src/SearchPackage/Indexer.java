@@ -112,6 +112,7 @@ public class Indexer extends ProcessString implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            createBodyFiles(noHTMLDoc.toString(), fileNamesList[i]);
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
@@ -388,4 +389,14 @@ public class Indexer extends ProcessString implements Runnable {
         indicesOfWord.put(fileName, tempIndex);
     }
 
+    private static void createBodyFiles(String noHTMLDoc, String fileName) {
+        try {
+//            System.out.println(fileName);
+            FileWriter myWriter = new FileWriter("bodyFiles//" + fileName);
+            myWriter.write(noHTMLDoc);
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
