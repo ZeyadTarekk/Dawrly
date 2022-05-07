@@ -1,13 +1,11 @@
-//import okhttp3.OkHttpClient;
-//import okhttp3.Request;
-
-import SearchPackage.Pair;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 /*
 HOW TO USE?
@@ -42,7 +40,7 @@ public class Ranker {
 //             Words           page         tf         size   score
     private void getPagesNumber() {
         // creates a file object
-        File file = new File("downloads");
+        File file = new File("C:\\CMP\\CMP22\\Advanced Programming\\Project\\Search-Engine\\downloads");
         // returns an array of all files
         String[] fileNamesList = file.list();
         if (fileNamesList != null)
@@ -50,6 +48,21 @@ public class Ranker {
         else
             pagesNumber = 0;
 
+    }
+
+    private String stemTheWord(String word) {
+        PorterStemmer stemmer = new PorterStemmer();
+        stemmer.setCurrent(word);
+        stemmer.stem();
+        return stemmer.getCurrent(); //
+
+    }
+
+    private List<String> splitQuery(String query, List<String> stemmed) {
+        List<String> words = Arrays.asList(query.split(" "));
+        for (String word : words)
+            stemmed.add(stemTheWord(word));
+        return words;
     }
 
     private void generateIDFS() {
@@ -106,7 +119,7 @@ public class Ranker {
 
     }
 
-    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores) {
+    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores, String query) {
         String wordToSearch;
         String wholeDocument;
         List<String> wordsInQueryStemmed = new ArrayList<>();
@@ -187,73 +200,75 @@ public class Ranker {
                 }
             }
 
-            private HashMap<String, Pair3<Double, String, String, String>> sortHashMap () {
-                // Creating a list from elements of HashMap
-                List<Map.Entry<String, Pair3<Double, String, String, String>>> list
-                        = new LinkedList<Map.Entry<String, Pair3<Double, String, String, String>>>(
-                        pagesFinalScore.entrySet());
 
-                // Sorting the list using Collections.sort() method
-                // using Comparator
-                Collections.sort(
-                        list,
-                        new Comparator<Map.Entry<String, Pair3<Double, String, String, String>>>() {
-                            public int compare(
-                                    Map.Entry<String, Pair3<Double, String, String, String>> object1,
-                                    Map.Entry<String, Pair3<Double, String, String, String>> object2) {
-                                return (object2.getValue().getScore())
-                                        .compareTo(object1.getValue().getScore());
-                            }
-                        });
+        }
+    }
 
-                // putting the  data from sorted list back to hashmap
-                HashMap<String, Pair3<Double, String, String, String>> result
-                        = new LinkedHashMap<String, Pair3<Double, String, String, String>>();
-                for (Map.Entry<String, Pair3<Double, String, String, String>> me : list) {
-                    result.put(me.getKey(), me.getValue());
-                }
+    private HashMap<String, Pair3<Double, String, String, String>> sortHashMap() {
+        // Creating a list from elements of HashMap
+        List<Map.Entry<String, Pair3<Double, String, String, String>>> list
+                = new LinkedList<Map.Entry<String, Pair3<Double, String, String, String>>>(
+                pagesFinalScore.entrySet());
 
-                // returning the sorted HashMap
-                return result;
-            }
+        // Sorting the list using Collections.sort() method
+        // using Comparator
+        Collections.sort(
+                list,
+                new Comparator<Map.Entry<String, Pair3<Double, String, String, String>>>() {
+                    public int compare(
+                            Map.Entry<String, Pair3<Double, String, String, String>> object1,
+                            Map.Entry<String, Pair3<Double, String, String, String>> object2) {
+                        return (object2.getValue().getScore())
+                                .compareTo(object1.getValue().getScore());
+                    }
+                });
 
-            public HashMap<String, Pair3<Double, String, String, String>> generateRelevance
-            (HashMap < String, HashMap < String, Pair < Integer, Integer, Double, Integer, Integer >>> result, List < String > pages)
-            {
+        // putting the  data from sorted list back to hashmap
+        HashMap<String, Pair3<Double, String, String, String>> result
+                = new LinkedHashMap<String, Pair3<Double, String, String, String>>();
+        for (Map.Entry<String, Pair3<Double, String, String, String>> me : list) {
+            result.put(me.getKey(), me.getValue());
+        }
 
+        // returning the sorted HashMap
+        return result;
+    }
 
-                getPagesNumber();
-                this.resultProcessed = result;
-                generateIDFS();
-                generateTFSAndScores();
-                generateFinalScores();
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result, List<String> pages, String query) {
 
-                for (String page : wordsNormalizedTFSScores.keySet()) {
-                    if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
-                        pages.add(page);
-                }
+//        System.out.println("Printing data structure from database");
+//        System.out.println(result);
+        getPagesNumber();
+        this.resultProcessed = result;
+        generateIDFS();
+        generateTFSAndScores();
+        generateFinalScores();
 
-                pagesFinalScore = sortHashMap();
-//        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores);
-                return pagesFinalScore;
-            }
+        for (String page : wordsNormalizedTFSScores.keySet()) {
+            if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
+                pages.add(page);
+        }
 
-            public List<String> getPhraseSearching
-            (HashMap < String, HashMap < String, Pair < Integer, Integer, Double, Integer, Integer >>> result){
-                List<String> pages = new ArrayList<>();
-                getPagesNumber();
-                this.resultProcessed = result;
-                generateTFSAndScores();
+        pagesFinalScore = sortHashMap();
+        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores, query);
+        return pagesFinalScore;
+    }
 
-                for (String page : wordsNormalizedTFSScores.keySet()) {
-                    if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
-                        pages.add(page);
-                }
+    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result) {
+        List<String> pages = new ArrayList<>();
+        getPagesNumber();
+        this.resultProcessed = result;
+        generateTFSAndScores();
 
-                return pages;
-            }
+        for (String page : wordsNormalizedTFSScores.keySet()) {
+            if (wordsNormalizedTFSScores.get(page).size() == resultProcessed.size())
+                pages.add(page);
+        }
 
-            public static void main (String[]args){
+        return pages;
+    }
+
+    public static void main(String[] args) {
 //        String testValue;
 //        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer>>> resultProcessed = new HashMap<>();
 //        HashMap<String, Pair<Integer, Integer, Double, Integer>> inner = new HashMap<>();
@@ -292,23 +307,23 @@ public class Ranker {
 //        System.out.println("Printing map value for test");
 //        testValue = (String) resultProcessed.get("like").keySet().toArray()[0];
 //        System.out.println(testValue);
-                Ranker rank = new Ranker();
-                HashMap<String, Pair3<Double, String, String, String>> finalResult;
-                Indexer indexer = new Indexer();
+        Ranker rank = new Ranker();
+        HashMap<String, Pair3<Double, String, String, String>> finalResult;
+        Indexer indexer = new Indexer();
 //        try {
 //            indexer.startIndexing();
 //        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
-                List<String> phraseSearch = new ArrayList<>();
-                QueryProcessor qp = new QueryProcessor();
-                HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
-                System.out.println("============================================");
-                System.out.println(result);
-                System.out.println("============================================");
-                finalResult = rank.generateRelevance(result, phraseSearch);
-                System.out.println(finalResult);
-            }
+        List<String> phraseSearch = new ArrayList<>();
+        QueryProcessor qp = new QueryProcessor();
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("html", phraseSearch);
+        System.out.println("============================================");
+        System.out.println(result);
+        System.out.println("============================================");
+        finalResult = rank.generateRelevance(result, phraseSearch, "html");
+        System.out.println(finalResult);
+    }
 
 
-        }
+}

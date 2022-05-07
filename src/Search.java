@@ -21,7 +21,7 @@ public class Search {
         qp = new QueryProcessor();
         rank = new Ranker();
         result = qp.processQuery(queryToSearch, query);
-        finalResults = rank.generateRelevance(result, goldenPages);
+        finalResults = rank.generateRelevance(result, goldenPages,queryToSearch);
         phraseSearcher = new PhraseSearcher(result, finalResults, goldenPages, query);
         finalResults = phraseSearcher.getOrderedDocs();
 
@@ -32,18 +32,12 @@ public class Search {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("normal");
+        finalResults = ser.searchQuery("web site");
         long end1 = System.currentTimeMillis();
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 
         System.out.println("================================");
-        Pair3<Double, String, String, String> Result = null;
-        for (String link : finalResults.keySet()) {
-            System.out.println(link);
-            System.out.println(finalResults.get(link).getScore());
-            System.out.println("---------------");
-        }
-//        System.out.println(finalResults);
+        System.out.println(finalResults);
         System.out.println("================================");
     }
 }
