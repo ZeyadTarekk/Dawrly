@@ -23,7 +23,7 @@ public class Search {
         qp = new QueryProcessor();
         rank = new Ranker();
         result = qp.processQuery(queryToSearch, query);
-        finalResults = rank.generateRelevance(result, goldenPages);
+        finalResults = rank.generateRelevance(result, goldenPages,queryToSearch);
         phraseSearcher = new PhraseSearcher(result, finalResults, goldenPages, query);
         finalResults = phraseSearcher.getOrderedDocs();
 

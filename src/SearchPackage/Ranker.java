@@ -6,6 +6,7 @@ package SearchPackage;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +52,21 @@ public class Ranker {
         else
             pagesNumber = 0;
 
+    }
+
+    private String stemTheWord(String word) {
+        PorterStemmer stemmer = new PorterStemmer();
+        stemmer.setCurrent(word);
+        stemmer.stem();
+        return stemmer.getCurrent(); //
+
+    }
+
+    private List<String> splitQuery(String query, List<String> stemmed) {
+        List<String> words = List.of(query.split(" "));
+        for (String word : words)
+            stemmed.add(stemTheWord(word));
+        return words;
     }
 
     private void generateIDFS() {
@@ -107,48 +123,84 @@ public class Ranker {
 
     }
 
-    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores) {
+    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores, String query) {
         String wordToSearch;
         String wholeDocument;
+        List<String> wordsInQueryStemmed = new ArrayList<>();
+        List<String> wordsInQuery = splitQuery(query.toLowerCase(), wordsInQueryStemmed);
+        int indexOfWord;
+        List<Integer> actualIndices;
+        Pair<Integer, Integer, Double, Integer, Integer> dummyPair;
         for (String page : pagesFinalScore.keySet()) {
-            wordToSearch = (String) wordsNormalizedTFSScores.get(page).keySet().toArray()[0];
-            pagesFinalScore.get(page).setWord(wordToSearch);
-            Connection connection;
-            Document htmlDocument = null;
-            try {
-                connection = Jsoup.connect(page);
-                htmlDocument = connection.get();
-//                OkHttpClient okHttp = new OkHttpClient();
-//                Request request = new Request.Builder().url(page).get().build();
-//                htmlDocument = Jsoup.parse(okHttp.newCall(request).execute().body().string());
-            } catch (IOException e) {
-                e.printStackTrace();
+            indexOfWord = -1;
+            for (int i = 0; i < wordsInQueryStemmed.size(); i++) {
+//                System.out.println(wordsInQuery.get(i) + " " + wordsInQueryStemmed.get(i) + " " + resultProcessed.get(wordsInQueryStemmed.get(i)));
+                if (resultProcessed.get(wordsInQueryStemmed.get(i)) != null && resultProcessed.get(wordsInQueryStemmed.get(i)).get(page) != null) {
+                    indexOfWord = i;
+                    break;
+                }
             }
-            if (htmlDocument != null) {
-                pagesFinalScore.get(page).setTitle(htmlDocument.title());
-                wholeDocument = htmlDocument.body().text().toString().toLowerCase();
-                int index = wholeDocument.indexOf(wordToSearch);
+            if (indexOfWord != -1) {
+                wordToSearch = wordsInQuery.get(indexOfWord);
+                dummyPair = resultProcessed.get(wordsInQueryStemmed.get(indexOfWord)).get(page);
+                actualIndices = dummyPair.actualIndices;
+                Connection connection;
+                Document htmlDocument = null;
+                try {
+                    connection = Jsoup.connect(page);
+                    htmlDocument = connection.get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (htmlDocument != null) {
+                    pagesFinalScore.get(page).setTitle(htmlDocument.title());
+                    wholeDocument = htmlDocument.body().text().toString().toLowerCase();
+                    int index = -1;
+                    for (Integer actualIndex : actualIndices) {
+                        if (wholeDocument.substring(actualIndex, wholeDocument.indexOf(" ", actualIndex)).equals(wordToSearch))
+                            index = actualIndex;
+                    }
 //                System.out.println("word = " + wordToSearch);
 //                System.out.println(" index = " + index);
-                int endIndex = index + 100;
-                int startIndex = index - 100;
+                    if (index != -1) {
+                        int endIndex = index + 100;
+                        int startIndex = index - 100;
+                        int newEndIndex;
 //                System.out.println("end index = " + endIndex);
-                if (startIndex > 0) {
-                    while (wholeDocument.charAt(startIndex) != ' ')
-                        startIndex++;
-                    startIndex++;
-                    while (wholeDocument.charAt(endIndex) != ' ')
-                        endIndex--;
-                } else if (startIndex == 0) {
-                    while (wholeDocument.charAt(endIndex) != ' ')
-                        endIndex--;
-                } else {
-                    startIndex = 0;
-                    while (wholeDocument.charAt(endIndex) != ' ')
-                        endIndex--;
+                        if (startIndex > 0) {
+                            startIndex = wholeDocument.indexOf(" ", startIndex);
+                            startIndex++;
+                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
+                            if (newEndIndex >= wholeDocument.length()) {
+                                while (wholeDocument.charAt(endIndex) != ' ')
+                                    endIndex--;
+                                newEndIndex = endIndex;
+                            }
+                        } else if (startIndex == 0) {
+                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
+                            if (newEndIndex >= wholeDocument.length()) {
+                                while (wholeDocument.charAt(endIndex) != ' ')
+                                    endIndex--;
+                                newEndIndex = endIndex;
+                            }
+                        } else {
+                            startIndex = 0;
+                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
+                            if (newEndIndex >= wholeDocument.length()) {
+                                while (wholeDocument.charAt(endIndex) != ' ')
+                                    endIndex--;
+                                newEndIndex = endIndex;
+                            }
+                        }
+
+                        String paragraph = wholeDocument.substring(startIndex, endIndex) + "...";
+                        pagesFinalScore.get(page).setParagraph(paragraph);
+                        pagesFinalScore.get(page).setWord(wordToSearch);
+                    } else {
+                        pagesFinalScore.get(page).setParagraph("paragraph");
+                        pagesFinalScore.get(page).setWord("wordToSearch");
+                    }
                 }
-                String paragraph = wholeDocument.substring(startIndex, endIndex) + "...";
-                pagesFinalScore.get(page).setParagraph(paragraph);
             }
 
 
@@ -185,9 +237,10 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result, List<String> pages) {
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result, List<String> pages, String query) {
 
-
+//        System.out.println("Printing data structure from database");
+//        System.out.println(result);
         getPagesNumber();
         this.resultProcessed = result;
         generateIDFS();
@@ -200,7 +253,7 @@ public class Ranker {
         }
 
         pagesFinalScore = sortHashMap();
-        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores);
+        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores, query);
         return pagesFinalScore;
     }
 
@@ -267,11 +320,11 @@ public class Ranker {
 //        }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("Normalize", phraseSearch);
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result, phraseSearch);
+        finalResult = rank.generateRelevance(result, phraseSearch, "Normalize");
         System.out.println(finalResult);
     }
 
