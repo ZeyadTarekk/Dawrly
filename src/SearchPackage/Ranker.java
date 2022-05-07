@@ -158,11 +158,11 @@ public class Ranker {
                     wholeDocument = htmlDocument.body().text().toString().toLowerCase();
                     int index = -1;
                     for (Integer actualIndex : actualIndices) {
-                        if(wholeDocument.indexOf(" ", actualIndex)==-1 &&wholeDocument.substring(actualIndex, wholeDocument.length()-1).equals(wordToSearch) ){
+                        if (wholeDocument.indexOf(" ", actualIndex) == -1 && wholeDocument.substring(actualIndex, wholeDocument.length() - 1).equals(wordToSearch)) {
                             index = actualIndex;
                             continue;
                         }
-                        if(wholeDocument.indexOf(" ", actualIndex)==-1)
+                        if (wholeDocument.indexOf(" ", actualIndex) == -1)
                             continue;
                         if (wholeDocument.substring(actualIndex, wholeDocument.indexOf(" ", actualIndex)).equals(wordToSearch))
                             index = actualIndex;
@@ -175,23 +175,22 @@ public class Ranker {
                         int newEndIndex;
 //                System.out.println("end index = " + endIndex);
                         if (startIndex > 0) {
-                            startIndex = wholeDocument.indexOf(" ", startIndex);
-                            startIndex++;
+
+//                            startIndex = wholeDocument.indexOf(" ", startIndex);
+//                            startIndex++;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length()-1;
-                            }
+
                         } else if (startIndex == 0) {
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length()-1;
-                            }
+
                         } else {
                             startIndex = 0;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length()-1;
-                            }
+
+                        }
+
+                        if (newEndIndex >= wholeDocument.length() || newEndIndex == -1) {
+                            newEndIndex = wholeDocument.length() - 1;
                         }
 
                         String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
