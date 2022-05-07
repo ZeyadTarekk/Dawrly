@@ -108,7 +108,7 @@ public class Indexer extends ProcessString implements Runnable {
             try {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc, originalDoc);
 
-                filterTags(html, noHTMLDoc.toString(),fileName);
+                filterTags(html, fileName);
                 createBodyFiles(html, fileNamesList[i]);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -124,7 +124,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 6- stemming
             List<String> stemmedWords = stemming(words);
             // 7- fill other tags with score
-            filOtherTags(stemmedWords,fileName);
+            filOtherTags(stemmedWords, fileName);
             // 8- build processed words
             // buildProcessedFiles(fileName, stemmedWords);
             // 9- build inverted index
@@ -313,7 +313,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static synchronized void filterTags(org.jsoup.nodes.Document html, String lines, String fileName) throws IOException {
+    private static synchronized void filterTags(org.jsoup.nodes.Document html, String fileName) throws IOException {
         PorterStemmer stemmer = new PorterStemmer();
         Pattern pattern = Pattern.compile("\\w+");
         Matcher matcher;
@@ -334,7 +334,7 @@ public class Indexer extends ProcessString implements Runnable {
                 }
             }
         }
-        scoreOfWords.put(fileName,tempScore);
+        scoreOfWords.put(fileName, tempScore);
     }
 
     private static synchronized void filOtherTags(List<String> stemmedWords, String fileName) {
