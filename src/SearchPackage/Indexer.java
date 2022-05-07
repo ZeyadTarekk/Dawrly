@@ -108,11 +108,10 @@ public class Indexer extends ProcessString implements Runnable {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc, originalDoc);
                 scoreOfWords = new HashMap<>();
                 filterTags(tagsOfHtml, html, noHTMLDoc.toString());
-
+                createBodyFiles(html, fileNamesList[i]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            createBodyFiles(noHTMLDoc.toString(), fileNamesList[i]);
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
@@ -389,11 +388,13 @@ public class Indexer extends ProcessString implements Runnable {
         indicesOfWord.put(fileName, tempIndex);
     }
 
-    private static void createBodyFiles(String noHTMLDoc, String fileName) {
+    private static void createBodyFiles(org.jsoup.nodes.Document html, String fileName) {
         try {
 //            System.out.println(fileName);
             FileWriter myWriter = new FileWriter("bodyFiles//" + fileName);
-            myWriter.write(noHTMLDoc);
+            myWriter.write(html.title());
+            myWriter.write("\n");
+            myWriter.write(html.body().text());
             myWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
