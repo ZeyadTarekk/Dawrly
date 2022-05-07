@@ -167,8 +167,8 @@ public class Ranker {
                 continue;
             }
             if (phraseSearchFlag)
-                if (wholeDocument.contains(query)) {
-                    index = wholeDocument.indexOf(query);
+                if (wholeDocument.contains(query.toLowerCase())) {
+                    index = wholeDocument.indexOf(query.toLowerCase());
                     wordToSearch = query;
                     notFoundPhrase = false;
                 } else
