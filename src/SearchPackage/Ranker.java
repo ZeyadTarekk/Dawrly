@@ -10,6 +10,7 @@ import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 /*
 HOW TO USE?
@@ -63,7 +64,7 @@ public class Ranker {
     }
 
     private List<String> splitQuery(String query, List<String> stemmed) {
-        List<String> words = List.of(query.split(" "));
+        List<String> words = Arrays.asList(query.split(" "));
         for (String word : words)
             stemmed.add(stemTheWord(word));
         return words;
