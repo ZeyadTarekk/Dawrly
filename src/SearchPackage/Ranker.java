@@ -158,6 +158,9 @@ public class Ranker {
                     wholeDocument = htmlDocument.body().text().toString().toLowerCase();
                     int index = -1;
                     for (Integer actualIndex : actualIndices) {
+                        if(wholeDocument.indexOf(" ", actualIndex)==-1){
+                            continue;
+                        }
                         if (wholeDocument.substring(actualIndex, wholeDocument.indexOf(" ", actualIndex)).equals(wordToSearch))
                             index = actualIndex;
                     }
@@ -173,28 +176,22 @@ public class Ranker {
                             startIndex++;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
                             if (newEndIndex >= wholeDocument.length()) {
-                                while (wholeDocument.charAt(endIndex) != ' ')
-                                    endIndex--;
-                                newEndIndex = endIndex;
+                                newEndIndex = wholeDocument.length()-1;
                             }
                         } else if (startIndex == 0) {
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
                             if (newEndIndex >= wholeDocument.length()) {
-                                while (wholeDocument.charAt(endIndex) != ' ')
-                                    endIndex--;
-                                newEndIndex = endIndex;
+                                newEndIndex = wholeDocument.length()-1;
                             }
                         } else {
                             startIndex = 0;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
                             if (newEndIndex >= wholeDocument.length()) {
-                                while (wholeDocument.charAt(endIndex) != ' ')
-                                    endIndex--;
-                                newEndIndex = endIndex;
+                                newEndIndex = wholeDocument.length()-1;
                             }
                         }
 
-                        String paragraph = wholeDocument.substring(startIndex, endIndex) + "...";
+                        String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
                         pagesFinalScore.get(page).setParagraph(paragraph);
                         pagesFinalScore.get(page).setWord(wordToSearch);
                     } else {
@@ -321,11 +318,11 @@ public class Ranker {
 //        }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("Normalize", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("css", phraseSearch);
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result, phraseSearch, "Normalize");
+        finalResult = rank.generateRelevance(result, phraseSearch, "css");
         System.out.println(finalResult);
     }
 
