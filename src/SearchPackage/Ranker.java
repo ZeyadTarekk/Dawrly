@@ -195,7 +195,8 @@ public class Ranker {
                         }
 
                         String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
-                        paragraph = paragraph.replaceAll("\\<.*?>", "");
+                        paragraph = paragraph.replaceAll("<", "");
+                        paragraph = paragraph.replaceAll(">", "");
                         pagesFinalScore.get(page).setParagraph(paragraph);
                         pagesFinalScore.get(page).setWord(wordToSearch);
                     } else {
