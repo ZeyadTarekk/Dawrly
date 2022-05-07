@@ -179,20 +179,18 @@ public class Ranker {
 //                            startIndex = wholeDocument.indexOf(" ", startIndex);
 //                            startIndex++;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length() - 1;
-                            }
+
                         } else if (startIndex == 0) {
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length() - 1;
-                            }
+
                         } else {
                             startIndex = 0;
                             newEndIndex = wholeDocument.indexOf(" ", endIndex);
-                            if (newEndIndex >= wholeDocument.length()) {
-                                newEndIndex = wholeDocument.length() - 1;
-                            }
+
+                        }
+
+                        if (newEndIndex >= wholeDocument.length() || newEndIndex == -1) {
+                            newEndIndex = wholeDocument.length() - 1;
                         }
 
                         String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
