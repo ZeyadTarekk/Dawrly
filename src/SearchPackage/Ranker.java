@@ -87,6 +87,9 @@ public class Ranker {
 
     private void generateFinalScores() {
         pagesFinalScore = new HashMap<>();
+        MongoDB dataBase = new MongoDB();
+        dataBase.ConnectWithPagePopularity();
+        int scorePopularity;
         double dummyScore;
         Pair3<Double, String, String, String> dummyScorePair;
         Pair2<Double, Double> dummyPair;
@@ -94,10 +97,12 @@ public class Ranker {
             dummyScore = 0;
             for (String word : wordsNormalizedTFSScores.get(page).keySet()) {
                 dummyPair = wordsNormalizedTFSScores.get(page).get(word);
-                if (dummyPair.score != null)
-                    dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
+                dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
             }
-            pagesFinalScore.put(page, new Pair3<Double, String, String, String>(dummyScore, "", "", ""));
+            scorePopularity = dataBase.getPagePopularity(page);
+//            System.out.println("Score before Popularity: " + dummyScore + " for page: " + page);
+//            System.out.println("Score after Popularity: " + dummyScore * scorePopularity + " for page: " + page);
+            pagesFinalScore.put(page, new Pair3<Double, String, String, String>(dummyScore * scorePopularity, "", "", ""));
         }
 
     }
@@ -255,11 +260,11 @@ public class Ranker {
         Ranker rank = new Ranker();
         HashMap<String, Pair3<Double, String, String, String>> finalResult;
         Indexer indexer = new Indexer();
-        try {
-            indexer.startIndexing();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            indexer.startIndexing();
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
         HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("optimized for learning", phraseSearch);
