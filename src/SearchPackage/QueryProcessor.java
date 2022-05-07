@@ -5,10 +5,7 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,7 +103,8 @@ public class QueryProcessor extends ProcessString {
         Pattern p = Pattern.compile("\"([^\"]*)\"");
         Matcher m = p.matcher(query);
         while (m.find()) {
-            phraseSearch.add(m.group(1));
+            String []words = m.group(1).split(" ");
+            phraseSearch.addAll(Arrays.asList(words));
         }
         convertToLower(phraseSearch);
         removeStopWords(phraseSearch);
