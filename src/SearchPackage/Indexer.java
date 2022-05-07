@@ -39,13 +39,14 @@ public class Indexer extends ProcessString implements Runnable {
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
     private static HashMap<String, Double> tagsOfHtml;
-    private static HashMap<String, Double> scoreOfWords;
+    private static HashMap<String, HashMap<String, Double>> scoreOfWords;
     private static HashMap<String, HashMap<String, List<Integer>>> indicesOfWord;
     // TODO: Synchronization of Threads to avoid Concurrency Exception
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
         indicesOfWord = new HashMap<>();
+        scoreOfWords = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words and fill score of tags
@@ -106,8 +107,8 @@ public class Indexer extends ProcessString implements Runnable {
             StringBuilder originalDoc = new StringBuilder("");
             try {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc, originalDoc);
-                scoreOfWords = new HashMap<>();
-                filterTags(tagsOfHtml, html, noHTMLDoc.toString());
+
+                filterTags(html, noHTMLDoc.toString(),fileName);
                 createBodyFiles(html, fileNamesList[i]);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -123,7 +124,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 6- stemming
             List<String> stemmedWords = stemming(words);
             // 7- fill other tags with score
-            filOtherTags(stemmedWords);
+            filOtherTags(stemmedWords,fileName);
             // 8- build processed words
             // buildProcessedFiles(fileName, stemmedWords);
             // 9- build inverted index
@@ -200,7 +201,9 @@ public class Indexer extends ProcessString implements Runnable {
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
+                if (scoreOfWords.get(docName).get(word) == null)
+                    System.out.println("Error==> " + word);
+                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
                 TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
@@ -291,7 +294,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static void fillScoresOfTags() {
+    private static synchronized void fillScoresOfTags() {
         // score of each tag
         //    title = 1
         //    h1 = 0.7
@@ -310,12 +313,13 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static void filterTags(HashMap<String, Double> tagsHtml, org.jsoup.nodes.Document html, String lines) throws IOException {
+    private static synchronized void filterTags(org.jsoup.nodes.Document html, String lines, String fileName) throws IOException {
         PorterStemmer stemmer = new PorterStemmer();
         Pattern pattern = Pattern.compile("\\w+");
         Matcher matcher;
+        HashMap<String, Double> tempScore = new HashMap<>();
         //filtration most important tags
-        for (String line : tagsHtml.keySet()) {
+        for (String line : tagsOfHtml.keySet()) {
             String taggedString = html.select(line).text();
             if (html != null && !taggedString.isEmpty()) {
                 matcher = pattern.matcher(taggedString.toLowerCase());
@@ -323,23 +327,26 @@ public class Indexer extends ProcessString implements Runnable {
                     stemmer.setCurrent(matcher.group());
                     stemmer.stem();
                     taggedString = stemmer.getCurrent();
-                    if (!scoreOfWords.containsKey(taggedString))
-                        scoreOfWords.put(taggedString, tagsHtml.get(line));
+                    if (!tempScore.containsKey(taggedString))
+                        tempScore.put(taggedString, tagsOfHtml.get(line));
                     else
-                        scoreOfWords.put(taggedString, scoreOfWords.get(taggedString) + tagsHtml.get(line));
+                        tempScore.put(taggedString, tempScore.get(taggedString) + tagsOfHtml.get(line));
                 }
             }
         }
+        scoreOfWords.put(fileName,tempScore);
     }
 
-    private static void filOtherTags(List<String> stemmedWords) {
-        for (int j = 0; j < stemmedWords.size(); j++) {
-            if (scoreOfWords.containsKey(stemmedWords.get(j))) {
-                scoreOfWords.put(stemmedWords.get(j), 0.1 + scoreOfWords.get(stemmedWords.get(j)));
+    private static synchronized void filOtherTags(List<String> stemmedWords, String fileName) {
+        HashMap<String, Double> tempScore = new HashMap<>();
+        for (String word : stemmedWords) {
+            if (tempScore.containsKey(word)) {
+                tempScore.put(word, 0.1 + tempScore.get(word));
             } else
-                scoreOfWords.put(stemmedWords.get(j), 0.1);
+                tempScore.put(word, 0.1);
         }
-        scoreOfWords.keySet().remove(""); //remove empty string
+        tempScore.keySet().remove(""); //remove empty string
+        scoreOfWords.put(fileName, tempScore);
     }
 
     // get indices  of each word in each Document
