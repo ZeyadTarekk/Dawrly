@@ -8,7 +8,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.tartarus.snowball.ext.PorterStemmer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
@@ -114,7 +116,11 @@ public class Ranker {
             dummyScore = 0;
             for (String word : wordsNormalizedTFSScores.get(page).keySet()) {
                 dummyPair = wordsNormalizedTFSScores.get(page).get(word);
-                dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
+
+                if (dummyPair.score != null)
+                    dummyScore = dummyScore + dummyPair.TF * dummyPair.score * wordsNormalizedIDFS.get(word);
+                else
+                    System.out.println("Score: " + dummyPair.score);
             }
             scorePopularity = dataBase.getPagePopularity(page);
 //            System.out.println("Score before Popularity: " + dummyScore + " for page: " + page);
@@ -125,85 +131,88 @@ public class Ranker {
     }
 
     private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores, String query) {
-        String wordToSearch;
+        String wordToSearch = null;
         String wholeDocument;
+        String pageName;
+        String titlePage;
+        boolean phraseSearchFlag;
+        boolean notFoundPhrase = false;
+        if (query.contains("\"")) {
+            query = query.replaceAll("\"", "");
+            phraseSearchFlag = true;
+        } else
+            phraseSearchFlag = false;
         List<String> wordsInQueryStemmed = new ArrayList<>();
         List<String> wordsInQuery = splitQuery(query.toLowerCase(), wordsInQueryStemmed);
         int indexOfWord;
         List<Integer> actualIndices;
         Pair<Integer, Integer, Double, Integer, Integer> dummyPair;
         for (String page : pagesFinalScore.keySet()) {
-            indexOfWord = -1;
-            for (int i = 0; i < wordsInQueryStemmed.size(); i++) {
-//                System.out.println(wordsInQuery.get(i) + " " + wordsInQueryStemmed.get(i) + " " + resultProcessed.get(wordsInQueryStemmed.get(i)));
-                if (resultProcessed.get(wordsInQueryStemmed.get(i)) != null && resultProcessed.get(wordsInQueryStemmed.get(i)).get(page) != null) {
-                    indexOfWord = i;
-                    break;
-                }
+            int index = -1;
+            try {
+                pageName = page;
+                pageName = pageName.replace("*", "`{}");
+                pageName = pageName.replace("://", "}");
+                pageName = pageName.replace("/", "{");
+                pageName = pageName.replace("?", "`");
+                pageName = pageName + ".html";
+//                    System.out.println(pageName);
+                File file = new File("bodyFiles//" + pageName);
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                titlePage = br.readLine();
+                wholeDocument = br.readLine().toLowerCase();
+            } catch (IOException e) {
+                pagesFinalScore.get(page).setTitle("-1");
+                e.printStackTrace();
+                continue;
             }
-            if (indexOfWord != -1) {
-                wordToSearch = wordsInQuery.get(indexOfWord);
-                dummyPair = resultProcessed.get(wordsInQueryStemmed.get(indexOfWord)).get(page);
-                actualIndices = dummyPair.actualIndices;
-                Connection connection;
-                Document htmlDocument = null;
-                try {
-                    connection = Jsoup.connect(page);
-                    htmlDocument = connection.get();
-                } catch (IOException e) {
-                    pagesFinalScore.get(page).setTitle("-1");
-                    e.printStackTrace();
-                    continue;
-                }
-                if (htmlDocument != null) {
-                    pagesFinalScore.get(page).setTitle(htmlDocument.title());
-                    wholeDocument = htmlDocument.body().text().toString().toLowerCase();
-                    int index = -1;
-                    for (Integer actualIndex : actualIndices) {
-                        if (wholeDocument.indexOf(" ", actualIndex) == -1 && wholeDocument.substring(actualIndex, wholeDocument.length() - 1).equals(wordToSearch)) {
-                            index = actualIndex;
-                            continue;
-                        }
-                        if (wholeDocument.indexOf(" ", actualIndex) == -1)
-                            continue;
-                        if (wholeDocument.substring(actualIndex, wholeDocument.indexOf(" ", actualIndex)).equals(wordToSearch))
-                            index = actualIndex;
+            if (phraseSearchFlag)
+                if (wholeDocument.contains(query)) {
+                    index = wholeDocument.indexOf(query);
+                    wordToSearch = query;
+                    notFoundPhrase = false;
+                } else
+                    notFoundPhrase = true;
+
+            if (!phraseSearchFlag || notFoundPhrase)
+                for (String word : wordsInQuery)
+                    if (wholeDocument.contains(word.toLowerCase())) {
+                        wordToSearch = word;
+                        index = wholeDocument.indexOf(wordToSearch);
                     }
-//                System.out.println("word = " + wordToSearch);
-//                System.out.println(" index = " + index);
-                    if (index != -1) {
-                        int endIndex = index + 100;
-                        int startIndex = index - 100;
-                        int newEndIndex;
-//                System.out.println("end index = " + endIndex);
-                        if (startIndex > 0) {
+            if (index != -1) {
 
-//                            startIndex = wholeDocument.indexOf(" ", startIndex);
-//                            startIndex++;
-                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
 
-                        } else if (startIndex == 0) {
-                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
+                int endIndex = index + 100;
+                int startIndex = index - 100;
+                int newEndIndex;
+                if (startIndex > 0) {
+                    while (wholeDocument.charAt(startIndex) != ' ' && startIndex != 0)
+                        startIndex--;
+                    if (wholeDocument.charAt(startIndex) == ' ')
+                        startIndex++;
+                    newEndIndex = wholeDocument.indexOf(" ", endIndex);
 
-                        } else {
-                            startIndex = 0;
-                            newEndIndex = wholeDocument.indexOf(" ", endIndex);
+                } else if (startIndex == 0) {
+                    newEndIndex = wholeDocument.indexOf(" ", endIndex);
 
-                        }
-
-                        if (newEndIndex >= wholeDocument.length() || newEndIndex == -1) {
-                            newEndIndex = wholeDocument.length() - 1;
-                        }
-
-                        String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
-                        paragraph = paragraph.replaceAll("<", "");
-                        paragraph = paragraph.replaceAll(">", "");
-                        pagesFinalScore.get(page).setParagraph(paragraph);
-                        pagesFinalScore.get(page).setWord(wordToSearch);
-                    } else {
-                        pagesFinalScore.get(page).setTitle("-1");
-                    }
+                } else {
+                    startIndex = 0;
+                    newEndIndex = wholeDocument.indexOf(" ", endIndex);
                 }
+
+                if (newEndIndex >= wholeDocument.length() || newEndIndex == -1) {
+                    newEndIndex = wholeDocument.length() - 1;
+                }
+
+                String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
+                paragraph = paragraph.replaceAll("<", "");
+                paragraph = paragraph.replaceAll(">", "");
+                pagesFinalScore.get(page).setParagraph(paragraph);
+                pagesFinalScore.get(page).setWord(wordToSearch);
+                pagesFinalScore.get(page).setTitle(titlePage);
+            } else {
+                pagesFinalScore.get(page).setTitle("-1");
             }
 
 
@@ -323,11 +332,11 @@ public class Ranker {
 //        }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("html", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("normalize", phraseSearch);
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result, phraseSearch, "html");
+        finalResult = rank.generateRelevance(result, phraseSearch, "normalize");
         System.out.println(finalResult);
     }
 
