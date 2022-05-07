@@ -151,7 +151,9 @@ public class Ranker {
                     connection = Jsoup.connect(page);
                     htmlDocument = connection.get();
                 } catch (IOException e) {
+                    pagesFinalScore.get(page).setTitle("-1");
                     e.printStackTrace();
+                    continue;
                 }
                 if (htmlDocument != null) {
                     pagesFinalScore.get(page).setTitle(htmlDocument.title());
@@ -199,8 +201,7 @@ public class Ranker {
                         pagesFinalScore.get(page).setParagraph(paragraph);
                         pagesFinalScore.get(page).setWord(wordToSearch);
                     } else {
-                        pagesFinalScore.get(page).setParagraph("paragraph");
-                        pagesFinalScore.get(page).setWord("wordToSearch");
+                        pagesFinalScore.get(page).setTitle("-1");
                     }
                 }
             }

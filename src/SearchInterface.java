@@ -9,6 +9,8 @@ import java.util.Locale;
 
 public class SearchInterface extends HttpServlet {
     private MongoDB database;
+    private Search s = new Search();
+    private HashMap<String, Pair3<Double, String, String, String>> finalResults;
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String query = req.getParameter("query");
@@ -21,18 +23,6 @@ public class SearchInterface extends HttpServlet {
 
         //get the suggestions from the database
         List<String> Suggestions = database.getSuggestions();
-
-        //result
-        Search s = new Search();
-        HashMap<String, Pair3<Double, String, String, String>> finalResults;
-        finalResults = s.searchQuery(query);
-//        Pair3<Double, String, String, String> Result = null;
-
-        //each result should have the following data
-        String paragraph = "This it the paragraph of that page which contains Web Site sdbfjdskfnkdnfksnfksndkfln";
-        String title = "Title for the website";
-        String url = "https://hackernoon.com/19-github-repositories-to-make-you-a-10x-developer";
-
 
         resp.setContentType("text/html");
         StringBuilder page = new StringBuilder();
@@ -71,33 +61,35 @@ public class SearchInterface extends HttpServlet {
 
 
         //pages
-        //here we need to loop through the hashmap
+        finalResults = s.searchQuery(query);
+        Pair3<Double, String, String, String> Result = null;
+
+
         page.append("<div class=\"search-results container mt-5\">");
 
-
         for (String link : finalResults.keySet()) {
-//            Result = finalResults.get(link);
-//            Result.getTitle();
-//            Result.getParagraph();
+            Result = finalResults.get(link);
 
-            page.append("    <div class=\"card hidden mb-3\">\n" +
-                    "      <div class=\"card-body\">\n" +
-                    "        <a class=\"card-title page-title\" href=\"" + link + "\" target=\"_blank\">" + title + finalResults.get(link).getScore() + "</a>\n" +
-                    "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
-                    "        <p class=\"card-text\">");
+            if (!Result.getTitle().equals("-1")) {
+                page.append("    <div class=\"card hidden mb-3\">\n" +
+                        "      <div class=\"card-body\">\n" +
+                        "        <a class=\"card-title page-title\" href=\"" + link + "\" target=\"_blank\">" + Result.getTitle() + "</a>\n" +
+                        "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
+                        "        <p class=\"card-text\">");
 
-            String[] para = paragraph.split(" ");
-            query.toLowerCase();
-            List<String> queryList = Arrays.asList(query.split(" "));
+                String[] para = Result.getParagraph().split(" ");
+                query.toLowerCase();
+                List<String> queryList = Arrays.asList(query.split(" "));
 
-            for (int i = 0; i < para.length; i++) {
-                if (queryList.contains(para[i].toLowerCase())) {
-                    page.append(" <strong>" + para[i] + "</strong>");
-                } else page.append(" " + para[i]);
+                for (int i = 0; i < para.length; i++) {
+                    if (queryList.contains(para[i].toLowerCase())) {
+                        page.append(" <strong>" + para[i] + "</strong>");
+                    } else page.append(" " + para[i]);
+                }
+                page.append("</p>\n" +
+                        "      </div>\n" +
+                        "    </div>");
             }
-            page.append("</p>\n" +
-                    "      </div>\n" +
-                    "    </div>");
         }
         page.append("  </div>");
 
