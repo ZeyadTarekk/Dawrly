@@ -70,24 +70,26 @@ public class SearchInterface extends HttpServlet {
         for (String link : finalResults.keySet()) {
             Result = finalResults.get(link);
 
-            page.append("    <div class=\"card hidden mb-3\">\n" +
-                    "      <div class=\"card-body\">\n" +
-                    "        <a class=\"card-title page-title\" href=\"" + link + "\" target=\"_blank\">" + Result.getTitle() + "</a>\n" +
-                    "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
-                    "        <p class=\"card-text\">");
+            if (!Result.getTitle().equals("-1")) {
+                page.append("    <div class=\"card hidden mb-3\">\n" +
+                        "      <div class=\"card-body\">\n" +
+                        "        <a class=\"card-title page-title\" href=\"" + link + "\" target=\"_blank\">" + Result.getTitle() + "</a>\n" +
+                        "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
+                        "        <p class=\"card-text\">");
 
-            String[] para = Result.getParagraph().split(" ");
-            query.toLowerCase();
-            List<String> queryList = Arrays.asList(query.split(" "));
+                String[] para = Result.getParagraph().split(" ");
+                query.toLowerCase();
+                List<String> queryList = Arrays.asList(query.split(" "));
 
-            for (int i = 0; i < para.length; i++) {
-                if (queryList.contains(para[i].toLowerCase())) {
-                    page.append(" <strong>" + para[i] + "</strong>");
-                } else page.append(" " + para[i]);
+                for (int i = 0; i < para.length; i++) {
+                    if (queryList.contains(para[i].toLowerCase())) {
+                        page.append(" <strong>" + para[i] + "</strong>");
+                    } else page.append(" " + para[i]);
+                }
+                page.append("</p>\n" +
+                        "      </div>\n" +
+                        "    </div>");
             }
-            page.append("</p>\n" +
-                    "      </div>\n" +
-                    "    </div>");
         }
         page.append("  </div>");
 
