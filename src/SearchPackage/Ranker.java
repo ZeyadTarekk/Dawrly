@@ -158,9 +158,12 @@ public class Ranker {
                     wholeDocument = htmlDocument.body().text().toString().toLowerCase();
                     int index = -1;
                     for (Integer actualIndex : actualIndices) {
-                        if(wholeDocument.indexOf(" ", actualIndex)==-1){
+                        if(wholeDocument.indexOf(" ", actualIndex)==-1 &&wholeDocument.substring(actualIndex, wholeDocument.length()-1).equals(wordToSearch) ){
+                            index = actualIndex;
                             continue;
                         }
+                        if(wholeDocument.indexOf(" ", actualIndex)==-1)
+                            continue;
                         if (wholeDocument.substring(actualIndex, wholeDocument.indexOf(" ", actualIndex)).equals(wordToSearch))
                             index = actualIndex;
                     }
@@ -319,11 +322,11 @@ public class Ranker {
 //        }
         List<String> phraseSearch = new ArrayList<>();
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("css", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result = qp.processQuery("html", phraseSearch);
         System.out.println("============================================");
         System.out.println(result);
         System.out.println("============================================");
-        finalResult = rank.generateRelevance(result, phraseSearch, "css");
+        finalResult = rank.generateRelevance(result, phraseSearch, "html");
         System.out.println(finalResult);
     }
 
