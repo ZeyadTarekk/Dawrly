@@ -20,6 +20,9 @@ if (document.title != "Dawrha Search") {
     increase(e);
   });
 
+  if (counter == 1) {
+    next.classList.add("hidden");
+  }
 
 
   if (pagesNum == 0) {
@@ -104,7 +107,7 @@ if (document.title != "Dawrha Search") {
       }
 
       if (pagesNum > 10) {
-      
+
         let start = (currentPage - 1) * 10;
         let end = start + 10;
         if (end > pagesNum) {
@@ -113,7 +116,7 @@ if (document.title != "Dawrha Search") {
         for (let i = start; i < end; i++) {
           searchResults.children[i].classList.remove("hidden");
         };
-    
+
         start = (prevPage - 1) * 10;
         end = start + 10;
         if (end > pagesNum) {
@@ -122,7 +125,7 @@ if (document.title != "Dawrha Search") {
         for (let i = start; i < end; i++) {
           searchResults.children[i].classList.add("hidden");
         };
-      
+
       } else {
         for (let i = 0; i < pagesNum; i++) {
           searchResults.children[i].classList.remove("hidden");
@@ -159,54 +162,54 @@ function getSuggestions() {
 function autocomplete(inp, arr) {
   var currentFocus;
   inp.addEventListener("input", function(e) {
-      var a, b, i, val = this.value;
-      closeAllLists();
+    var a, b, i, val = this.value;
+    closeAllLists();
 
-      if (!val) { return false;}
-      currentFocus = -1;
-      a = document.createElement("div");
-      a.setAttribute("id", this.id + "autocomplete-list");
-      a.setAttribute("class", "autocomplete-items");
+    if (!val) { return false;}
+    currentFocus = -1;
+    a = document.createElement("div");
+    a.setAttribute("id", this.id + "autocomplete-list");
+    a.setAttribute("class", "autocomplete-items");
 
-      this.parentNode.appendChild(a);
-      for (i = 0; i < arr.length; i++) {
-        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-          b = document.createElement("DIV");
-          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-          b.innerHTML += arr[i].substr(val.length);
-          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+    this.parentNode.appendChild(a);
+    for (i = 0; i < arr.length; i++) {
+      if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+        b = document.createElement("DIV");
+        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+        b.innerHTML += arr[i].substr(val.length);
+        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
 
-          b.addEventListener("click", function(e) {
-            inp.value = this.getElementsByTagName("input")[0].value;
-            
-            closeAllLists();
-          });
-          a.appendChild(b);
-        }
+        b.addEventListener("click", function(e) {
+          inp.value = this.getElementsByTagName("input")[0].value;
+
+          closeAllLists();
+        });
+        a.appendChild(b);
       }
+    }
   });
 
   inp.addEventListener("keydown", function(e) {
-      var x = document.getElementById(this.id + "autocomplete-list");
-      if (x) x = x.getElementsByTagName("div");
-      if (e.keyCode == 40) {
-        //arrow DOWN key is pressed
-        currentFocus++;
-        addActive(x);
-      } else if (e.keyCode == 38) {
-        //arrow UP key is pressed
-        currentFocus--;
-        addActive(x);
-      } else if (e.keyCode == 13) {
-        //ENTER key is pressed
-        e.preventDefault();
-        if (currentFocus > -1) {
-          /*and simulate a click on the "active" item:*/
-          if (x) x[currentFocus].click();
-        }
-        let btn = document.querySelector(`.autocomplete button`);
-        btn.click();
+    var x = document.getElementById(this.id + "autocomplete-list");
+    if (x) x = x.getElementsByTagName("div");
+    if (e.keyCode == 40) {
+      //arrow DOWN key is pressed
+      currentFocus++;
+      addActive(x);
+    } else if (e.keyCode == 38) {
+      //arrow UP key is pressed
+      currentFocus--;
+      addActive(x);
+    } else if (e.keyCode == 13) {
+      //ENTER key is pressed
+      e.preventDefault();
+      if (currentFocus > -1) {
+        /*and simulate a click on the "active" item:*/
+        if (x) x[currentFocus].click();
       }
+      let btn = document.querySelector(`.autocomplete button`);
+      btn.click();
+    }
   });
 
   function addActive(x) {
@@ -226,13 +229,13 @@ function autocomplete(inp, arr) {
     var x = document.getElementsByClassName("autocomplete-items");
     for (var i = 0; i < x.length; i++) {
       if (elmnt != x[i] && elmnt != inp) {
-      x[i].parentNode.removeChild(x[i]);
+        x[i].parentNode.removeChild(x[i]);
+      }
     }
   }
-}
-document.addEventListener("click", function (e) {
+  document.addEventListener("click", function (e) {
     closeAllLists(e.target);
-});
+  });
 }
 
 

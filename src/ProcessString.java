@@ -1,3 +1,4 @@
+
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.BufferedReader;
@@ -26,18 +27,12 @@ public class ProcessString {
     }
 
     protected static void readStopWords() throws IOException {
-//        BufferedReader reader = new BufferedReader(new FileReader("stopwords.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("stopwords.txt"));
         stopWords = new Vector<String>();
-//        String word;
-//        while ((word = reader.readLine()) != null) {
-//            stopWords.add(word);
-//        }
-
-        stopWords.add("i");
-        stopWords.add("a");
-        stopWords.add("at");
-        stopWords.add("the");
-
+        String word;
+        while ((word = reader.readLine()) != null) {
+            stopWords.add(word);
+        }
     }
 
     protected static void convertToLower(List<String> temp) {

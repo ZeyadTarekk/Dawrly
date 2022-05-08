@@ -1,19 +1,33 @@
+
+import java.util.*;
+import java.io.*;
+
+// mongo libraries
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.json.simple.JSONObject;
-import org.jsoup.Jsoup;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.Updates;
+
+
+import com.mongodb.client.result.UpdateResult;
 import org.tartarus.snowball.ext.PorterStemmer;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static com.mongodb.client.model.Filters.eq;
+
+import org.bson.Document;
+
+import org.bson.conversions.Bson;
+import org.json.simple.JSONObject;
+
+import org.jsoup.Jsoup;
+
+import javax.print.Doc;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 
 public class Indexer extends ProcessString implements Runnable {
@@ -24,13 +38,14 @@ public class Indexer extends ProcessString implements Runnable {
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
     private static HashMap<String, Double> tagsOfHtml;
-    private static HashMap<String, Double> scoreOfWords;
-    private static HashMap<String, List<Integer>> inddicesOfWord;
+    private static HashMap<String, HashMap<String, Double>> scoreOfWords;
+    private static HashMap<String, HashMap<String, List<Integer>>> indicesOfWord;
     // TODO: Synchronization of Threads to avoid Concurrency Exception
-    // Testing by one Thread until fix it
 
     public void startIndexing() throws InterruptedException {
         invertedIndex = new HashMap<>();
+        indicesOfWord = new HashMap<>();
+        scoreOfWords = new HashMap<>();
         List<JSONObject> invertedIndexJSON;
 
         // read stop words and fill score of tags
@@ -46,15 +61,15 @@ public class Indexer extends ProcessString implements Runnable {
         // returns an array of all files
         fileNamesList = file.list();
 
-        Thread[] threads = new Thread[1];
-        for (int i = 0; i < 1; i++) {
+        Thread[] threads = new Thread[5];
+        for (int i = 0; i < 5; i++) {
             threads[i] = new Thread(new Indexer());
             threads[i].setPriority(i + 1);
         }
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             threads[i].start();
         }
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             threads[i].join();
         }
 
@@ -73,8 +88,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 1.0);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 1.0);
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
@@ -85,23 +100,22 @@ public class Indexer extends ProcessString implements Runnable {
             fileName = fileName.replace("{", "/");
             fileName = fileName.replace("`", "?");
             fileName = fileName.replace(".html", "");
-//            System.out.println("File name after modification: " + fileName);
 
             // 1- parse html
             StringBuilder noHTMLDoc = new StringBuilder("");
             StringBuilder originalDoc = new StringBuilder("");
             try {
                 org.jsoup.nodes.Document html = parsingHTML(oldFileName, folderRootPath, noHTMLDoc, originalDoc);
-                scoreOfWords = new HashMap<>();
-                filterTags(tagsOfHtml, html, noHTMLDoc.toString());
 
+                filterTags(html, fileName);
+                createBodyFiles(html, fileNamesList[i]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
-            getIndexOfWord(words, originalDoc); // TODO: Synchronized threads
+            getIndexOfWord(words, originalDoc, fileName); // TODO: Synchronized threads
             // 4-convert to lowercase
             convertToLower(words);
             // 5- remove stop words
@@ -109,7 +123,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 6- stemming
             List<String> stemmedWords = stemming(words);
             // 7- fill other tags with score
-            filOtherTags(stemmedWords);
+            filOtherTags(stemmedWords, fileName);
             // 8- build processed words
             // buildProcessedFiles(fileName, stemmedWords);
             // 9- build inverted index
@@ -186,13 +200,12 @@ public class Indexer extends ProcessString implements Runnable {
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(word));
+                if (scoreOfWords.get(docName).get(word) == null)
+                    System.out.println("Error==> " + word);
+                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                // for testing until check all threads
-//                if (inddicesOfWord.get(word) == null)
-//                    System.out.println("Error===> " + word);
-                TF_Size_pair.actualIndices = inddicesOfWord.get(word);
+                TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
@@ -280,7 +293,7 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static void fillScoresOfTags() {
+    private static synchronized void fillScoresOfTags() {
         // score of each tag
         //    title = 1
         //    h1 = 0.7
@@ -299,12 +312,13 @@ public class Indexer extends ProcessString implements Runnable {
         }
     }
 
-    private static void filterTags(HashMap<String, Double> tagsHtml, org.jsoup.nodes.Document html, String lines) throws IOException {
+    private static synchronized void filterTags(org.jsoup.nodes.Document html, String fileName) throws IOException {
         PorterStemmer stemmer = new PorterStemmer();
         Pattern pattern = Pattern.compile("\\w+");
         Matcher matcher;
+        HashMap<String, Double> tempScore = new HashMap<>();
         //filtration most important tags
-        for (String line : tagsHtml.keySet()) {
+        for (String line : tagsOfHtml.keySet()) {
             String taggedString = html.select(line).text();
             if (html != null && !taggedString.isEmpty()) {
                 matcher = pattern.matcher(taggedString.toLowerCase());
@@ -312,29 +326,31 @@ public class Indexer extends ProcessString implements Runnable {
                     stemmer.setCurrent(matcher.group());
                     stemmer.stem();
                     taggedString = stemmer.getCurrent();
-                    if (!scoreOfWords.containsKey(taggedString))
-                        scoreOfWords.put(taggedString, tagsHtml.get(line));
+                    if (!tempScore.containsKey(taggedString))
+                        tempScore.put(taggedString, tagsOfHtml.get(line));
                     else
-                        scoreOfWords.put(taggedString, scoreOfWords.get(taggedString) + tagsHtml.get(line));
+                        tempScore.put(taggedString, tempScore.get(taggedString) + tagsOfHtml.get(line));
                 }
             }
         }
+        scoreOfWords.put(fileName, tempScore);
     }
 
-    private static void filOtherTags(List<String> stemmedWords) {
-        for (int j = 0; j < stemmedWords.size(); j++) {
-            if (scoreOfWords.containsKey(stemmedWords.get(j))) {
-                scoreOfWords.put(stemmedWords.get(j), 0.1 + scoreOfWords.get(stemmedWords.get(j)));
+    private static synchronized void filOtherTags(List<String> stemmedWords, String fileName) {
+        HashMap<String, Double> tempScore = new HashMap<>();
+        for (String word : stemmedWords) {
+            if (tempScore.containsKey(word)) {
+                tempScore.put(word, 0.1 + tempScore.get(word));
             } else
-                scoreOfWords.put(stemmedWords.get(j), 0.1);
+                tempScore.put(word, 0.1);
         }
-        scoreOfWords.keySet().remove(""); //remove empty string
+        tempScore.keySet().remove(""); //remove empty string
+        scoreOfWords.put(fileName, tempScore);
     }
 
     // get indices  of each word in each Document
-    private static void getIndexOfWord(List<String> splitWord, StringBuilder originalDoc) {
+    private static synchronized void getIndexOfWord(List<String> splitWord, StringBuilder originalDoc, String fileName) {
         // TODO: matching actual string not substring in document
-        inddicesOfWord = new HashMap<>();
         Integer lengthOfDoc = originalDoc.length();
         PorterStemmer stemmer = new PorterStemmer();
         HashMap<String, List<Integer>> tempIndex = new HashMap<>();
@@ -344,8 +360,8 @@ public class Indexer extends ProcessString implements Runnable {
             int startFrom = 0;
             while (true) {
                 int index = originalDoc.indexOf(word, startFrom);// get the occurrence of index of each word
-                Character startChar = '.';
-                Character endChar = '.';
+                char startChar = '.';
+                char endChar = '.';
 
                 if (index - 1 >= 0)
                     startChar = originalDoc.charAt(index - 1);
@@ -353,8 +369,8 @@ public class Indexer extends ProcessString implements Runnable {
                     endChar = originalDoc.charAt(word.length() + index);
                 }
 
-                boolean beforeWord = startChar.toString().matches(".*[a-zA-Z]+.*");
-                boolean afterWord = endChar.toString().matches(".*[a-zA-Z]+.*");
+                boolean beforeWord = Character.toString(startChar).matches(".*[a-zA-Z]+.*");
+                boolean afterWord = Character.toString(endChar).matches(".*[a-zA-Z]+.*");
 
                 if (index >= 0) {
                     if (!beforeWord && !afterWord)
@@ -363,19 +379,31 @@ public class Indexer extends ProcessString implements Runnable {
                 } else
                     break;
             }
-            if (list.isEmpty()) {
+
+            String lowerWord = word.toLowerCase();
+            stemmer.setCurrent(lowerWord);
+            stemmer.stem();
+
+            if (list.isEmpty())
                 list.add(-2); //indices out of  body
-                tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
-            } else
-                tempIndex.put(word.toLowerCase(), new ArrayList<>(list));
+
+            tempIndex.put(stemmer.getCurrent(), new ArrayList<>(list));
             list.clear();
         }
+        tempIndex.keySet().remove("");
+        indicesOfWord.put(fileName, tempIndex);
+    }
 
-        for (String word : tempIndex.keySet()) {
-            stemmer.setCurrent(word);
-            stemmer.stem();
-            inddicesOfWord.put(stemmer.getCurrent(), tempIndex.get(word));
+    private static void createBodyFiles(org.jsoup.nodes.Document html, String fileName) {
+        try {
+//            System.out.println(fileName);
+            FileWriter myWriter = new FileWriter("bodyFiles//" + fileName);
+            myWriter.write(html.title());
+            myWriter.write("\n");
+            myWriter.write(html.body().text());
+            myWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        inddicesOfWord.keySet().remove("");
     }
 }

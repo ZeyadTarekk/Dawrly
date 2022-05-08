@@ -1,5 +1,6 @@
 import javax.servlet.*;
 import javax.servlet.http.*;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,6 +48,9 @@ public class SearchInterface extends HttpServlet {
             page.append("<span>" + Suggestions.get(i) + "</span>");
         }
 
+        if (query.contains("\"")) {
+            query = query.replaceAll("\"", "");
+        }
         //add the search bar
         page.append("</div>\n" +
                 "  <div class=\"header-search\">\n" +
@@ -77,15 +81,28 @@ public class SearchInterface extends HttpServlet {
                         "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
                         "        <p class=\"card-text\">");
 
-                String[] para = Result.getParagraph().split(" ");
-                query.toLowerCase();
-                List<String> queryList = Arrays.asList(query.split(" "));
 
-                for (int i = 0; i < para.length; i++) {
-                    if (queryList.contains(para[i].toLowerCase())) {
-                        page.append(" <strong>" + para[i] + "</strong>");
-                    } else page.append(" " + para[i]);
+//                String[] para = Result.getParagraph().split(" ");
+                query = query.toLowerCase();
+                List<String> queryList = Arrays.asList(query.split(" "));
+                String paragraph = Result.getParagraph().toLowerCase();
+                for (String que : queryList) {
+                    paragraph = paragraph.replaceAll(que, "<strong>" + que + "</strong>");
                 }
+
+//                for (int i = 0; i < para.length; i++) {
+//
+//                    if (queryList.contains(para[i].toLowerCase()
+//                            .replaceAll(",", "")
+//                            .replaceAll(".", "")
+//                            .replaceAll("\"", "")
+//                            .replaceAll("\'", "")
+//                            .replaceAll("-", "")
+//                            .replaceAll("_", ""))) {
+//                        page.append(" <strong>" + para[i] + "</strong>");
+//                    } else page.append(" " + para[i]);
+//                }
+                page.append(paragraph);
                 page.append("</p>\n" +
                         "      </div>\n" +
                         "    </div>");
@@ -128,5 +145,4 @@ public class SearchInterface extends HttpServlet {
 
         resp.getWriter().println(page);
     }
-
 }

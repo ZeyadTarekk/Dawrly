@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 public class PhraseSearcher {
@@ -57,8 +58,6 @@ public class PhraseSearcher {
 
     // TODO: Implement a function that make golden docs at the top of data structure (Built by the ranker)
     private void moveDocumentUp() {
-        System.out.println("Before moving up");
-        System.out.println(orderedDocs);
         for (String doc : goldenDocuments) {
             Pair3<Double, String, String, String> tempPair = orderedDocs.get(doc);
             Pair3<Double, String, String, String> tempPair2 = new Pair3<>(tempPair.score, tempPair.paragraph, tempPair.title, tempPair.word);
