@@ -25,8 +25,16 @@ public class SearchInterface extends HttpServlet {
         //get the suggestions from the database
         List<String> Suggestions = database.getSuggestions();
 
+        //pages
+        finalResults = s.searchQuery(query);
+        Pair3<Double, String, String, String> Result = null;
+
         resp.setContentType("text/html");
         StringBuilder page = new StringBuilder();
+
+        if (query.contains("\"")) {
+            query = query.replaceAll("\"", "");
+        }
 
         //build the main structure of the page
         page.append("<!DOCTYPE html>\n" +
@@ -48,9 +56,6 @@ public class SearchInterface extends HttpServlet {
             page.append("<span>" + Suggestions.get(i) + "</span>");
         }
 
-        if (query.contains("\"")) {
-            query = query.replaceAll("\"", "");
-        }
         //add the search bar
         page.append("</div>\n" +
                 "  <div class=\"header-search\">\n" +
@@ -62,11 +67,6 @@ public class SearchInterface extends HttpServlet {
                 "      </div>\n" +
                 "    </form>\n" +
                 "  </div>");
-
-
-        //pages
-        finalResults = s.searchQuery(query);
-        Pair3<Double, String, String, String> Result = null;
 
 
         page.append("<div class=\"search-results container mt-5\">");
@@ -82,7 +82,6 @@ public class SearchInterface extends HttpServlet {
                         "        <p class=\"card-text\">");
 
 
-//                String[] para = Result.getParagraph().split(" ");
                 query = query.toLowerCase();
                 List<String> queryList = Arrays.asList(query.split(" "));
                 String paragraph = Result.getParagraph().toLowerCase();
@@ -90,18 +89,6 @@ public class SearchInterface extends HttpServlet {
                     paragraph = paragraph.replaceAll(que, "<strong>" + que + "</strong>");
                 }
 
-//                for (int i = 0; i < para.length; i++) {
-//
-//                    if (queryList.contains(para[i].toLowerCase()
-//                            .replaceAll(",", "")
-//                            .replaceAll(".", "")
-//                            .replaceAll("\"", "")
-//                            .replaceAll("\'", "")
-//                            .replaceAll("-", "")
-//                            .replaceAll("_", ""))) {
-//                        page.append(" <strong>" + para[i] + "</strong>");
-//                    } else page.append(" " + para[i]);
-//                }
                 page.append(paragraph);
                 page.append("</p>\n" +
                         "      </div>\n" +

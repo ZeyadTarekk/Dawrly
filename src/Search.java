@@ -33,13 +33,21 @@ public class Search {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("JavaScript");
+        finalResults = ser.searchQuery("Web");
         long end1 = System.currentTimeMillis();
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 
-        System.out.println("================================");
-        System.out.println(finalResults);
-        System.out.println("================================");
+        for (String page : finalResults.keySet()) {
+            System.out.println("------------------");
+            System.out.println(page);
+            System.out.println(finalResults.get(page).getTitle());
+            System.out.println(finalResults.get(page).getParagraph());
+            System.out.println("------------------");
+        }
+
+//        System.out.println("================================");
+//        System.out.println(finalResults);
+//        System.out.println("================================");
     }
 }
 
