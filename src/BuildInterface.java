@@ -35,17 +35,18 @@ public class BuildInterface extends HttpServlet {
             page.append("<span>" + Suggestions.get(i) + "</span>");
         }
 
-        page.append("</div>\n" +
-                "  <form action=\"SearchInterface\" method=\"GET\" autocomplete=\"off\" class=\"container w-75\" style=\"margin: 100px auto 100px;\">\n" +
+        page.append("  </div>\n" +
+                "\n" +
+                "  <form action=\"SearchInterface\" method=\"GET\" autocomplete=\"off\" class=\"container w-75\" style=\"margin: 150px auto 100px;\">\n" +
                 "    <h2 class=\"dawarha-logo\">Dawrha</h2>\n" +
                 "\n" +
                 "    <div class=\"autocomplete\">\n" +
                 "      <input name=\"query\" id=\"myInput\" autocomplete=\"off\" type=\"text\" placeholder=\"Search\" style=\"font-size: 18px;\">\n" +
+                "      <span class=\"mic-btn\"><i class=\"fa-solid fa-microphone\"></i></span>\n" +
                 "      <button type=\"submit\"><i class=\"fa-solid fa-magnifying-glass\"></i></button>\n" +
                 "    </div>\n" +
                 "  </form>\n" +
-                "\n" +
-                "\n" +
+                "  \n" +
                 "  <script src=\"js/popper.min.js\"></script>\n" +
                 "  <script src=\"js/bootstrap.min.js\"></script>\n" +
                 "  <script src=\"js/main.js\"></script>\n" +

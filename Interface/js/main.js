@@ -243,3 +243,45 @@ function autocomplete(inp, arr) {
 let suggestionsArray = new Array();
 getSuggestions();
 autocomplete(document.getElementById("myInput"), suggestionsArray);
+
+
+//Speech section
+let speechRecognition;
+let micBtn = document.querySelector(".mic-btn");
+let micBtnFlag = false;
+
+let input = document.getElementById("myInput");
+if ("webkitSpeechRecognition" in window) {
+  // Initialize webkitSpeechRecognition
+  speechRecognition = new webkitSpeechRecognition();
+  // Set the properties for the Speech Recognition object
+  speechRecognition.continuous = true;
+  speechRecognition.interimResults = true;
+
+  speechRecognition.addEventListener('result', function(e) {
+    input.value = (e.results[0][0].transcript).replaceAll(".", "");
+
+    if (e.results[0].isFinal) {
+      // Stop the Speech Recognition
+      speechRecognition.stop();
+
+      //return the color of the mic after finish talking
+      micBtn.classList.toggle("hover-color");
+      micBtnFlag = false;
+    }
+  });
+
+} else {
+  console.log("Speech Recognition Not Available");
+}
+
+micBtn.addEventListener("click", () => {
+  micBtnFlag = !micBtnFlag;
+  if (micBtnFlag) {
+    //change the color of mic while talking
+    micBtn.classList.toggle("hover-color");
+
+    // Start the Speech Recognition
+    speechRecognition.start();
+  }
+});

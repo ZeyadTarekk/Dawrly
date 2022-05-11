@@ -57,12 +57,13 @@ public class SearchInterface extends HttpServlet {
         }
 
         //add the search bar
-        page.append("</div>\n" +
+        page.append("  </div>\n" +
                 "  <div class=\"header-search\">\n" +
-                "    <h2 style=\"letter-spacing: 4px;\">Dawrha</h2>" +
+                "    <h2 class=\"dawarha-logo-results\">Dawrha</h2>\n" +
                 "    <form action=\"SearchInterface\" method=\"GET\" class=\"container w-75\" autocomplete=\"off\">\n" +
                 "      <div class=\"autocomplete\">\n" +
                 "        <input value=\"" + query + "\" name=\"query\" id=\"myInput\" autocomplete=\"off\" type=\"text\" placeholder=\"Search\">\n" +
+                "        <span class=\"mic-btn\"><i class=\"fa-solid fa-microphone\"></i></span>\n" +
                 "        <button type=\"submit\"><i class=\"fa-solid fa-magnifying-glass\"></i></button>\n" +
                 "      </div>\n" +
                 "    </form>\n" +

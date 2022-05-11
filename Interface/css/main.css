@@ -1,21 +1,22 @@
 * { box-sizing: border-box; }
-/* Main Variables */
-:root {
-  --dark-primary: #121212;
-  --dark-secondary: #1e1e1e;
-  --dark-words: #e0e0e0;
-  --dark-on-primary: #c38fff;
 
-  --light-primary: #e5e5e5;
-  --light-secondary: #ffffff;
-  --light-words: #313131;
-  --light-on-primary: #6200ee;
+body {
+  background-color: #202124;
 }
 
 .dawarha-logo {
   text-align: center;
   margin-bottom: 30px;
   font-size: 50px;
+  color: #ffffff;
+  font-family: 'FontAwesome';
+  letter-spacing: 12px;
+}
+.dawarha-logo-results {
+  margin: 0;
+  color: #ffffff;
+  font-family: 'FontAwesome';
+  letter-spacing: 6px;
 }
 
 .autocomplete {
@@ -29,21 +30,39 @@ input {
   font-size: 16px;
 }
 input[type=text] {
-  background-color: #f1f1f1;
+  background-color: #3f4041;
+  color: white;
   width: 100%;
   border-radius: 7px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+  outline: none;
 }
 button[type=submit] {
-  background-color: DodgerBlue;
-  color: #fff;
+  background-color: #3f4041;
+  color: #82a9e8;
   border: none;
   width: 6%;
   border-radius: 6px;
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
 }
+.mic-btn {
+  border: none;
+  background-color: #3f4041;
+  font-size: 24px;
+  padding: 0 10px 0 10px;
+  color: #d2f3ffc2;
+  cursor: pointer;
+  line-height: 1.8;
+}
+.mic-btn:hover {
+  color: #391616;
+}
+.mic-btn.hover-color {
+  color: #391616;
+}
+
 @media (max-width: 768px) {
   button[type=submit] {
     width: 8%;
@@ -95,8 +114,9 @@ button[type=submit] {
 }
 
 .search-results .card {
-  border-radius: 5px;
-  box-shadow: 0px 0px 7px #d8d5d5;
+  border-radius: 10px;
+  box-shadow: 0px 0px 7px #000000;
+  background-color: #3f3f3f;
 }
 
 .search-results .card.hidden {
@@ -105,7 +125,7 @@ button[type=submit] {
 
 .page-title {
   text-decoration: none;
-  color: #457bd4;
+  color: #8ab4f8;
   font-size: 20px;
 }
 
@@ -113,15 +133,20 @@ button[type=submit] {
   display: block;
   font-size: 12px;
   text-decoration: none;
-  color: #585353;
+  color: #b9b9b9;
+}
+
+.card .card-text {
+  color: #dddee1;
 }
 
 .no-results {
   text-align: center;
-  background-color: #f2f1f1;
+  color: #dddee1;
   padding: 25px;
   border-radius: 7px;
-  box-shadow: 0px 0px 7px #989393;
+  box-shadow: 0px 0px 7px #000000;
+  background-color: #3f3f3f;
 }
 
 .no-results p {
@@ -131,6 +156,7 @@ button[type=submit] {
 .numbers {
   display: flex;
   justify-content: center;
+  color: #ffffff;
 }
 
 .numbers.hidden {
@@ -158,25 +184,25 @@ button[type=submit] {
 }
 
 .numbers .r-char .selected {
-  color: #4e3e53;
+  color: #c9b7cf;
 }
 
 .numbers .r-char .selected:hover {
   text-decoration: none;
   cursor: default;
-  color: #4e3e53;
+  color: #c9b7cf;
 }
 
 .numbers .r-char a {
   text-decoration: none;
   font-size: 18px;
   margin-right: 7px;
-  color: #5252ff;
+  color: #7a7ada;
   user-select: none;
   cursor: pointer;
 }
 
 .numbers .r-char a:hover {
   text-decoration: underline;
-  color: #5252ff;
+  color: #7a7ada;
 }
