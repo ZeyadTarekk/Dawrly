@@ -46,7 +46,6 @@ public class RobotCheck {
                 while ((readLine = theBody.readLine()) != null) {
                     robotCommands.append(readLine).append("\n");
                 }
-//                System.out.println(Arrays.toString(robotCommands.toString().split("\n")));
             } catch (IOException e) {
                 System.err.println("Error happened while trying to read the content of  '" + newURL + "': " + e.getMessage());
             }
@@ -59,9 +58,18 @@ public class RobotCheck {
                     int indexOfChar = word.indexOf(':') + 2;
                     userAgentStatus = word.charAt(indexOfChar) == '*';
                 } else if (word.startsWith("Disallow:") && userAgentStatus) {
-                    String disallowedDirectories = word.substring(10).trim();
-                    String disallowedUrl = protocol + "://" + serverName + disallowedDirectories;
-                    disallowed.add(disallowedUrl);
+                    if (word.length() >= 11) {
+                        try{
+                            String disallowedDirectories = word.substring(10).trim();
+                            String disallowedUrl = protocol + "://" + serverName + disallowedDirectories;
+                            disallowed.add(disallowedUrl);
+                        }catch (Exception e) {
+                            // print exception messages
+                            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Error no Link in disallow: ");
+                    }
                 }
             }
 
@@ -69,26 +77,13 @@ public class RobotCheck {
         }
     }
 
-    private void generateDisallowedLinks(List<String> pagesToVisit) {
-        for (String s : pagesToVisit) {
-            getPageDisallows(s);
-        }
-    }
 
     private void testing(List<String> pagesToVisit) {
-        for(String s:pagesToVisit){
-            if(robotAllowed(s))
-                System.out.println(s+" is allowed to visit");
+        for (String s : pagesToVisit) {
+            if (robotAllowed(s))
+                System.out.println(s + " is allowed to visit");
             else
-                System.out.println(s+" is not allowed to visit");
-        }
-//        writeDisallowedURLsToFile("testing");
-    }
-
-    private void printDisallowedURLs() {
-        for (String key : allDisallowedLinks.keySet()) {
-            System.out.print(key);
-            System.out.println(allDisallowedLinks.get(key));
+                System.out.println(s + " is not allowed to visit");
         }
     }
 
@@ -130,35 +125,6 @@ public class RobotCheck {
     public synchronized Boolean robotAllowed(String url) {
         getPageDisallows(url);
         return isAllowed(url);
-    }
-
-//    public void writeDisallowedURLsToFile(String fileName) {
-//        try {
-//            FileWriter myObject = new FileWriter(fileName + ".txt");
-//            for (String disallowedLink : DisallowedLinks) {
-//                myObject.write(disallowedLink);
-//                myObject.write("\n");
-//            }
-//            myObject.close();
-//        } catch (IOException e) {
-//            System.out.println("An error occurred! File can't be created.");
-//        }
-//
-//    }
-
-    public static void main(String[] args) {
-        RobotCheck obj = new RobotCheck();
-        List<String> links = new ArrayList<String>();
-        links.add("https://www.google.com/");
-        links.add("https://github.com/docs/tree/");
-        links.add("https://github.com/docs/");
-        links.add("https://www.geeksforgeeks.org/wp-admin/");
-        links.add("https://www.geeksforgeeks.org/");
-        links.add("https://www.programiz.com/");
-        links.add("https://www.javatpoint.com/");
-
-        obj.testing(links);
-//        System.out.println(obj.getDissallowedList("https://www.google.com/"));
     }
 
 }

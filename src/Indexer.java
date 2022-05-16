@@ -7,13 +7,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.ReplaceOptions;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Updates;
 
-
-import com.mongodb.client.result.UpdateResult;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -25,12 +19,12 @@ import org.json.simple.JSONObject;
 
 import org.jsoup.Jsoup;
 
-import javax.print.Doc;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 
 public class Indexer extends ProcessString implements Runnable {
+    private final int threadNumber = 9;
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
@@ -61,15 +55,15 @@ public class Indexer extends ProcessString implements Runnable {
         // returns an array of all files
         fileNamesList = file.list();
 
-        Thread[] threads = new Thread[5];
-        for (int i = 0; i < 5; i++) {
+        Thread[] threads = new Thread[threadNumber];
+        for (int i = 0; i < threadNumber; i++) {
             threads[i] = new Thread(new Indexer());
             threads[i].setPriority(i + 1);
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             threads[i].start();
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             threads[i].join();
         }
 
@@ -78,7 +72,6 @@ public class Indexer extends ProcessString implements Runnable {
         // 9- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
-//        System.out.println(invertedIndex);
         System.out.println("Indexer has finished");
     }
 
@@ -88,8 +81,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
@@ -129,48 +122,6 @@ public class Indexer extends ProcessString implements Runnable {
             // 9- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
             System.out.printf("#%d Thread #%d processed file: %s\n", i, Thread.currentThread().getPriority(), fileName);
-        }
-    }
-
-    private static void printTableHtml(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("invertedIndex.html"));
-            writer.write("<table>");
-            writer.write("  <tr>" + "    <th>Word</th>\n" + "    <th>Document tf size</th>\n" + "  </tr>");
-
-            for (String word : invertedIndex.keySet()) {
-                writer.write("  <tr>");
-
-                HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docs = invertedIndex.get(word);
-                for (String doc : docs.keySet()) {
-                    writer.write("  <td>");
-                    writer.write(word);
-
-                    writer.write("  </td>");
-                    writer.write("  <td>");
-
-                    Pair<Integer, Integer, Double, Integer, Integer> tf_size = docs.get(doc);
-                    writer.write("<strong>Doc Name</strong>: " + doc + " | <strong>TF</strong>: " + tf_size.TF + " | <strong>Size</strong>: " + tf_size.size);
-                    writer.write("  </td>\n");
-
-                }
-                writer.write("  </tr>\n");
-
-            }
-            writer.write("</table>");
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Fot testing only
-    private static void readDummyVector(List<String> words) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("test.txt"));
-        String word;
-        while ((word = reader.readLine()) != null) {
-            String sp[] = word.split(" ");
-            Collections.addAll(words, sp);
         }
     }
 
@@ -276,21 +227,6 @@ public class Indexer extends ProcessString implements Runnable {
             }
         }
 
-    }
-
-    private static void uploadProcessedFiles() {
-        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
-        MongoDatabase database = client.getDatabase("myFirstDatabase");
-        MongoCollection<Document> collection = database.getCollection("processesFiles");
-        for (String fileName : processedFiles.keySet()) {
-            Document found = (Document) collection.find(new Document("fileName", fileName.replace('.', '_'))).first();
-            Document doc = new Document("fileName", fileName.replace('.', '_')).append("processedFile", processedFiles.get(fileName));
-            if (found != null) {
-                Bson query = eq("fileName", fileName.replace('.', '_')); //filtration
-                collection.replaceOne(query, doc);
-            } else
-                collection.insertOne(doc);
-        }
     }
 
     private static synchronized void fillScoresOfTags() {

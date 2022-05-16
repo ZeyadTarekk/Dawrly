@@ -8,8 +8,7 @@ import java.util.*;
 import java.util.List;
 
 public class Crawler implements Runnable {
-    //will be edited later to 5000
-    private static final int MAX_PAGES_TO_SEARCH = 100;
+    private static final int MAX_PAGES_TO_SEARCH = 5000;
     private int NofVisitedPages;
     //used to save the special word of any page visited before
     private Set<String> pagesVisited = new HashSet<String>();
@@ -201,10 +200,5 @@ public class Crawler implements Runnable {
                 Collector.append(bodyWords[i].charAt(0));
 
         return Collector.toString();
-    }
-
-    public static void main(String[] arg) {
-        Crawler c = new Crawler();
-        c.Crawl();
     }
 }

@@ -16,13 +16,6 @@ public class PhraseSearcher {
         this.query = query;
         this.orderedDocs = orderedDocs;
         goldenDocuments = new ArrayList<>();
-//        System.out.println(invertedIndex);
-//        System.out.println(orderedDocs);
-//        System.out.println(docsWithAllOccurrence);
-//        System.out.println("Query"+query);
-//        System.out.println("PHHHHHHHHHHH");
-//        if (query.size() == 0)
-//            System.out.println("No double quotes");
         if (query.size() != 0) {
             buildAllOccurrenceDocs();
             moveDocumentUp();

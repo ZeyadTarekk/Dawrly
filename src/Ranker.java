@@ -1,17 +1,10 @@
 
-//import okhttp3.OkHttpClient;
-//import okhttp3.Request;
-
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 /*
 HOW TO USE?
@@ -39,10 +32,8 @@ public class Ranker {
     //                    page        Score    Paragraph  title
     private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> resultProcessed;
 
-    //    public Ranker(){
-//
-//    }
-//    HashMap<String, HashMap<String, Pair<Integer, Integer,Double>>>
+
+    //    HashMap<String, HashMap<String, Pair<Integer, Integer,Double>>>
 //             Words           page         tf         size   score
     private void getPagesNumber() {
         // creates a file object
@@ -89,7 +80,6 @@ public class Ranker {
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
-//                if (resultProcessed.get(word).get(page) != null) {
                 dummyMap = new HashMap<>();
                 if (wordsNormalizedTFSScores.get(page) == null) {
                     wordsNormalizedTFSScores.put(page, dummyMap);
@@ -98,7 +88,6 @@ public class Ranker {
                 } else {
                     wordsNormalizedTFSScores.get(page).put(word, new Pair2<Double, Double>(((double) dummyPair.TF / dummyPair.size), dummyPair.score));
                 }
-//                }
             }
         }
     }
@@ -109,7 +98,6 @@ public class Ranker {
         dataBase.ConnectWithPagePopularity();
         int scorePopularity;
         double dummyScore;
-        Pair3<Double, String, String, String> dummyScorePair;
         Pair2<Double, Double> dummyPair;
         for (String page : wordsNormalizedTFSScores.keySet()) {
             dummyScore = 0;
@@ -122,8 +110,6 @@ public class Ranker {
                     System.out.println("Score: " + dummyPair.score);
             }
             scorePopularity = dataBase.getPagePopularity(page);
-//            System.out.println("Score before Popularity: " + dummyScore + " for page: " + page);
-//            System.out.println("Score after Popularity: " + dummyScore * scorePopularity + " for page: " + page);
             pagesFinalScore.put(page, new Pair3<Double, String, String, String>(dummyScore * scorePopularity, "", "", ""));
         }
 

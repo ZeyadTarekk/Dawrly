@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.*;
+
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
 
@@ -66,8 +67,7 @@ public class MongoDB {
     public float GetSavedLinks(List<String> PagesToVisit, Set<String> VisitedPages) {
         List<Document> LinksList = CrawlerCollection.find().into(new ArrayList<>());
         for (Document link : LinksList) {
-            if (!link.get("_id").toString().equals("1.0"))
-            {
+            if (!link.get("_id").toString().equals("1.0")) {
                 if (link.get("link") != null) {
                     PagesToVisit.add(link.get("link").toString());
                 } else if (link.get("saved") != null) {
@@ -121,19 +121,9 @@ public class MongoDB {
 
     public void insertPagePopularity(HashMap<String, Integer> PagesPopularity) {
         for (String page : PagesPopularity.keySet()) {
-            //check if that link saved before
-            Document scoreDoc = pagePopularityCollection.find(eq("link", page)).first();
-            if (scoreDoc == null) {
-                Document pageDoc = new Document("link", page);
-                pageDoc.append("score", PagesPopularity.get(page));
-                pagePopularityCollection.insertOne(pageDoc);
-            } else {
-                int score = Integer.parseInt(scoreDoc.get("score").toString());
-                score = score + PagesPopularity.get(page);
-                Bson filter = eq("link", page);
-                Bson updateOperation = set("score", score);
-                pagePopularityCollection.updateOne(filter, updateOperation);
-            }
+            Document pageDoc = new Document("link", page);
+            pageDoc.append("score", PagesPopularity.get(page));
+            pagePopularityCollection.insertOne(pageDoc);
         }
     }
 
