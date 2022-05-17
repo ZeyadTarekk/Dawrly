@@ -33,6 +33,7 @@ import java.util.regex.Matcher;
 
 public class Indexer extends ProcessString implements Runnable {
     private static String[] fileNamesList;
+    private final int threadNumber = 9;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
     // HashMap<fileName,All words in the file after processing>
@@ -62,15 +63,15 @@ public class Indexer extends ProcessString implements Runnable {
         // returns an array of all files
         fileNamesList = file.list();
 
-        Thread[] threads = new Thread[5];
-        for (int i = 0; i < 5; i++) {
+        Thread[] threads = new Thread[threadNumber];
+        for (int i = 0; i < threadNumber; i++) {
             threads[i] = new Thread(new Indexer());
             threads[i].setPriority(i + 1);
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             threads[i].start();
         }
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             threads[i].join();
         }
 
@@ -89,8 +90,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / 5.0);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / 5.0);
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];

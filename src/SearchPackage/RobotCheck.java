@@ -62,9 +62,18 @@ public class RobotCheck {
                     int indexOfChar = word.indexOf(':') + 2;
                     userAgentStatus = word.charAt(indexOfChar) == '*';
                 } else if (word.startsWith("Disallow:") && userAgentStatus) {
-                    String disallowedDirectories = word.substring(10).trim();
-                    String disallowedUrl = protocol + "://" + serverName + disallowedDirectories;
-                    disallowed.add(disallowedUrl);
+                    if (word.length() >= 11) {
+                        try {
+                            String disallowedDirectories = word.substring(10).trim();
+                            String disallowedUrl = protocol + "://" + serverName + disallowedDirectories;
+                            disallowed.add(disallowedUrl);
+                        } catch (Exception e) {
+                            // print exception messages
+                            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
+                        }
+                    } else {
+                        System.out.println("Error no Link in disallow: ");
+                    }
                 }
             }
 
@@ -79,11 +88,11 @@ public class RobotCheck {
     }
 
     private void testing(List<String> pagesToVisit) {
-        for(String s:pagesToVisit){
-            if(robotAllowed(s))
-                System.out.println(s+" is allowed to visit");
+        for (String s : pagesToVisit) {
+            if (robotAllowed(s))
+                System.out.println(s + " is allowed to visit");
             else
-                System.out.println(s+" is not allowed to visit");
+                System.out.println(s + " is not allowed to visit");
         }
 //        writeDisallowedURLsToFile("testing");
     }

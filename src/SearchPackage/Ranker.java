@@ -219,6 +219,100 @@ public class Ranker {
         }
     }
 
+
+    private void fetchParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, String query) {
+        //clear the query from ""
+        if (query.contains("\"")) {
+            query = query.replaceAll("\"", "");
+        }
+        query = query.toLowerCase();
+
+        for (String page : pagesFinalScore.keySet()) {
+            String titlePage, wholeDocument;
+            try {
+                String pageName = page;
+                pageName = pageName.replace("*", "`{}");
+                pageName = pageName.replace("://", "}");
+                pageName = pageName.replace("/", "{");
+                pageName = pageName.replace("?", "`");
+                pageName = pageName + ".html";
+                File file = new File("C:\\CMP\\CMP22\\Advanced Programming\\Project\\Search-Engine\\bodyFiles\\" + pageName);
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                titlePage = br.readLine();
+                wholeDocument = br.readLine().toLowerCase();
+            } catch (IOException e) {
+                pagesFinalScore.get(page).setTitle("-1");
+                e.printStackTrace();
+                continue;
+            }
+
+            String queryList[] = query.split(" ");
+            int bestCount = -1, currentCount = 0, index = 0, finalIndex = 0;
+            int docLength = wholeDocument.length();
+            String subPara, bestPara = null;
+
+            while (true) {
+                finalIndex = index + 500;
+                currentCount = 0;
+
+//                System.out.println("Start = " + index + " End = " + finalIndex + " doc length = " + docLength);
+                if (index < docLength) {
+
+                    //check if the finalIndex bigger than the document length
+                    if (finalIndex >= docLength) {
+                        finalIndex = docLength - 1;
+
+                        while (wholeDocument.charAt(index) != ' ' && index < docLength && finalIndex > index + 350)
+                            index++;
+
+                        //get the sub-paragraph and check the number of query words in it
+                        subPara = wholeDocument.substring(index, finalIndex);
+                        for (int i = 0; i < queryList.length; i++) {
+                            if (subPara.contains(queryList[i]))
+                                currentCount++;
+                        }
+                        //save the start index of the best paragraph
+                        if (currentCount > bestCount) {
+                            bestCount = currentCount;
+                            bestPara = subPara;
+                        }
+                        break;
+
+                    } else {
+
+                        while (wholeDocument.charAt(index) != ' ' && index < docLength && finalIndex > index + 350)
+                            index++;
+
+                        //get the sub-paragraph and check the number of query words in it
+                        subPara = wholeDocument.substring(index, finalIndex);
+                        for (int i = 0; i < queryList.length; i++) {
+                            if (subPara.contains(queryList[i]))
+                                currentCount++;
+                        }
+                        //save the start index of the best paragraph
+                        if (currentCount > bestCount) {
+                            bestCount = currentCount;
+                            bestPara = subPara;
+                        }
+                        if (currentCount == queryList.length)
+                            break;
+                        index = finalIndex + 1;
+                    }
+                } else break;
+
+            }
+
+            if (bestCount > 0) {
+                bestPara = bestPara + "....";
+                bestPara = bestPara.replaceAll("<", "").replaceAll(">", "");
+                pagesFinalScore.get(page).setParagraph(bestPara);
+                pagesFinalScore.get(page).setWord(query);
+                pagesFinalScore.get(page).setTitle(titlePage);
+            } else
+                pagesFinalScore.get(page).setTitle("-1");
+        }
+    }
+
     private HashMap<String, Pair3<Double, String, String, String>> sortHashMap() {
         // Creating a list from elements of HashMap
         List<Map.Entry<String, Pair3<Double, String, String, String>>> list
@@ -265,7 +359,8 @@ public class Ranker {
         }
 
         pagesFinalScore = sortHashMap();
-        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores, query);
+//        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores, query);
+        fetchParagraphs(pagesFinalScore, query);
         return pagesFinalScore;
     }
 
