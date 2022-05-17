@@ -32,7 +32,10 @@ if (document.title != "Dawrha Search") {
     noResults.innerHTML = "<p>Oops, there is no results to show</p>";
     searchResults.appendChild(noResults);
 
-  } else if (pagesNum == 1) {
+    let numbers = document.querySelector(".numbers");
+    numbers.classList.add("hidden");
+
+  } else if (pagesNum <= 1) {
     next.classList.add("hidden");
   }
 
@@ -45,7 +48,6 @@ if (document.title != "Dawrha Search") {
     for (let i = start; i < start + 10; i++) {
       searchResults.children[i].classList.remove("hidden");
     };
-
   } else {
     //show all of the results (< 10)
     for (let i = 0; i < pagesNum; i++) {
@@ -53,10 +55,7 @@ if (document.title != "Dawrha Search") {
     };
   }
 
-  if (pagesNum == 0) {
-    let numbers = document.querySelector(".numbers");
-    numbers.classList.add("hidden");
-  } else {
+  if (pagesNum > 0) {
     //add numbers to move between the pages
     let numbersDiv = document.querySelector(`.pages-numbers`);
     numbersDiv.children[0].children[0].addEventListener("click", function(e) {
@@ -66,12 +65,25 @@ if (document.title != "Dawrha Search") {
       let span = document.createElement("span");
       span.classList.add("r-char");
 
-      span.innerHTML = "r <a>" + i + "</a>";
+      //show only the first 10 numbers
+      if (i > 10)
+        span.classList.add("hidden");
+
+      span.innerHTML = "h <a>" + i + "</a>";
       span.children[0].addEventListener("click", function(e) {
         changePages(i, e);
       });
       numbersDiv.appendChild(span);
     };
+
+    //hide all the numbers
+    for (let i = 1; i <= numbersDiv.childElementCount; i++) {
+      numbersDiv.children[i-1].classList.add("hidden");
+    }
+    //show the first set
+    for (let i = 1; i <= 10; i++) {
+      numbersDiv.children[i-1].classList.remove("hidden");
+    }
   }
 
 
@@ -90,21 +102,52 @@ if (document.title != "Dawrha Search") {
     currentPage = num;
 
     if (prevPage != currentPage) {
+      //show or hide next and previous buttons
       if (currentPage != 1) {
-        let prev = document.querySelector(`.numbers .previous-btn`);
         prev.classList.remove("hidden");
       } else {
-        let prev = document.querySelector(`.numbers .previous-btn`);
         prev.classList.add("hidden");
       }
 
       if (currentPage == counter) {
-        let next = document.querySelector(`.numbers .next-btn`);
         next.classList.add("hidden");
       } else {
-        let next = document.querySelector(`.numbers .next-btn`);
         next.classList.remove("hidden");
       }
+
+      //show the current set of numbers [1->10] [11->20] ...
+      if ((currentPage - 1) % 10 == 0) {
+        //hide all the numbers
+        for (let i = 1; i <= numbersDiv.childElementCount; i++) {
+          numbersDiv.children[i-1].classList.add("hidden");
+        }
+        //show the current set only
+        if (currentPage + 10 >= counter) {
+          for (let i = currentPage; i <= counter; i++) {
+            numbersDiv.children[i-1].classList.remove("hidden");
+          }
+        } else {
+          for (let i = currentPage; i < currentPage + 10; i++) {
+            numbersDiv.children[i-1].classList.remove("hidden");
+          }
+        }
+      } else if (currentPage % 10 == 0) {
+        //hide all the numbers
+        for (let i = 1; i <= numbersDiv.childElementCount; i++) {
+          numbersDiv.children[i-1].classList.add("hidden");
+        }
+        //show the current set only
+        if (currentPage - 10 == 0) {
+          for (let i = currentPage; i >= 1; i--) {
+            numbersDiv.children[i-1].classList.remove("hidden");
+          }
+        } else {
+          for (let i = currentPage; i > currentPage - 10; i--) {
+            numbersDiv.children[i-1].classList.remove("hidden");
+          }
+        }
+      }
+
 
       if (pagesNum > 10) {
 
@@ -131,10 +174,9 @@ if (document.title != "Dawrha Search") {
           searchResults.children[i].classList.remove("hidden");
         };
       }
+      document.body.scrollTop = 0; // For Safari
+      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
     }
-
-    document.body.scrollTop = 0; // For Safari
-    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
   }
 
   function increase(e) {

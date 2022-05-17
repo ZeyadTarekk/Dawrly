@@ -107,16 +107,16 @@ public class SearchInterface extends HttpServlet {
                 "        <b style=\"text-align: center;\"><</b>\n" +
                 "        <a>Previous</a>\n" +
                 "      </span>\n" +
-                "      <span class=\"dawarha-numbers\">Daw</span>\n" +
+                "      <span class=\"dawarha-numbers\">Dawr</span>\n" +
                 "\n" +
                 "      <span class=\"pages-numbers\">\n" +
                 "        <span class=\"r-char\">\n" +
-                "          r\n" +
+                "          h\n" +
                 "          <a class=\"selected\">1</a>\n" +
                 "        </span>\n" +
                 "      </span>\n" +
                 "\n" +
-                "      <span class=\"dawarha-numbers\">ha</span>\n" +
+                "      <span class=\"dawarha-numbers\">a</span>\n" +
                 "      <span class=\"r-char ms-3 next-btn\">\n" +
                 "        <b style=\"text-align: center;\">></b>\n" +
                 "        <a>Next</a>\n" +

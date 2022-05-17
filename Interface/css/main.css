@@ -187,6 +187,10 @@ button[type=submit] {
   color: #c9b7cf;
 }
 
+.numbers .r-char.hidden {
+  display: none;
+}
+
 .numbers .r-char .selected:hover {
   text-decoration: none;
   cursor: default;
