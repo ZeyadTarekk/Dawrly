@@ -3,8 +3,6 @@ import java.util.*;
 import java.io.*;
 
 // mongo libraries
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -332,7 +330,6 @@ public class Indexer extends ProcessString implements Runnable {
 
     private static void createBodyFiles(org.jsoup.nodes.Document html, String fileName) {
         try {
-//            System.out.println(fileName);
             FileWriter myWriter = new FileWriter("bodyFiles//" + fileName);
             myWriter.write(html.title());
             myWriter.write("\n");

@@ -24,7 +24,6 @@ public class Ranker {
     private HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores;
     //              page              word         TF     Score
 
-    //    private HashMap<String, Double> pagesFinalScore;
     private HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore;
     //                    page        Score    Paragraph  title
     private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> resultProcessed;
@@ -50,13 +49,6 @@ public class Ranker {
         stemmer.stem();
         return stemmer.getCurrent(); //
 
-    }
-
-    private List<String> splitQuery(String query, List<String> stemmed) {
-        List<String> words = Arrays.asList(query.split(" "));
-        for (String word : words)
-            stemmed.add(stemTheWord(word));
-        return words;
     }
 
     private void generateIDFS() {
@@ -253,7 +245,6 @@ public class Ranker {
         }
 
         pagesFinalScore = sortHashMap();
-//        getParagraphs(pagesFinalScore, wordsNormalizedTFSScores, query);
         fetchParagraphs(pagesFinalScore, query);
         return pagesFinalScore;
     }

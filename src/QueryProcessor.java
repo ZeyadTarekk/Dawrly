@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.mongodb.client.model.Filters.eq;
 
 /*
 TODO: create an abstract class called ProcessString
@@ -63,7 +62,6 @@ public class QueryProcessor extends ProcessString {
     // TODO: Implement a function to get data from database
     List<Document> getDocsFromDB(List<String> stemmedWords) {
         List<Document> result = new Vector<>();
-//        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         com.mongodb.MongoClient client = new com.mongodb.MongoClient();
         MongoDatabase database = client.getDatabase("SearchEngine");
         MongoCollection<Document> collection = database.getCollection("invertedIndex");
@@ -82,7 +80,6 @@ public class QueryProcessor extends ProcessString {
             HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> documents = new HashMap<>();
             convertedHashMap.put((String) word_doc.get("word"), documents);
             ArrayList<Document> v = (ArrayList<Document>) word_doc.get("documents");
-//            System.out.println(v);
             for (Document docJSON : v) {
                 Pair<Integer, Integer, Double, Integer, Integer> tf_size = new Pair<>();
                 tf_size.TF = (Integer) docJSON.get("tf");
@@ -106,6 +103,5 @@ public class QueryProcessor extends ProcessString {
         }
         convertToLower(phraseSearch);
         removeStopWords(phraseSearch);
-        phraseSearch = new ArrayList<>(stemming(phraseSearch));
     }
 }

@@ -1,3 +1,8 @@
+let dawarhaLogo = document.querySelector(".dawarha-logo-results");
+dawarhaLogo.addEventListener("click", function() {
+  window.location.href = "http://localhost:8080/SearchEngine/BuildInterface?";
+});
+
 if (document.title != "Dawrha Search") {
   //chose which page to show
   let currentPage = 1;

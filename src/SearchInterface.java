@@ -1,11 +1,9 @@
 import javax.servlet.*;
 import javax.servlet.http.*;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 
 public class SearchInterface extends HttpServlet {

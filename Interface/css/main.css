@@ -17,6 +17,7 @@ body {
   color: #ffffff;
   font-family: 'FontAwesome';
   letter-spacing: 6px;
+  cursor: pointer;
 }
 
 .autocomplete {
