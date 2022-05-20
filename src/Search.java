@@ -14,7 +14,7 @@ public class Search {
     private List<String> goldenPages;
 
     private Ranker rank;
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer,Integer>>> result;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer,Integer,Double>>> result;
 
     public HashMap<String, Pair3<Double, String, String, String>> searchQuery(String queryToSearch) {
         goldenPages = new ArrayList<>();
@@ -33,7 +33,8 @@ public class Search {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("javascript");
+        finalResults = ser.searchQuery("code");
+        System.out.println(finalResults);
         long end1 = System.currentTimeMillis();
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 

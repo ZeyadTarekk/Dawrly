@@ -26,7 +26,7 @@ public class Ranker {
 
     private HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore;
     //                    page        Score    Paragraph  title
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> resultProcessed;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> resultProcessed;
 
 
     //    HashMap<String, HashMap<String, Pair<Integer, Integer,Double>>>
@@ -55,7 +55,7 @@ public class Ranker {
         wordsNormalizedIDFS = new HashMap<>();
         double dummyIDF;
         String dummyWord;
-        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> Entry : resultProcessed.entrySet()) {
+        for (Map.Entry<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> Entry : resultProcessed.entrySet()) {
             dummyWord = Entry.getKey();
             dummyIDF = ((double) pagesNumber / Entry.getValue().size());
             wordsNormalizedIDFS.put(dummyWord, dummyIDF);
@@ -65,7 +65,7 @@ public class Ranker {
     private void generateTFSAndScores() {
         wordsNormalizedTFSScores = new HashMap<>();
         HashMap<String, Pair2<Double, Double>> dummyMap;
-        Pair<Integer, Integer, Double, Integer, Integer> dummyPair;
+        Pair<Integer, Integer, Double, Integer, Integer,Double> dummyPair;
         for (String word : resultProcessed.keySet()) {
             for (String page : resultProcessed.get(word).keySet()) {
                 dummyPair = resultProcessed.get(word).get(page);
@@ -231,7 +231,7 @@ public class Ranker {
         return result;
     }
 
-    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result, List<String> pages, String query) {
+    public HashMap<String, Pair3<Double, String, String, String>> generateRelevance(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> result, List<String> pages, String query) {
 
         getPagesNumber();
         this.resultProcessed = result;
@@ -249,7 +249,7 @@ public class Ranker {
         return pagesFinalScore;
     }
 
-    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> result) {
+    public List<String> getPhraseSearching(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> result) {
         List<String> pages = new ArrayList<>();
         getPagesNumber();
         this.resultProcessed = result;

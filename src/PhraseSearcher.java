@@ -2,7 +2,7 @@
 import java.util.*;
 
 public class PhraseSearcher {
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> invertedIndex;
     private List<String> docsWithAllOccurrence;
     private List<String> query;
 
@@ -10,7 +10,7 @@ public class PhraseSearcher {
 
     private HashMap<String, Pair3<Double, String, String, String>> orderedDocs;
 
-    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
+    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
         this.invertedIndex = invertedIndex;
         this.docsWithAllOccurrence = docsWithAllOccurrence;
         this.query = query;

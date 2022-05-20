@@ -25,7 +25,7 @@ public class Indexer extends ProcessString implements Runnable {
     private final int threadNumber = 9;
     private static String[] fileNamesList;
     private static String folderRootPath;
-    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
+    private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex;
     // HashMap<fileName,All words in the file after processing>
     // This map helps in phrase searching
     private static HashMap<String, List<String>> processedFiles;
@@ -79,8 +79,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / (double)threadNumber);
+        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
+        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
@@ -137,28 +137,29 @@ public class Indexer extends ProcessString implements Runnable {
         return html;
     }
 
-    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex) {
+    private static synchronized void buildInvertedIndex(List<String> stemmedWords, String docName, HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex) {
         for (int i = 0; i < stemmedWords.size(); i++) {
             String word = stemmedWords.get(i);
             // if word not exist then allocate a map for it
             if (!invertedIndex.containsKey(word)) {
-                HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>();
+                HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>> docsMapOfWord = new HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>();
                 invertedIndex.put(word, docsMapOfWord);
             }
-            HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>> docsMapOfWord = invertedIndex.get(word);
+            HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>> docsMapOfWord = invertedIndex.get(word);
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
                 if (scoreOfWords.get(docName).get(word) == null)
                     System.out.println("Error==> " + word);
-                Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
+                Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer, Double>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
                 TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
             }
-            Pair<Integer, Integer, Double, Integer, Integer> TF_Size_pair = docsMapOfWord.get(docName);
+            Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
             TF_Size_pair.index.add(i);
+            TF_Size_pair.TF_IDF = 0.0;
         }
     }
 
@@ -167,7 +168,7 @@ public class Indexer extends ProcessString implements Runnable {
         processedFiles.put(FileName, stemmedWords);
     }
 
-    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndexP) {
+    private static List<JSONObject> convertInvertedIndexToJSON(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndexP) {
         /*
         *
         {
@@ -198,6 +199,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
                 documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
+                documentJSON.put("TF_IDF", invertedIndexP.get(word).get(doc).TF_IDF);
                 documents.add(documentJSON);
             }
             wordJSON.put("documents", documents);

@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class Pair<type1, type2, type3, type4,type5> {
+public class Pair<type1, type2, type3, type4, type5, type6> {
     public type1 TF;
     public type2 size;
     public type3 score;
@@ -8,6 +8,9 @@ public class Pair<type1, type2, type3, type4,type5> {
     public List<type4> index;
 
     public List<type5> actualIndices;
+
+    public type6 TF_IDF;
+
     public Pair() {
     }
 
