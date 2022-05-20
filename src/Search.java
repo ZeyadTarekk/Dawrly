@@ -1,10 +1,3 @@
-
-import SearchPackage.Pair;
-import SearchPackage.Pair3;
-import SearchPackage.PhraseSearcher;
-import SearchPackage.QueryProcessor;
-import SearchPackage.Ranker;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

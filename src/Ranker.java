@@ -1,10 +1,4 @@
 
-import SearchPackage.Indexer;
-import SearchPackage.MongoDB;
-import SearchPackage.Pair;
-import SearchPackage.Pair2;
-import SearchPackage.Pair3;
-import SearchPackage.QueryProcessor;
 import org.tartarus.snowball.ext.PorterStemmer;
 
 import java.io.BufferedReader;
