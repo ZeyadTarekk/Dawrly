@@ -2,7 +2,7 @@
 import java.util.*;
 
 public class PhraseSearcher {
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> invertedIndex;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex;
     private List<String> docsWithAllOccurrence;
     private List<String> query;
 
@@ -10,7 +10,7 @@ public class PhraseSearcher {
 
     private HashMap<String, Pair3<Double, String, String, String>> orderedDocs;
 
-    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer,Double>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
+    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
         this.invertedIndex = invertedIndex;
         this.docsWithAllOccurrence = docsWithAllOccurrence;
         this.query = query;
@@ -51,15 +51,16 @@ public class PhraseSearcher {
 
     // TODO: Implement a function that make golden docs at the top of data structure (Built by the ranker)
     private void moveDocumentUp() {
-        for (String doc : goldenDocuments) {
+        for (int i = goldenDocuments.size() - 1; i >= 0; i--) {
+            String doc = goldenDocuments.get(i);
             Pair3<Double, String, String, String> tempPair = orderedDocs.get(doc);
             Pair3<Double, String, String, String> tempPair2 = new Pair3<>(tempPair.score, tempPair.paragraph, tempPair.title, tempPair.word);
             orderedDocs.remove(doc);
             // insert at the beginning of  hashmap
             LinkedHashMap<String, Pair3<Double, String, String, String>> newMap = (LinkedHashMap<String, Pair3<Double, String, String, String>>) orderedDocs.clone();
             orderedDocs.clear();
-            orderedDocs.putAll(newMap);
             orderedDocs.put(doc, tempPair2);
+            orderedDocs.putAll(newMap);
         }
 //        System.out.println("After moving up");
 //        System.out.println(orderedDocs);
