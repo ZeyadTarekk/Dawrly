@@ -39,7 +39,7 @@ public class Search {
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 
         System.out.println("================================");
-        System.out.println(finalResults);
+        System.out.println(finalResults.size());
         System.out.println("================================");
     }
 }

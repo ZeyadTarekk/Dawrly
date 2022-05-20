@@ -3,7 +3,7 @@ package SearchPackage;
 import java.util.*;
 
 public class PhraseSearcher {
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex;
     private List<String> docsWithAllOccurrence;
     private List<String> query;
 
@@ -11,19 +11,12 @@ public class PhraseSearcher {
 
     private HashMap<String, Pair3<Double, String, String, String>> orderedDocs;
 
-    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
+    public PhraseSearcher(HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex, HashMap<String, Pair3<Double, String, String, String>> orderedDocs, List<String> docsWithAllOccurrence, List<String> query) {
         this.invertedIndex = invertedIndex;
         this.docsWithAllOccurrence = docsWithAllOccurrence;
         this.query = query;
         this.orderedDocs = orderedDocs;
         goldenDocuments = new ArrayList<>();
-//        System.out.println(invertedIndex);
-//        System.out.println(orderedDocs);
-//        System.out.println(docsWithAllOccurrence);
-//        System.out.println("Query"+query);
-//        System.out.println("PHHHHHHHHHHH");
-//        if (query.size() == 0)
-//            System.out.println("No double quotes");
         if (query.size() != 0) {
             buildAllOccurrenceDocs();
             moveDocumentUp();
@@ -59,8 +52,6 @@ public class PhraseSearcher {
 
     // TODO: Implement a function that make golden docs at the top of data structure (Built by the ranker)
     private void moveDocumentUp() {
-        System.out.println("Before moving up");
-        System.out.println(orderedDocs);
         for (String doc : goldenDocuments) {
             Pair3<Double, String, String, String> tempPair = orderedDocs.get(doc);
             Pair3<Double, String, String, String> tempPair2 = new Pair3<>(tempPair.score, tempPair.paragraph, tempPair.title, tempPair.word);

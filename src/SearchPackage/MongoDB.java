@@ -1,5 +1,4 @@
 package SearchPackage;
-
 import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -28,7 +27,6 @@ public class MongoDB {
             MongoClient mongoClient = new MongoClient();
             MongoDatabase db = mongoClient.getDatabase("SearchEngine");
             CrawlerCollection = db.getCollection("crawler");
-            QueryCollection = db.getCollection("query");
             pagePopularityCollection = db.getCollection("pagePopularity");
             System.out.println("Connected to database");
 
@@ -122,22 +120,23 @@ public class MongoDB {
         }
     }
 
-    public void insertPagePopularity(HashMap<String, Integer> PagesPopularity) {
+    public void insertPagePopularity(HashMap<String, Integer> PagesPopularity, List<String> CrawledList) {
         for (String page : PagesPopularity.keySet()) {
-            Document pageDoc = new Document("link", page);
-            pageDoc.append("score", PagesPopularity.get(page));
-            pagePopularityCollection.insertOne(pageDoc);
+            if (CrawledList.contains(page)) {
+                Document pageDoc = new Document("link", page);
+                pageDoc.append("score", PagesPopularity.get(page));
+                pagePopularityCollection.insertOne(pageDoc);
+            }
         }
     }
 
-    public int getPagePopularity(String page) {
-        Document scoreDoc = pagePopularityCollection.find(eq("link", page)).first();
-        if (scoreDoc == null)
-            return 1;
-        else {
-            Object score = scoreDoc.get("score");
-            return Integer.parseInt(score.toString());
+    public HashMap<String, Integer> getPagePopularity() {
+        List<Document> PagesPopularity = pagePopularityCollection.find().into(new ArrayList<>());
+        HashMap<String, Integer> map = new HashMap<>();
+        for (Document page : PagesPopularity) {
+            map.put(page.get("link").toString(), Integer.parseInt(page.get("score").toString()));
         }
+        return map;
     }
 
     //query collection section

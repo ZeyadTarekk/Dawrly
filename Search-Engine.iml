@@ -16,7 +16,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="jsoup-1.14.3" level="project" />
+    <orderEntry type="library" exported="" name="jsoup-1.14.3" level="project" />
     <orderEntry type="module-library">
       <library>
         <CLASSES />
@@ -26,7 +26,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="lucene-analyzers-common-8.8.2-javadoc" level="project" />
+    <orderEntry type="library" exported="" name="lucene-analyzers-common-8.8.2-javadoc" level="project" />
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
@@ -36,5 +36,18 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="json-simple-1.1.1" level="project" />
+    <orderEntry type="library" exported="" name="mongo-java-driver-3.12.10" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/externalJars/lucene-analyzers-common-8.8.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="okhttp-3.9.0" level="project" />
+    <orderEntry type="library" name="okio-1.13.0" level="project" />
   </component>
 </module>

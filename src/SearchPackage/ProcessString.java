@@ -13,10 +13,6 @@ import java.util.regex.Pattern;
 public class ProcessString {
     protected static List<String> stopWords;
 
-//    public static void main(String[] args) {
-//
-//    }
-
     protected static List<String> splitWords(String Lines) {
         List<String> words = new <String>Vector();
         Pattern pattern = Pattern.compile("\\w+");
