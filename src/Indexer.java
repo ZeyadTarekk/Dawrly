@@ -229,7 +229,7 @@ public class Indexer extends ProcessString implements Runnable {
                 documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
-                documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
+                //documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
                 documentJSON.put("TF_IDF", invertedIndexP.get(word).get(doc).TF_IDF);
                 documents.add(documentJSON);
             }
