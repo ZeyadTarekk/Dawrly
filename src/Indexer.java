@@ -137,7 +137,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
-            getIndexOfWord(words, originalDoc, fileName); // TODO: Synchronized threads
+            //getIndexOfWord(words, originalDoc, fileName); // TODO: Synchronized threads
             // 4-convert to lowercase
             convertToLower(words);
             // 5- remove stop words
@@ -185,7 +185,7 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer, Double>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
+                //TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
