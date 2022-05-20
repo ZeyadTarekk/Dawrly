@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 
 
 public class Indexer extends ProcessString implements Runnable {
-    private final int threadNumber = 9;
+    private final int threadNumber = 10;
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex;
@@ -61,7 +61,7 @@ public class Indexer extends ProcessString implements Runnable {
         Thread[] threads = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
             threads[i] = new Thread(new Indexer());
-            threads[i].setPriority(i + 1);
+            threads[i].setName((new Integer(i + 1)).toString());
         }
         for (int i = 0; i < threadNumber; i++) {
             threads[i].start();
@@ -80,7 +80,6 @@ public class Indexer extends ProcessString implements Runnable {
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
         System.out.println("Indexer has finished");
-        System.out.println(invertedIndex);
     }
 
     // 30
@@ -89,8 +88,8 @@ public class Indexer extends ProcessString implements Runnable {
     // 2*6 => 3*6
     @Override
     public void run() {
-        int start = (Thread.currentThread().getPriority() - 1) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
-        int end = (Thread.currentThread().getPriority()) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
+        int start = (Integer.parseInt(Thread.currentThread().getName()) - 1) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
+        int end = (Integer.parseInt(Thread.currentThread().getName())) * (int) Math.ceil(fileNamesList.length / (double) threadNumber);
         // iterate over files
         for (int i = start; i < Math.min(end, fileNamesList.length); i++) {
             String fileName = fileNamesList[i];
@@ -129,7 +128,7 @@ public class Indexer extends ProcessString implements Runnable {
             // buildProcessedFiles(fileName, stemmedWords);
             // 9- build inverted index
             buildInvertedIndex(stemmedWords, fileName, invertedIndex);
-            System.out.printf("#%d Thread #%d processed file: %s\n", i, Thread.currentThread().getPriority(), fileName);
+            System.out.printf("#%d Thread #%s processed file: %s\n", i, Thread.currentThread().getName(), fileName);
         }
     }
 
