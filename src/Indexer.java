@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 
 
 public class Indexer extends ProcessString implements Runnable {
-    private final int threadNumber = 10;
+    private static int threadNumber;
     private static String[] fileNamesList;
     private static String folderRootPath;
     private static HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> invertedIndex;
@@ -37,6 +37,22 @@ public class Indexer extends ProcessString implements Runnable {
     // TODO: Synchronization of Threads to avoid Concurrency Exception
 
     public void startIndexing() throws InterruptedException {
+
+        // Read threads number
+        System.out.print("Enter number of threads: ");
+
+        // Enter data using BufferReader
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(System.in));
+
+        // Reading data using readLine
+        try {
+            threadNumber = Integer.parseInt(reader.readLine());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println();
+
         invertedIndex = new HashMap<>();
         indicesOfWord = new HashMap<>();
         scoreOfWords = new HashMap<>();
