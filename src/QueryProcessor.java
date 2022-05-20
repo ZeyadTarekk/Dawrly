@@ -36,11 +36,12 @@ public class QueryProcessor extends ProcessString {
             e.printStackTrace();
             System.out.println("Error in reading stop words");
         }
+        // TODO: Remove Non-Alphanumeric characters from a query
+        query = removeNonAlphanumeric(query);
+
         // TODO: Extract Double Quotes from stemmedWords passing to phraseSearch
         extractDoubleQuotes(query, phraseSearch);
 
-        // TODO: Remove Non-Alphanumeric characters from a query
-        query = removeNonAlphanumeric(query);
 
         // TODO: Split string into words
         List<String> words = splitWords(query);
@@ -107,14 +108,14 @@ public class QueryProcessor extends ProcessString {
         }
         convertToLower(phraseSearch);
         removeStopWords(phraseSearch);
-        phraseSearch =new ArrayList<>(stemming(phraseSearch));
+        phraseSearch = new ArrayList<>(stemming(phraseSearch));
     }
 
     private String removeNonAlphanumeric(String query) {
 
         // replace the given query with empty string
         // except the pattern "[^a-zA-Z0-9]"
-        query = query.replaceAll("[^a-zA-Z0-9]", " ");
+        query = query.replaceAll("[^a-zA-Z0-9,\"\"]", " ");
 
         // triming query from more than one space
         return query.replaceAll("\\s{2,}", " ").trim();
