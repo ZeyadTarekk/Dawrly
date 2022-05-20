@@ -34,7 +34,7 @@ public class Search {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("JavaScript");
+        finalResults = ser.searchQuery("\"web\" Java");
         long end1 = System.currentTimeMillis();
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 

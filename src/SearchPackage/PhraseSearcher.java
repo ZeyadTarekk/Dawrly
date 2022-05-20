@@ -59,8 +59,8 @@ public class PhraseSearcher {
             // insert at the beginning of  hashmap
             LinkedHashMap<String, Pair3<Double, String, String, String>> newMap = (LinkedHashMap<String, Pair3<Double, String, String, String>>) orderedDocs.clone();
             orderedDocs.clear();
-            orderedDocs.put(doc, tempPair2);
             orderedDocs.putAll(newMap);
+            orderedDocs.put(doc, tempPair2);
         }
 //        System.out.println("After moving up");
 //        System.out.println(orderedDocs);

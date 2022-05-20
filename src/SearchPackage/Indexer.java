@@ -96,13 +96,13 @@ public class Indexer extends ProcessString implements Runnable {
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
         long endTime_before_upload = System.currentTimeMillis();
 
-        System.out.printf("Indexer has taken without uploading to database: %d seconds\n", (endTime_before_upload - startTime)/1000);
+        System.out.printf("Indexer has taken without uploading to database: %d seconds\n", (endTime_before_upload - startTime) / 1000);
         // 10- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
         System.out.println("Indexer has finished");
         long endTime_after_upload = System.currentTimeMillis();
-        System.out.printf("Indexer has taken with uploading to database: %d seconds\n", (endTime_after_upload - startTime)/1000);
+        System.out.printf("Indexer has taken with uploading to database: %d seconds\n", (endTime_after_upload - startTime) / 1000);
     }
 
     // 30
@@ -138,7 +138,7 @@ public class Indexer extends ProcessString implements Runnable {
             // 2- split words
             List<String> words = splitWords(noHTMLDoc.toString());
             // 3-get indices of each word
-            getIndexOfWord(words, originalDoc, fileName); // TODO: Synchronized threads
+            //getIndexOfWord(words, originalDoc, fileName); // TODO: Synchronized threads
             // 4-convert to lowercase
             convertToLower(words);
             // 5- remove stop words
@@ -186,7 +186,7 @@ public class Indexer extends ProcessString implements Runnable {
                 Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer, Double>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
-                TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
+                //TF_Size_pair.actualIndices = indicesOfWord.get(docName).get(word);
             }
             Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = docsMapOfWord.get(docName);
             TF_Size_pair.TF++;
@@ -226,11 +226,11 @@ public class Indexer extends ProcessString implements Runnable {
             for (String doc : invertedIndexP.get(word).keySet()) {
                 JSONObject documentJSON = new JSONObject();
                 documentJSON.put("document", doc);
-                documentJSON.put("tf", invertedIndexP.get(word).get(doc).TF);
-                documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
+                //documentJSON.put("tf", invertedIndexP.get(word).get(doc).TF);
+                //documentJSON.put("size", invertedIndexP.get(word).get(doc).size);
                 documentJSON.put("score", invertedIndexP.get(word).get(doc).score);
                 documentJSON.put("index", invertedIndexP.get(word).get(doc).index);
-                documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
+                //documentJSON.put("actualIndices", invertedIndexP.get(word).get(doc).actualIndices);
                 documentJSON.put("TF_IDF", invertedIndexP.get(word).get(doc).TF_IDF);
                 documents.add(documentJSON);
             }

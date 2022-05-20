@@ -71,7 +71,7 @@ public class Ranker {
 
     }
 
-    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, HashMap<String, HashMap<String, Pair2<Double, Double>>> wordsNormalizedTFSScores, String query) {
+    private void getParagraphs(HashMap<String, Pair3<Double, String, String, String>> pagesFinalScore, String query) {
         String wordToSearch = null;
         String wholeDocument;
         String pageName;
@@ -85,7 +85,7 @@ public class Ranker {
             phraseSearchFlag = false;
         List<String> wordsInQueryStemmed = new ArrayList<>();
         List<String> wordsInQuery = splitQuery(query.toLowerCase(), wordsInQueryStemmed);
-        for (String page : pagesFinalScore.keySet()) {
+        for (String page : pagesScores.keySet()) {
             int index = -1;
             try {
                 pageName = page;
@@ -100,7 +100,9 @@ public class Ranker {
                 titlePage = br.readLine();
                 wholeDocument = br.readLine().toLowerCase();
             } catch (IOException e) {
-                pagesFinalScore.get(page).setTitle("-1");
+                Pair3<Double, String, String, String> dummyPair = new Pair3<>();
+                dummyPair.setTitle("-1");
+                pagesFinalScore.put(page, dummyPair);
                 e.printStackTrace();
                 continue;
             }
@@ -118,6 +120,7 @@ public class Ranker {
                         wordToSearch = word;
                         index = wholeDocument.indexOf(wordToSearch);
                     }
+            Pair3<Double, String, String, String> dummyPair = new Pair3<>();
             if (index != -1) {
 
 
@@ -146,15 +149,19 @@ public class Ranker {
                 String paragraph = wholeDocument.substring(startIndex, newEndIndex) + "...";
                 paragraph = paragraph.replaceAll("<", "");
                 paragraph = paragraph.replaceAll(">", "");
-                pagesFinalScore.get(page).setParagraph(paragraph);
-                pagesFinalScore.get(page).setWord(wordToSearch);
-                pagesFinalScore.get(page).setTitle(titlePage);
+
+                dummyPair.setParagraph(paragraph);
+                dummyPair.setWord(wordToSearch);
+                dummyPair.setTitle(titlePage);
             } else {
                 pagesFinalScore.get(page).setTitle("-1");
             }
+            pagesFinalScore.put(page, dummyPair);
 
 
         }
+
+
     }
 
     private void getPagePopularity() {
@@ -190,11 +197,21 @@ public class Ranker {
                 pageName = pageName + ".html";
                 File file = new File("bodyFiles\\" + pageName);
                 BufferedReader br = new BufferedReader(new FileReader(file));
-                titlePage = br.readLine();
-                wholeDocument = br.readLine().toLowerCase();
+                String lineRead;
+                lineRead = br.readLine();
+                if(lineRead!=null)
+                    titlePage = lineRead;
+                else
+                    titlePage= "-1";
+                lineRead = br.readLine();
+                if(lineRead!=null)
+                    wholeDocument = lineRead.toLowerCase();
+                else
+                    continue;
             } catch (IOException e) {
                 Pair3<Double, String, String, String> dummyPair = new Pair3<>();
                 dummyPair.setTitle("-1");
+                dummyPair.setScore(pagesScores.get(page));
                 pagesFinalScore.put(page, dummyPair);
                 e.printStackTrace();
                 continue;
@@ -263,8 +280,10 @@ public class Ranker {
                 bestPara = bestPara.replaceAll("<", "").replaceAll(">", "");
                 dummyPair.setTitle(titlePage);
                 dummyPair.setParagraph(bestPara);
-            } else
+            } else {
                 dummyPair.setTitle("-1");
+                dummyPair.setScore(pagesScores.get(page));
+            }
             pagesFinalScore.put(page, dummyPair);
 
 
@@ -300,15 +319,16 @@ public class Ranker {
         this.resultProcessed = result;
 
         generateFinalScoresNew();
-        System.out.println(pagesScores);
-        for (String page : numberOfWordsOnEachPage.keySet()) {
-            if (numberOfWordsOnEachPage.get(page) == resultProcessed.size())
-                pages.add(page);
-        }
+
         getPagePopularity();
         pagesScores = sortHashMap();
-
         fetchParagraphs(pagesFinalScore, query);
+
+        for (String page : pagesScores.keySet()) {
+            if (numberOfWordsOnEachPage.get(page) >= resultProcessed.size())
+                pages.add(page);
+        }
+//        getParagraphs(pagesFinalScore, query);
         return pagesFinalScore;
     }
 
