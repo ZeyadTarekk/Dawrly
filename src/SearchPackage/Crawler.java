@@ -1,5 +1,4 @@
 package SearchPackage;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -10,7 +9,6 @@ import java.util.*;
 import java.util.List;
 
 public class Crawler implements Runnable {
-    //will be edited later to 5000
     private static final int MAX_PAGES_TO_SEARCH = 5000;
     private int NofVisitedPages;
     //used to save the special word of any page visited before
@@ -19,6 +17,7 @@ public class Crawler implements Runnable {
     private List<String> pagesToVisit = new LinkedList<String>();
     //hashmap to save the popularity of the pages we visited
     private HashMap<String, Integer> PagesPopularity = new HashMap<>();
+    private List<String> CrawledList = new LinkedList<>();
     private MongoDB database;
     private RobotCheck robotObject = new RobotCheck();
     private Object o1, o2, o3, o4, o5;
@@ -76,6 +75,8 @@ public class Crawler implements Runnable {
                 //Download the page for the indexer
                 //And get all the links that can be visited later from it
                 DownloadHTML(htmlDocument,pageUrl);
+                //Save the link
+                CrawledList.add(pageUrl);
                 List<String> Links = getLinks(htmlDocument);
                 for (int i = 0; i < Links.size(); i++) {
                     String link = Links.get(i);
@@ -138,7 +139,7 @@ public class Crawler implements Runnable {
         }
 
         database.ChangeState("Finished");
-        database.insertPagePopularity(PagesPopularity);
+        database.insertPagePopularity(PagesPopularity, CrawledList);
 
         System.out.println("Crawling Finished Successfully");
     }
@@ -203,10 +204,5 @@ public class Crawler implements Runnable {
                 Collector.append(bodyWords[i].charAt(0));
 
         return Collector.toString();
-    }
-
-    public static void main(String[] arg) {
-        Crawler c = new Crawler();
-        c.Crawl();
     }
 }

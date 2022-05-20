@@ -15,7 +15,7 @@ public class Search {
     private List<String> goldenPages;
 
     private Ranker rank;
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer,Integer>>> result;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> result;
 
     public HashMap<String, Pair3<Double, String, String, String>> searchQuery(String queryToSearch) {
         goldenPages = new ArrayList<>();
@@ -23,7 +23,7 @@ public class Search {
         qp = new QueryProcessor();
         rank = new Ranker();
         result = qp.processQuery(queryToSearch, query);
-        finalResults = rank.generateRelevance(result, goldenPages,queryToSearch);
+        finalResults = rank.generateRelevance(result, goldenPages, queryToSearch);
         phraseSearcher = new PhraseSearcher(result, finalResults, goldenPages, query);
         finalResults = phraseSearcher.getOrderedDocs();
 
@@ -40,6 +40,13 @@ public class Search {
 
         System.out.println("================================");
         System.out.println(finalResults.size());
+        int index = 0;
+        for (String page : finalResults.keySet()) {
+            System.out.println(page + " " + finalResults.get(page));
+            index++;
+            if (index >= 10)
+                break;
+        }
         System.out.println("================================");
     }
 }

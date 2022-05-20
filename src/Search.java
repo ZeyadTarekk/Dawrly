@@ -1,4 +1,10 @@
 
+import SearchPackage.Pair;
+import SearchPackage.Pair3;
+import SearchPackage.PhraseSearcher;
+import SearchPackage.QueryProcessor;
+import SearchPackage.Ranker;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +20,7 @@ public class Search {
     private List<String> goldenPages;
 
     private Ranker rank;
-    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer,Integer,Double>>> result;
+    private HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> result;
 
     public HashMap<String, Pair3<Double, String, String, String>> searchQuery(String queryToSearch) {
         goldenPages = new ArrayList<>();
@@ -22,7 +28,7 @@ public class Search {
         qp = new QueryProcessor();
         rank = new Ranker();
         result = qp.processQuery(queryToSearch, query);
-        finalResults = rank.generateRelevance(result, goldenPages,queryToSearch);
+        finalResults = rank.generateRelevance(result, goldenPages, queryToSearch);
         phraseSearcher = new PhraseSearcher(result, finalResults, goldenPages, query);
         finalResults = phraseSearcher.getOrderedDocs();
 
@@ -31,23 +37,21 @@ public class Search {
 
     public static void main(String[] args) {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
-        Search ser = new Search();
+        SearchPackage.Search ser = new SearchPackage.Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("code");
-        System.out.println(finalResults);
+        finalResults = ser.searchQuery("JavaScript");
         long end1 = System.currentTimeMillis();
         System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 
-//        for (String page : finalResults.keySet()) {
-//            System.out.println("------------------");
-//            System.out.println(page);
-//            System.out.println(finalResults.get(page).getTitle());
-//            System.out.println(finalResults.get(page).getParagraph());
-//            System.out.println("------------------");
-//        }
-
         System.out.println("================================");
         System.out.println(finalResults.size());
+        int index = 0;
+        for (String page : finalResults.keySet()) {
+            System.out.println(page + " " + finalResults.get(page));
+            index++;
+            if (index >= 10)
+                break;
+        }
         System.out.println("================================");
     }
 }
