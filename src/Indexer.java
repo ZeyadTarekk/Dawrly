@@ -53,6 +53,8 @@ public class Indexer extends ProcessString implements Runnable {
         }
         System.out.println();
 
+        long startTime = System.currentTimeMillis();
+
         invertedIndex = new HashMap<>();
         indicesOfWord = new HashMap<>();
         scoreOfWords = new HashMap<>();
@@ -91,11 +93,15 @@ public class Indexer extends ProcessString implements Runnable {
 
         // 9- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
+        long endTime_before_upload = System.currentTimeMillis();
 
+        System.out.printf("Indexer has taken without uploading to database: %d seconds\n", (endTime_before_upload - startTime)/1000);
         // 10- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
         System.out.println("Indexer has finished");
+        long endTime_after_upload = System.currentTimeMillis();
+        System.out.printf("Indexer has taken with uploading to database: %d seconds\n", (endTime_after_upload - startTime)/1000);
     }
 
     // 30
