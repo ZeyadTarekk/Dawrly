@@ -32,6 +32,8 @@ public class Indexer extends ProcessString implements Runnable {
     private static HashMap<String, Double> tagsOfHtml;
     private static HashMap<String, HashMap<String, Double>> scoreOfWords;
     private static HashMap<String, HashMap<String, List<Integer>>> indicesOfWord;
+
+    private static int document_numbers;
     // TODO: Synchronization of Threads to avoid Concurrency Exception
 
     public void startIndexing() throws InterruptedException {
@@ -53,6 +55,9 @@ public class Indexer extends ProcessString implements Runnable {
         // returns an array of all files
         fileNamesList = file.list();
 
+        // document number
+        document_numbers = fileNamesList.length;
+
         Thread[] threads = new Thread[threadNumber];
         for (int i = 0; i < threadNumber; i++) {
             threads[i] = new Thread(new Indexer());
@@ -65,12 +70,17 @@ public class Indexer extends ProcessString implements Runnable {
             threads[i].join();
         }
 
-        // 8- converted the inverted index into json format
+        // 8- calculateTF_IDF
+        calculateTF_IDF();
+
+        // 9- converted the inverted index into json format
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
-        // 9- Upload to database
+
+        // 10- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
         System.out.println("Indexer has finished");
+        System.out.println(invertedIndex);
     }
 
     // 30
@@ -339,6 +349,20 @@ public class Indexer extends ProcessString implements Runnable {
             myWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void calculateTF_IDF() {
+        for (String word : invertedIndex.keySet()) {
+            // Calculate the IDF
+            double IDF = (double) document_numbers / (double) invertedIndex.get(word).size();
+            for (String doc : invertedIndex.get(word).keySet()) {
+                // calculate the normalized tf
+                Pair<Integer, Integer, Double, Integer, Integer, Double> pair = invertedIndex.get(word).get(doc);
+                double normalizedTF = (double) pair.TF / (double) pair.size;
+                // Store the TF_IDF
+                invertedIndex.get(word).get(doc).TF_IDF = normalizedTF * IDF;
+            }
         }
     }
 }
