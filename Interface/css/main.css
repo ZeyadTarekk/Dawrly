@@ -1,20 +1,20 @@
 * { box-sizing: border-box; }
-
+/* 
 body {
-  background-color: #202124;
-}
+  background-color: #f1f1f1;
+} */
 
 .dawarha-logo {
   text-align: center;
   margin-bottom: 30px;
   font-size: 50px;
-  color: #ffffff;
+  /* color: #121212; */
   font-family: 'FontAwesome';
   letter-spacing: 12px;
 }
 .dawarha-logo-results {
   margin: 0;
-  color: #ffffff;
+  /* color: #ffffff; */
   font-family: 'FontAwesome';
   letter-spacing: 6px;
   cursor: pointer;
@@ -31,8 +31,8 @@ input {
   font-size: 16px;
 }
 input[type=text] {
-  background-color: #3f4041;
-  color: white;
+  background-color: #f1f1f1;
+  /* color: white; */
   width: 100%;
   border-radius: 7px;
   border-top-right-radius: 0;
@@ -40,8 +40,8 @@ input[type=text] {
   outline: none;
 }
 button[type=submit] {
-  background-color: #3f4041;
-  color: #82a9e8;
+  background-color: DodgerBlue;
+  color: #fff;
   border: none;
   width: 6%;
   border-radius: 6px;
@@ -50,10 +50,10 @@ button[type=submit] {
 }
 .mic-btn {
   border: none;
-  background-color: #3f4041;
+  background-color: #f1f1f1;
   font-size: 24px;
   padding: 0 10px 0 10px;
-  color: #d2f3ffc2;
+  color: #3f4041;
   cursor: pointer;
   line-height: 1.8;
 }
@@ -116,8 +116,8 @@ button[type=submit] {
 
 .search-results .card {
   border-radius: 10px;
-  box-shadow: 0px 0px 7px #000000;
-  background-color: #3f3f3f;
+  box-shadow: 0px 0px 7px #d8d5d5;
+  /* background-color: #3f3f3f; */
 }
 
 .search-results .card.hidden {
@@ -126,7 +126,7 @@ button[type=submit] {
 
 .page-title {
   text-decoration: none;
-  color: #8ab4f8;
+  color: #457bd4;
   font-size: 20px;
 }
 
@@ -134,20 +134,20 @@ button[type=submit] {
   display: block;
   font-size: 12px;
   text-decoration: none;
-  color: #b9b9b9;
+  color: #585353;
 }
 
 .card .card-text {
-  color: #dddee1;
+  /* color: #dddee1; */
 }
 
 .no-results {
   text-align: center;
-  color: #dddee1;
+  color: #f2f1f1;
   padding: 25px;
   border-radius: 7px;
-  box-shadow: 0px 0px 7px #000000;
-  background-color: #3f3f3f;
+  box-shadow: 0px 0px 7px #989393;
+  /* background-color: #3f3f3f; */
 }
 
 .no-results p {
@@ -157,7 +157,8 @@ button[type=submit] {
 .numbers {
   display: flex;
   justify-content: center;
-  color: #ffffff;
+  color: #4e3e53;
+
 }
 
 .numbers.hidden {
@@ -185,7 +186,7 @@ button[type=submit] {
 }
 
 .numbers .r-char .selected {
-  color: #c9b7cf;
+  color: #4e3e53;
 }
 
 .numbers .r-char.hidden {
@@ -195,19 +196,19 @@ button[type=submit] {
 .numbers .r-char .selected:hover {
   text-decoration: none;
   cursor: default;
-  color: #c9b7cf;
+  color: #4e3e53;
 }
 
 .numbers .r-char a {
   text-decoration: none;
   font-size: 18px;
   margin-right: 7px;
-  color: #7a7ada;
+  color: #5252ff;
   user-select: none;
   cursor: pointer;
 }
 
 .numbers .r-char a:hover {
   text-decoration: underline;
-  color: #7a7ada;
+  color: #5252ff;
 }
