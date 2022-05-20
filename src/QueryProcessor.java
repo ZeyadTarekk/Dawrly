@@ -39,6 +39,9 @@ public class QueryProcessor extends ProcessString {
         // TODO: Extract Double Quotes from stemmedWords passing to phraseSearch
         extractDoubleQuotes(query, phraseSearch);
 
+        // TODO: Remove Non-Alphanumeric characters from a query
+        query = removeNonAlphanumeric(query);
+
         // TODO: Split string into words
         List<String> words = splitWords(query);
 
@@ -98,10 +101,20 @@ public class QueryProcessor extends ProcessString {
         Pattern p = Pattern.compile("\"([^\"]*)\"");
         Matcher m = p.matcher(query);
         while (m.find()) {
-            String []words = m.group(1).split(" ");
+            String[] words = m.group(1).split(" ");
             phraseSearch.addAll(Arrays.asList(words));
         }
         convertToLower(phraseSearch);
         removeStopWords(phraseSearch);
+    }
+
+    private String removeNonAlphanumeric(String query) {
+
+        // replace the given query with empty string
+        // except the pattern "[^a-zA-Z0-9]"
+        query = query.replaceAll("[^a-zA-Z0-9]", " ");
+
+        // triming query from more than one space
+        return query.replaceAll("\\s{2,}", " ").trim();
     }
 }
