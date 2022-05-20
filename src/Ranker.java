@@ -1,9 +1,6 @@
 import org.tartarus.snowball.ext.PorterStemmer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 /*
 HOW TO USE?
@@ -197,12 +194,12 @@ public class Ranker {
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String lineRead;
                 lineRead = br.readLine();
-                if(lineRead!=null)
+                if (lineRead != null)
                     titlePage = lineRead;
                 else
-                    titlePage= "-1";
+                    titlePage = "-1";
                 lineRead = br.readLine();
-                if(lineRead!=null)
+                if (lineRead != null)
                     wholeDocument = lineRead.toLowerCase();
                 else
                     continue;
@@ -276,6 +273,7 @@ public class Ranker {
             if (bestCount > 0) {
                 bestPara = bestPara + "....";
                 bestPara = bestPara.replaceAll("<", "").replaceAll(">", "");
+                titlePage = titlePage.replaceAll("<", "").replaceAll(">", "");
                 dummyPair.setTitle(titlePage);
                 dummyPair.setParagraph(bestPara);
             } else {
