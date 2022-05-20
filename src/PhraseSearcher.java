@@ -61,8 +61,8 @@ public class PhraseSearcher {
             orderedDocs.putAll(newMap);
             orderedDocs.put(doc, tempPair2);
         }
-        System.out.println("After moving up");
-        System.out.println(orderedDocs);
+//        System.out.println("After moving up");
+//        System.out.println(orderedDocs);
     }
 
     // TODO: Implement the interface

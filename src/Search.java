@@ -30,7 +30,7 @@ public class Search {
 
     public static void main(String[] args) {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
-        SearchPackage.Search ser = new SearchPackage.Search();
+        Search ser = new Search();
         long start1 = System.currentTimeMillis();
         finalResults = ser.searchQuery("JavaScript");
         long end1 = System.currentTimeMillis();
