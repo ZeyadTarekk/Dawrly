@@ -1,4 +1,6 @@
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 /* 
 body {
   background-color: #f1f1f1;
@@ -9,15 +11,16 @@ body {
   margin-bottom: 30px;
   font-size: 50px;
   /* color: #121212; */
-  font-family: 'FontAwesome';
+  font-family: "FontAwesome";
   letter-spacing: 12px;
 }
 .dawarha-logo-results {
   margin: 0;
   /* color: #ffffff; */
-  font-family: 'FontAwesome';
+  font-family: "FontAwesome";
   letter-spacing: 6px;
   cursor: pointer;
+  /* text-transform: uppercase; */
 }
 
 .autocomplete {
@@ -30,7 +33,7 @@ input {
   padding: 10px;
   font-size: 16px;
 }
-input[type=text] {
+input[type="text"] {
   background-color: #f1f1f1;
   /* color: white; */
   width: 100%;
@@ -39,7 +42,7 @@ input[type=text] {
   border-bottom-right-radius: 0;
   outline: none;
 }
-button[type=submit] {
+button[type="submit"] {
   background-color: DodgerBlue;
   color: #fff;
   border: none;
@@ -65,12 +68,12 @@ button[type=submit] {
 }
 
 @media (max-width: 768px) {
-  button[type=submit] {
+  button[type="submit"] {
     width: 8%;
   }
 }
 @media (max-width: 576px) {
-  button[type=submit] {
+  button[type="submit"] {
     width: 14%;
   }
 }
@@ -158,7 +161,6 @@ button[type=submit] {
   display: flex;
   justify-content: center;
   color: #4e3e53;
-
 }
 
 .numbers.hidden {
@@ -211,4 +213,17 @@ button[type=submit] {
 .numbers .r-char a:hover {
   text-decoration: underline;
   color: #5252ff;
+}
+
+.logo-div {
+  /* style="display:flex ; text-align: center; margin: auto;" */
+  display: flex;
+  text-align: center;
+  margin: auto;
+}
+
+@media (max-width: 768px) {
+  .logo-div {
+    margin-bottom: 15px;
+  }
 }

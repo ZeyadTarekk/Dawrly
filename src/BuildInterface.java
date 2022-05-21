@@ -55,7 +55,15 @@ public class BuildInterface extends HttpServlet {
         page.append("  </div>\n" +
                 "\n" +
                 "  <form action=\"SearchInterface\" method=\"GET\" autocomplete=\"off\" class=\"container w-75\" style=\"margin: 150px auto 100px;\">\n" +
-                "    <h2 class=\"dawarha-logo\">Dawrha</h2>\n" +
+                "    <div>\n" +
+                "        <img\n" +
+                "          src=\"Logo2.png\"\n" +
+                "          style=\"margin: auto; display: block\"\n" +
+                "          width=\"75px\"\n" +
+                "          alt=\"Logo\"\n" +
+                "        />\n" +
+                "        <h2 class=\"dawarha-logo\">Dawrha</h2>\n" +
+                "      </div>" +
                 "\n" +
                 "    <div class=\"autocomplete\">\n" +
                 "      <input name=\"query\" id=\"myInput\" autocomplete=\"off\" type=\"text\" placeholder=\"Search\" style=\"font-size: 18px;\">\n" +

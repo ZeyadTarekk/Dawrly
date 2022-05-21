@@ -74,7 +74,10 @@ public class SearchInterface extends HttpServlet {
         //add the search bar
         page.append("  </div>\n" +
                 "  <div class=\"header-search\">\n" +
-                "    <h2 class=\"dawarha-logo-results\">Dawrha</h2>\n" +
+                "        <div class=\"logo-div\" >\n" +
+                "      <img src=\"Logo2.png\" width=\"45px\" style=\"margin-right:5px ;\" alt=\"Logo\">\n" +
+                "      <h2 class=\"dawarha-logo-results\">Dawrha</h2>\n" +
+                "    </div>\n" +
                 "    <form action=\"SearchInterface\" method=\"GET\" class=\"container w-75\" autocomplete=\"off\">\n" +
                 "      <div class=\"autocomplete\">\n" +
                 "        <input value=\"" + query + "\" name=\"query\" id=\"myInput\" autocomplete=\"off\" type=\"text\" placeholder=\"Search\">\n" +
