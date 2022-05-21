@@ -44,7 +44,24 @@ public class SearchInterface extends HttpServlet {
                 "    <link rel=\"stylesheet\" href=\"css/bootstrap.min.css\">\n" +
                 "    <link rel=\"stylesheet\" href=\"css/all.min.css\">\n" +
                 "    <link rel=\"stylesheet\" href=\"css/main.css\">\n" +
-                "    <title>" + query +  " - Dawrha Search</title>\n" +
+                " <link rel=\"manifest\" href=\"favicon/manifest.json\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"57x57\" href=\"favicon/apple-icon-57x57.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"60x60\" href=\"favicon/apple-icon-60x60.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"72x72\" href=\"favicon/apple-icon-72x72.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"76x76\" href=\"favicon/apple-icon-76x76.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"114x114\" href=\"favicon/apple-icon-114x114.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"120x120\" href=\"favicon/apple-icon-120x120.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"144x144\" href=\"favicon/apple-icon-144x144.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"152x152\" href=\"favicon/apple-icon-152x152.png\">\n" +
+                "  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"favicon/apple-icon-180x180.png\">\n" +
+                "  <link rel=\"icon\" type=\"image/png\" sizes=\"192x192\" href=\"favicon/android-icon-192x192.png\">\n" +
+                "  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"favicon/favicon-32x32.png\">\n" +
+                "  <link rel=\"icon\" type=\"image/png\" sizes=\"96x96\" href=\"favicon/favicon-96x96.png\">\n" +
+                "  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"favicon/favicon-16x16.png\">\n" +
+                "  <meta name=\"msapplication-TileColor\" content=\"#ffffff\">\n" +
+                "  <meta name=\"msapplication-TileImage\" content=\"ms-icon-144x144.png\">\n" +
+                "  <meta name=\"theme-color\" content=\"#ffffff\">" +
+                "    <title>" + query + " - Dawrha Search</title>\n" +
                 "  </head>\n" +
                 "<body>\n" +
                 "  <div class=\"suggestions\" style=\"display: none;\">");
@@ -77,7 +94,7 @@ public class SearchInterface extends HttpServlet {
                 page.append("    <div class=\"card hidden mb-3\">\n" +
                         "      <div class=\"card-body\">\n" +
                         "        <a class=\"card-title page-title\" href=\"" + link + "\" target=\"_blank\">" + Result.getTitle() + "</a>\n" +
-                        "        <a href=\"" + link  + "\" class=\"card-link link\" target=\"_blank\">" + link +"</a>\n" +
+                        "        <a href=\"" + link + "\" class=\"card-link link\" target=\"_blank\">" + link + "</a>\n" +
                         "        <p class=\"card-text\">");
 
 
