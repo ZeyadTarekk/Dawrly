@@ -1,3 +1,5 @@
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -7,9 +9,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RunGUI {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
+        copyBuildClasses();
+        Thread.sleep(100);
         runTomCat();
+        Thread.sleep(100);
         openLocalHost();
+    }
+
+    public static void copyBuildClasses() {
+        File source = new File("out\\production\\Search-Engine");
+        File dest = new File("apache-tomcat-9.0.62\\webapps\\search_engine\\WEB-INF\\classes");
+        try {
+            FileUtils.copyDirectory(source, dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void runTomCat() {
