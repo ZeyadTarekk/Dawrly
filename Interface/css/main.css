@@ -143,11 +143,11 @@ button[type=submit] {
 
 .no-results {
   text-align: center;
-  color: #f2f1f1;
+  color: #3f3f3f;
   padding: 25px;
   border-radius: 7px;
   box-shadow: 0px 0px 7px #989393;
-  /* background-color: #3f3f3f; */
+  background-color: #f2f1f1;
 }
 
 .no-results p {
