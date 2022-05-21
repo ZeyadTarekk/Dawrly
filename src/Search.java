@@ -41,7 +41,7 @@ public class Search {
         finalResults = ser.searchQuery(searchQuery);
         long end1 = System.currentTimeMillis();
         System.out.println("=======================================================");
-        System.out.printf("About %d results (%d seconds)\n", finalResults.size(), (end1 - start1));
+        System.out.printf("About %d results (%d milliseconds)\n", finalResults.size(), (end1 - start1));
         System.out.println("=======================================================");
         System.out.printf("Search results for (%s): ", searchQuery);
 
