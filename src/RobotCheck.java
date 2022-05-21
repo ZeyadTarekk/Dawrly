@@ -29,7 +29,7 @@ public class RobotCheck {
             url = new URL(protocol + "://" + serverName + "/robots.txt");
         } catch (IOException e) {
             // print exception messages
-            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
+//            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
         }
         StringBuilder robotCommands = new StringBuilder();
         if (url != null) {
@@ -47,7 +47,7 @@ public class RobotCheck {
                     robotCommands.append(readLine).append("\n");
                 }
             } catch (IOException e) {
-                System.err.println("Error happened while trying to read the content of  '" + newURL + "': " + e.getMessage());
+//                System.err.println("Error happened while trying to read the content of  '" + newURL + "': " + e.getMessage());
             }
 
 
@@ -65,10 +65,10 @@ public class RobotCheck {
                             disallowed.add(disallowedUrl);
                         }catch (Exception e) {
                             // print exception messages
-                            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
+//                            System.err.println("Error happened while trying to open '" + newURL + "': " + e.getMessage());
                         }
                     } else {
-                        System.out.println("Error no Link in disallow: ");
+//                        System.out.println("Error no Link in disallow: ");
                     }
                 }
             }
@@ -96,7 +96,7 @@ public class RobotCheck {
             serverName = targetURL.getHost();
             targetURL = new URL(protocol + "://" + serverName + "/robots.txt");
         } catch (IOException e) {
-            System.err.println("Error happened while trying to open '" + url + "': " + e.getMessage());
+//            System.err.println("Error happened while trying to open '" + url + "': " + e.getMessage());
         }
         if (targetURL != null)
             return allDisallowedLinks.get(targetURL.toString());

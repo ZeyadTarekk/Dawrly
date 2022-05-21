@@ -54,7 +54,7 @@ public class Crawler implements Runnable {
                 connection = Jsoup.connect(pageUrl);
                 htmlDocument = connection.get();
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 continue;
             }
 
@@ -133,7 +133,7 @@ public class Crawler implements Runnable {
             try {
                 threads[i].join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
 
@@ -154,7 +154,7 @@ public class Crawler implements Runnable {
             }
             myReader.close();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return Links;
     }
@@ -184,7 +184,7 @@ public class Crawler implements Runnable {
             writer.write(htmlDocument.toString());
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
     }
 
