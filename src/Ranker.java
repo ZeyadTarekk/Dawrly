@@ -208,7 +208,7 @@ public class Ranker {
                 dummyPair.setTitle("-1");
                 dummyPair.setScore(pagesScores.get(page));
                 pagesFinalScore.put(page, dummyPair);
-                e.printStackTrace();
+                // e.printStackTrace();
                 continue;
             }
 
