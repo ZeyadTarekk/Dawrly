@@ -55,8 +55,8 @@ public class RobotCheck {
             for (String arrOfWord : arrOfWords) {
                 String word = arrOfWord.trim();
                 if (word.startsWith("User-agent:")) {
-                    int indexOfChar = word.indexOf(':') + 2;
-                    userAgentStatus = word.charAt(indexOfChar) == '*';
+//                    int indexOfChar = word.indexOf(':') + 2;
+                    userAgentStatus = word.contains("*");
                 } else if (word.startsWith("Disallow:") && userAgentStatus) {
                     if (word.length() >= 11) {
                         try{
