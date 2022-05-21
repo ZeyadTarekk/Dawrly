@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 public class Search {
 
@@ -32,12 +33,18 @@ public class Search {
         HashMap<String, Pair3<Double, String, String, String>> finalResults;
         Search ser = new Search();
         long start1 = System.currentTimeMillis();
-        finalResults = ser.searchQuery("JavaScript");
-        long end1 = System.currentTimeMillis();
-        System.out.println("Elapsed Time in milli seconds: " + (end1 - start1));
 
-        System.out.println("================================");
-        System.out.println(finalResults.size());
+        System.out.print("Enter the query you want to search for: ");
+        Scanner scanner = new Scanner(System.in);
+        String searchQuery = scanner.nextLine();
+        System.out.println();
+        finalResults = ser.searchQuery(searchQuery);
+        long end1 = System.currentTimeMillis();
+        System.out.println("=======================================================");
+        System.out.printf("About %d results (%d seconds)\n", finalResults.size(), (end1 - start1));
+        System.out.println("=======================================================");
+        System.out.printf("Search results for (%s): ", searchQuery);
+
         int index = 0;
         for (String page : finalResults.keySet()) {
             System.out.println(page + " " + finalResults.get(page));
@@ -45,6 +52,6 @@ public class Search {
             if (index >= 10)
                 break;
         }
-        System.out.println("================================");
+        System.out.println("=======================================================");
     }
 }
