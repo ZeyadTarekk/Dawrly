@@ -19,7 +19,7 @@ public class RunGUI {
 
     public static void copyBuildClasses() {
         File source = new File("out\\production\\Search-Engine");
-        File dest = new File("apache-tomcat-9.0.62\\webapps\\search_engine\\WEB-INF\\classes");
+        File dest = new File("apache-tomcat-9.0.62\\webapps\\SearchEngine\\WEB-INF\\classes");
         try {
             FileUtils.copyDirectory(source, dest);
         } catch (IOException e) {
