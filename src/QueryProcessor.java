@@ -20,7 +20,7 @@ public class QueryProcessor extends ProcessString {
         List<String> phraseSearch = new ArrayList<>();
         // HOW TO USE QueryProcessor
         QueryProcessor qp = new QueryProcessor();
-        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> result = qp.processQuery("Mangaa Ingredients", phraseSearch);
+        HashMap<String, HashMap<String, Pair<Integer, Integer, Double, Integer, Integer, Double>>> result = qp.processQuery("Ingredients", phraseSearch);
         System.out.println(result);
         System.out.println(phraseSearch);
     }
@@ -86,11 +86,8 @@ public class QueryProcessor extends ProcessString {
             ArrayList<Document> v = (ArrayList<Document>) word_doc.get("documents");
             for (Document docJSON : v) {
                 Pair<Integer, Integer, Double, Integer, Integer, Double> tf_size = new Pair<>();
-                //tf_size.TF = (Integer) docJSON.get("tf");
-                //tf_size.size = (Integer) docJSON.get("size");
                 tf_size.score = (Double) docJSON.get("score");
                 tf_size.index = new ArrayList<>((ArrayList<Integer>) docJSON.get("index"));
-                //tf_size.actualIndices = new ArrayList<>((ArrayList<Integer>) docJSON.get("actualIndices"));
                 tf_size.TF_IDF = (Double) docJSON.get("TF_IDF");
                 documents.put((String) docJSON.get("document"), tf_size);
             }

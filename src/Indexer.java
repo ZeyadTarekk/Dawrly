@@ -95,13 +95,13 @@ public class Indexer extends ProcessString implements Runnable {
         invertedIndexJSON = convertInvertedIndexToJSON(invertedIndex);
         long endTime_before_upload = System.currentTimeMillis();
 
-        System.out.printf("Indexer has taken without uploading to database: %d seconds\n", (endTime_before_upload - startTime)/1000);
+        System.out.printf("Indexer has taken without uploading to database: %d seconds\n", (endTime_before_upload - startTime) / 1000);
         // 10- Upload to database
         System.out.println("Start uploading to database");
         uploadToDB(invertedIndexJSON);
         System.out.println("Indexer has finished");
         long endTime_after_upload = System.currentTimeMillis();
-        System.out.printf("Indexer has taken with uploading to database: %d seconds\n", (endTime_after_upload - startTime)/1000);
+        System.out.printf("Indexer has taken with uploading to database: %d seconds\n", (endTime_after_upload - startTime) / 1000);
     }
 
     // 30
@@ -180,8 +180,6 @@ public class Indexer extends ProcessString implements Runnable {
 
             // if document not exist then allocate a pair for it
             if (!docsMapOfWord.containsKey(docName)) {
-                if (scoreOfWords.get(docName).get(word) == null)
-                    System.out.println("Error==> " + word);
                 Pair<Integer, Integer, Double, Integer, Integer, Double> TF_Size_pair = new Pair<Integer, Integer, Double, Integer, Integer, Double>(0, stemmedWords.size(), scoreOfWords.get(docName).get(word));
                 docsMapOfWord.put(docName, TF_Size_pair);
                 TF_Size_pair.index = new ArrayList<>();
