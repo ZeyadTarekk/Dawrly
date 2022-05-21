@@ -238,24 +238,13 @@ public class Indexer extends ProcessString implements Runnable {
     }
 
     private static void uploadToDB(List<JSONObject> invertedIndexJSONParameter) {
-//        MongoClient client = MongoClients.create("mongodb+srv://mongo:Bq43gQp#mBQ-6%40S@cluster0.emwvc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority");
         com.mongodb.MongoClient client = new com.mongodb.MongoClient();
         MongoDatabase database = client.getDatabase("SearchEngine");
         MongoCollection<Document> toys = database.getCollection("invertedIndex");
-        // check if Doc is found or Not
-        // if not exists ==> insert new Doc
-        //else check if word is existed by filtration ,then replace it
         for (int i = 0; i < invertedIndexJSONParameter.size(); i++) {
             Document doc = new Document(invertedIndexJSONParameter.get(i));
-            Document found = (Document) toys.find(new Document("word", invertedIndexJSONParameter.get(i).get("word"))).first();
-            if (found != null) {
-                Bson query = eq("word", invertedIndexJSONParameter.get(i).get("word")); //filtration
-                toys.replaceOne(query, doc);
-            } else {
-                toys.insertOne(doc);
-            }
+            toys.insertOne(doc);
         }
-
     }
 
     private static synchronized void fillScoresOfTags() {
