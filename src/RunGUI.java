@@ -40,7 +40,7 @@ public class RunGUI {
 
     public static void openLocalHost() {
         try {
-            Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start chrome http://localhost:8080/search_engine"});
+            Runtime.getRuntime().exec(new String[]{"cmd", "/c", "start chrome http://localhost:8080/SearchEngine"});
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
