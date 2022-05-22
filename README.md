@@ -60,7 +60,7 @@ $ git clone https://github.com/ZeyadTarekk/Dawrly.git
 
 ### Running <a name = "running"></a>
 
-1. **_Running program_**
+**_Running program_**
 
 ```sh
 Run Crawler_Indexer_Main to start the Crawler then the Indexer
