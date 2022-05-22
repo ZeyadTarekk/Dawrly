@@ -1,6 +1,12 @@
 # Compiled class file
 *.class
 
+*.html
+apache-tomcat-9.0.62
+
+bodyFiles
+downloads
+
 .idea
 
 *.iml

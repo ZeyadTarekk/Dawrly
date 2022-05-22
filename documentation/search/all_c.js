@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['score_0',['score',['../class_pair.html#afa6e201e8b4d648956ae94714859d549',1,'Pair.score()'],['../class_pair2.html#a4b6bcd94abc8e433076c02670487d5e1',1,'Pair2.score()'],['../class_pair3.html#ace46ec8b5e9c3a44f3edfd5c0e8acea7',1,'Pair3.score()']]],
+  ['search_1',['Search',['../class_search.html',1,'']]],
+  ['search_2ejava_2',['Search.java',['../_search_8java.html',1,'']]],
+  ['searchinterface_3',['SearchInterface',['../class_search_interface.html',1,'']]],
+  ['searchinterface_2ejava_4',['SearchInterface.java',['../_search_interface_8java.html',1,'']]],
+  ['searchquery_5',['searchQuery',['../class_search.html#a0316a6fd2afb16861ce7f97a3f4f6c73',1,'Search']]],
+  ['second_6',['second',['../class_pair2.html#a7d2d8da540ad23622395b5c04dc4e443',1,'Pair2']]],
+  ['setparagraph_7',['setParagraph',['../class_pair3.html#a727fdd1010bfa494ffcdb28ce50d808a',1,'Pair3']]],
+  ['setscore_8',['setScore',['../class_pair3.html#a2c4e36775e61e65fb18a68b7cc99375c',1,'Pair3']]],
+  ['settitle_9',['setTitle',['../class_pair3.html#a7ebaf8a1d9c59a81a1cb533673bcf2f1',1,'Pair3']]],
+  ['setword_10',['setWord',['../class_pair3.html#a69f1c45337de49eebdeb040af1e811b6',1,'Pair3']]],
+  ['size_11',['size',['../class_pair.html#a997eb73650a8db712bd0a0da4548f549',1,'Pair']]],
+  ['splitwords_12',['splitWords',['../class_process_string.html#a0a0405aa1a56a00115de79feabe028bd',1,'ProcessString']]],
+  ['startindexing_13',['startIndexing',['../class_indexer.html#acaacd04b41d538fb7d38eae389f08922',1,'Indexer']]],
+  ['stemming_14',['stemming',['../class_process_string.html#ae8e0cd76867485fada14f75508988a32',1,'ProcessString']]],
+  ['stopwords_15',['stopWords',['../class_process_string.html#abf023974ec9e4f8ba6dd476ae4938e7b',1,'ProcessString']]]
+];
