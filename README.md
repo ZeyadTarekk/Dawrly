@@ -66,11 +66,11 @@ $ git clone https://github.com/ZeyadTarekk/Dawrly.git
 Run Crawler_Indexer_Main to start the Crawler then the Indexer
 ```
 ```sh
-Run Crawler_Indexer_Main to start the Crawler then the Indexer
+unzip "apache-tomcat-9.0.62.zip"
 ```
 
 ```sh
-unzip "apache-tomcat-9.0.62.zip"
+Copy the content of Interface file to "apache-tomcat-9.0.62\webapps\SearchEngine"
 ```
 
 ```sh
