@@ -86,16 +86,16 @@ Run main function in RunGUI class
 
 <div align="center">
 <h3 align='left'>Main Screen</h3>
-   <img src="screenshots/screen1.png">
+   <img src="screenshots/screen1.svg">
 <h3 align='left'>Suggestion Mechanism</h3>
-   <img  src="screenshots/screen2.png"></a>
+   <img  src="screenshots/screen2.svg"></a>
 
 <h3 align='left'>Results</h3>
-<img src="screenshots/screen3.png"></a>
+<img src="screenshots/screen3.svg"></a>
 <h3 align='left'>Pagination of results</h3>
-<img src="screenshots/screen4.png"></a>
+<img src="screenshots/screen4.svg"></a>
 <h3 align='left'>Phrase Searching</h3>
-<img src="screenshots/screen5.png"></a>
+<img src="screenshots/screen5.svg"></a>
 
 </div>
 

@@ -5,7 +5,7 @@ if (dawarhaLogo) {
     });
 }
 
-if (document.title != "Dawrha Search") {
+if (document.title != "Dawrly Search") {
     //chose which page to show
     let currentPage = 1;
 
