@@ -61,7 +61,7 @@ public class SearchInterface extends HttpServlet {
                 "  <meta name=\"msapplication-TileColor\" content=\"#ffffff\">\n" +
                 "  <meta name=\"msapplication-TileImage\" content=\"ms-icon-144x144.png\">\n" +
                 "  <meta name=\"theme-color\" content=\"#ffffff\">" +
-                "    <title>" + query + " - Dawrha Search</title>\n" +
+                "    <title>" + query + " - Dawrly Search</title>\n" +
                 "  </head>\n" +
                 "<body>\n" +
                 "  <div class=\"suggestions\" style=\"display: none;\">");
@@ -76,7 +76,7 @@ public class SearchInterface extends HttpServlet {
                 "  <div class=\"header-search\">\n" +
                 "        <div class=\"logo-div\" >\n" +
                 "      <img src=\"Logo2.png\" width=\"45px\" style=\"margin-right:5px ;\" alt=\"Logo\">\n" +
-                "      <h2 class=\"dawarha-logo-results\">Dawrha</h2>\n" +
+                "      <h2 class=\"dawarha-logo-results\">Dawrly</h2>\n" +
                 "    </div>\n" +
                 "    <form action=\"SearchInterface\" method=\"GET\" class=\"container w-75\" autocomplete=\"off\">\n" +
                 "      <div class=\"autocomplete\">\n" +

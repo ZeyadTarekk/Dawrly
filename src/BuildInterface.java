@@ -42,7 +42,7 @@ public class BuildInterface extends HttpServlet {
                 "  <meta name=\"msapplication-TileColor\" content=\"#ffffff\">\n" +
                 "  <meta name=\"msapplication-TileImage\" content=\"ms-icon-144x144.png\">\n" +
                 "  <meta name=\"theme-color\" content=\"#ffffff\">" +
-                "  <title>Dawrha Search</title>\n" +
+                "  <title>Dawrly Search</title>\n" +
                 "</head>\n" +
                 "<body>\n" +
                 "  <div class=\"suggestions\" style=\"display: none;\">\n");
@@ -62,7 +62,7 @@ public class BuildInterface extends HttpServlet {
                 "          width=\"75px\"\n" +
                 "          alt=\"Logo\"\n" +
                 "        />\n" +
-                "        <h2 class=\"dawarha-logo\">Dawrha</h2>\n" +
+                "        <h2 class=\"dawarha-logo\">Dawrly</h2>\n" +
                 "      </div>" +
                 "\n" +
                 "    <div class=\"autocomplete\">\n" +
