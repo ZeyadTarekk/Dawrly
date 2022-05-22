@@ -1,7 +1,7 @@
 <div align="center">
 <a href="https://github.com/ZeyadTarekk/Dawrly" rel="noopener">
 
-<img  src="screenshots/banner.svg"  width="100%"></a>
+<img  src="screenshots/Banner.svg"  width="100%"></a>
 
 </div>
 
